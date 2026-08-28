@@ -132,7 +132,10 @@ logica de negocio nunca conoce el proveedor concreto. Ver
 
 Conventional Commits (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`,
 `chore:`). Commits pequenos y descriptivos. Nunca force-push ni operaciones
-destructivas sin que el usuario lo pida explicitamente.
+destructivas sin que el usuario lo pida explicitamente. `main` es
+produccion y esta protegida (sin push directo); el trabajo nuevo sale de
+`develop` en ramas `feat/`, `fix/`, `chore/` y entra por Pull Request. Ver
+`docs/git-workflow.md`.
 
 ## Reglas de desarrollo
 
