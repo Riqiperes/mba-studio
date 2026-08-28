@@ -3,9 +3,10 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-08-27 (`npm install`, `build`, `lint` y
-`typecheck` verificados de punta a punta por primera vez; ambas apps
-corren localmente con `npm run dev:web` / `npm run dev:admin`).
+Ultima actualizacion: 2026-08-27 (migraciones 001-006 aplicadas al Supabase
+de desarrollo: business, profiles + rol, instructors, studio_classes,
+packages, todas con RLS; estructura de ramas Git formalizada — `main`
+protegida + `develop`).
 
 ## Completed
 
@@ -29,6 +30,14 @@ corren localmente con `npm run dev:web` / `npm run dev:admin`).
   `RECOVERY_CHECKLIST.md`.
 - `.env.example` (raiz y por app), `.gitignore`, `tsconfig.base.json` con
   TypeScript strict mode.
+- Estructura de ramas Git: `main` (produccion, protegida) y `develop`
+  (integracion), documentada en `docs/git-workflow.md`. Falta configurar
+  la proteccion real de `main` en GitHub (Settings > Branches).
+- Migraciones `001` a `006` aplicadas al proyecto de Supabase de
+  desarrollo/staging: `business`, `profiles` (+ enum `user_role`, trigger
+  de creacion automatica de profile, funciones `current_user_role()` /
+  `current_user_business_id()`), `instructors`, `studio_classes`,
+  `packages`. Todas con RLS habilitado. Ver "Migraciones existentes" abajo.
 
 ## In Progress
 
@@ -36,11 +45,10 @@ corren localmente con `npm run dev:web` / `npm run dev:admin`).
 
 ## Pending
 
-Ver `docs/roadmap.md` para el orden completo. En resumen, todo lo que es
-funcionalidad de negocio: Supabase (proyecto real, Auth, Google OAuth),
-Database + RLS, Studio (paquetes, clases, bookings, creditos, waitlist),
-Stripe, Academia, Notificaciones, WhatsApp, White-label activo, Testing,
-Deployment.
+Ver `docs/roadmap.md` para el orden completo. En resumen: Auth (email/password
++ Google OAuth), Base UI, Studio (paquetes, clases, bookings, creditos,
+waitlist), Stripe, Academia, Notificaciones, WhatsApp, White-label activo,
+Testing, Deployment (Cloudflare Pages).
 
 ## Known Issues
 
@@ -79,11 +87,13 @@ Ninguna funcionalidad de negocio todavia. Solo scaffolding de arquitectura.
 
 ## Integraciones configuradas
 
-- **Supabase**: existe un proyecto (`MBA-STUDIO`, ref `eazyblybekyygimqpjjw`,
-  region `us-east-1`) sin tablas ni migraciones todavia. Se usa como backend
-  compartido de desarrollo/staging para todo el equipo (local y previews de
-  Cloudflare Pages) — ver `docs/deployment.md`. `apps/web/.env` y
-  `apps/admin/.env` ya apuntan a este proyecto para desarrollo local.
+- **Supabase**: proyecto (`MBA-STUDIO`, ref `eazyblybekyygimqpjjw`, region
+  `us-east-1`) con 5 tablas y RLS (ver "Migraciones existentes"). Se usa
+  como backend compartido de desarrollo/staging para todo el equipo (local
+  y previews de Cloudflare Pages) — ver `docs/deployment.md`. `apps/web/.env`
+  y `apps/admin/.env` ya apuntan a este proyecto para desarrollo local.
+  Se sembro una fila en `business` (`name = 'MBA MID'`) para que el trigger
+  de registro de usuarios tenga a que negocio asignar el `profile` nuevo.
 - **Cloudflare Pages**: todavia no configurado. Plan (dos proyectos, Root
   directory = raiz del repo, preview deployments automaticos por commit)
   documentado en `docs/deployment.md`.
@@ -96,8 +106,33 @@ Ver `.env.example` en la raiz (lista completa y comentada).
 
 ## Migraciones existentes
 
-Ninguna. `supabase/migrations/` esta vacio (ver su `README.md` para la
-convencion que van a seguir las primeras migraciones).
+Aplicadas al proyecto de Supabase de desarrollo (`eazyblybekyygimqpjjw`) y
+versionadas en `supabase/migrations/`:
+
+- `001_business.sql` — tabla `business` (columnas = `BusinessConfig` de
+  `packages/shared`), RLS con lectura publica, fila sembrada `MBA MID`.
+- `002_profiles.sql` — enum `user_role`, tabla `profiles`, funciones
+  `current_user_role()` / `current_user_business_id()` (`SECURITY DEFINER`,
+  usadas por las policies de RLS para evitar recursion), trigger
+  `on_auth_user_created` que crea el `profile` automaticamente al
+  registrarse (rol `CUSTOMER` por defecto, `business_id` = el negocio
+  existente), trigger que impide que un usuario se autoasigne `role` o
+  `business_id` en un `UPDATE`, y las policies de escritura de `business`
+  (solo `BUSINESS_ADMIN`/`SUPER_ADMIN`).
+- `003_instructors.sql` — RLS: lectura publica, escritura solo staff/admin
+  del `business_id`.
+- `004_studio_classes.sql` — enum `studio_class_status`; mismo patron de RLS
+  que `instructors`.
+- `005_packages.sql` — RLS: lectura publica solo de `active = true`,
+  escritura solo staff/admin.
+- `006_harden_trigger_function_privileges.sql` — revoca `EXECUTE` de
+  `anon`/`authenticated` sobre las dos funciones de trigger (no deben
+  invocarse via RPC directo), en respuesta al advisor de seguridad de
+  Supabase corrido despues de aplicar `002`.
+
+Decision pendiente de validar con uso real: `studio_classes` e
+`instructors` son de lectura publica (catalogo/marketing) por decision
+explicita del usuario; `packages` solo expone los activos publicamente.
 
 ## Deployment actual
 
@@ -108,9 +143,12 @@ sin Edge Functions).
 
 ## Next Task
 
-1. Configurar los dos proyectos de Cloudflare Pages (`apps/web`,
-   `apps/admin`) siguiendo `docs/deployment.md`, apuntando por ahora al
-   Supabase de desarrollo/staging existente.
-2. Empezar la etapa "Database" del roadmap: migracion `001_business.sql` y
-   `002_profiles.sql`, con sus policies de RLS, sobre el proyecto de
-   Supabase existente.
+1. Configurar Google OAuth en el dashboard de Supabase (Authentication >
+   Providers > Google) y probar el flujo de registro/login real, para
+   confirmar que el trigger `on_auth_user_created` crea el `profile`
+   correctamente end-to-end (ver `docs/authentication.md`).
+2. Etapa "Authentication" del roadmap: email/password + proteccion de
+   rutas en `apps/web` y `apps/admin`.
+3. Configurar los dos proyectos de Cloudflare Pages (`apps/web`,
+   `apps/admin`) siguiendo `docs/deployment.md` — mas adelante en el
+   roadmap (paso 23), no urgente todavia.
