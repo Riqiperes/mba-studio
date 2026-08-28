@@ -141,6 +141,19 @@ versionadas en `supabase/migrations/`:
   entre negocios. Verificado con pruebas manuales (transacciones con
   `ROLLBACK`, sin dejar datos de prueba) simulando el ataque como
   `authenticated` via `request.jwt.claim.sub`.
+- `008_fix_null_actor_role_fail_open.sql` — corrige un segundo bug
+  encontrado por el review automatico sobre el commit de `007`: la
+  funcion comparaba `v_actor_role` con `<>`/`NOT IN`, que devuelven
+  `NULL` (no `TRUE`) cuando `current_user_role()` es `NULL` (actor sin
+  fila propia en `profiles`); un `IF` de plpgsql trata `NULL` como
+  `FALSE`, asi que esas ramas de bloqueo no se ejecutaban — fail-open en
+  vez de fail-closed. No hay una via de explotacion en vivo con el RLS
+  actual (las policies ya exigen que el actor tenga fila propia para
+  llegar al trigger), pero se corrigio como defensa en profundidad,
+  reemplazando las comparaciones por `IS DISTINCT FROM` (nunca devuelve
+  `NULL`). Verificado forzando `current_user_role() = NULL` y bypasseando
+  RLS a proposito (como `postgres`) para probar que el trigger se
+  protege solo, sin depender de RLS.
 
 Decision pendiente de validar con uso real: `studio_classes` e
 `instructors` son de lectura publica (catalogo/marketing) por decision
