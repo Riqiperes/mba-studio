@@ -129,6 +129,18 @@ versionadas en `supabase/migrations/`:
   `anon`/`authenticated` sobre las dos funciones de trigger (no deben
   invocarse via RPC directo), en respuesta al advisor de seguridad de
   Supabase corrido despues de aplicar `002`.
+- `007_fix_profiles_privilege_escalation.sql` — corrige un bug real de
+  privilege-escalation/tenant-isolation encontrado por el review de
+  seguridad automatico sobre el commit de `002`: la version original de
+  `prevent_profile_privilege_escalation()` solo bloqueaba cambios de
+  `role`/`business_id` cuando el actor NO era `BUSINESS_ADMIN`/`SUPER_ADMIN`,
+  lo que permitia que un `BUSINESS_ADMIN` se auto-ascendiera a
+  `SUPER_ADMIN`, ascendiera a otro usuario de su negocio a `SUPER_ADMIN`, o
+  moviera su propio profile a otro `business_id`. Ahora solo un
+  `SUPER_ADMIN` existente puede otorgar `SUPER_ADMIN` o mover un profile
+  entre negocios. Verificado con pruebas manuales (transacciones con
+  `ROLLBACK`, sin dejar datos de prueba) simulando el ataque como
+  `authenticated` via `request.jwt.claim.sub`.
 
 Decision pendiente de validar con uso real: `studio_classes` e
 `instructors` son de lectura publica (catalogo/marketing) por decision
