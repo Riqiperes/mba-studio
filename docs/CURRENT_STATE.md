@@ -3,10 +3,11 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-08-27 (migraciones 001-006 aplicadas al Supabase
+Ultima actualizacion: 2026-08-28 (migraciones 001-008 aplicadas al Supabase
 de desarrollo: business, profiles + rol, instructors, studio_classes,
-packages, todas con RLS; estructura de ramas Git formalizada — `main`
-protegida + `develop`).
+packages, todas con RLS; mas dos fixes de seguridad sobre `profiles`
+—privilege-escalation en `007` y fail-open con `NULL` en `008`—; estructura
+de ramas Git formalizada — `main` protegida + `develop`).
 
 ## Completed
 
@@ -33,15 +34,21 @@ protegida + `develop`).
 - Estructura de ramas Git: `main` (produccion, protegida) y `develop`
   (integracion), documentada en `docs/git-workflow.md`. Falta configurar
   la proteccion real de `main` en GitHub (Settings > Branches).
-- Migraciones `001` a `006` aplicadas al proyecto de Supabase de
+- Migraciones `001` a `008` aplicadas al proyecto de Supabase de
   desarrollo/staging: `business`, `profiles` (+ enum `user_role`, trigger
   de creacion automatica de profile, funciones `current_user_role()` /
   `current_user_business_id()`), `instructors`, `studio_classes`,
-  `packages`. Todas con RLS habilitado. Ver "Migraciones existentes" abajo.
+  `packages`, mas el endurecimiento de privilegios de `006` y los dos
+  fixes de seguridad de `007`/`008` sobre `profiles`. Todas con RLS
+  habilitado. Ver "Migraciones existentes" abajo.
+- Rama `feat/database-schema-rls` completa (migraciones 001-008,
+  commits hasta `83d5906`) y pusheada a GitHub; falta abrir el Pull
+  Request hacia `develop` (ver "Next Task").
 
 ## In Progress
 
-- Nada activamente en progreso. Proximo paso: ver "Next Task" abajo.
+- Nada activamente en progreso. `feat/database-schema-rls` esta lista
+  para PR. Proximo paso: ver "Next Task" abajo.
 
 ## Pending
 
@@ -168,12 +175,17 @@ sin Edge Functions).
 
 ## Next Task
 
-1. Configurar Google OAuth en el dashboard de Supabase (Authentication >
+1. Abrir el Pull Request de `feat/database-schema-rls` hacia `develop`
+   (con `gh pr create --base develop --head feat/database-schema-rls`, o
+   manualmente en
+   https://github.com/Riqiperes/mba-studio/pull/new/feat/database-schema-rls)
+   y mergearlo una vez revisado.
+2. Configurar Google OAuth en el dashboard de Supabase (Authentication >
    Providers > Google) y probar el flujo de registro/login real, para
    confirmar que el trigger `on_auth_user_created` crea el `profile`
    correctamente end-to-end (ver `docs/authentication.md`).
-2. Etapa "Authentication" del roadmap: email/password + proteccion de
+3. Etapa "Authentication" del roadmap: email/password + proteccion de
    rutas en `apps/web` y `apps/admin`.
-3. Configurar los dos proyectos de Cloudflare Pages (`apps/web`,
+4. Configurar los dos proyectos de Cloudflare Pages (`apps/web`,
    `apps/admin`) siguiendo `docs/deployment.md` — mas adelante en el
    roadmap (paso 23), no urgente todavia.
