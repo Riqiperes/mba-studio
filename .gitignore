@@ -38,3 +38,7 @@ supabase/.temp/
 
 # TypeScript
 *.tsbuildinfo
+
+# Claude Code / superpowers scratch state
+.worktrees/
+.superpowers/
