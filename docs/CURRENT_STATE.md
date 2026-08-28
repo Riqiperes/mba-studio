@@ -3,13 +3,14 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-08-28 (Google OAuth login implementado en
-`apps/web` — rama `feat/auth-google-oauth-web` —, con el cliente de
-Supabase ahora tipado con `Database`; mas migraciones 001-008 aplicadas al
-Supabase de desarrollo: business, profiles + rol, instructors,
-studio_classes, packages, todas con RLS; mas dos fixes de seguridad sobre
-`profiles` —privilege-escalation en `007` y fail-open con `NULL` en `008`—;
-estructura de ramas Git formalizada — `main` protegida + `develop`).
+Ultima actualizacion: 2026-08-28 (login con email/password agregado en
+`apps/web` — rama `feat/email-password-auth` —, junto al ya existente
+Google OAuth; ambos verificados de punta a punta con cuentas reales; mas
+migraciones 001-008 aplicadas al Supabase de desarrollo: business, profiles
++ rol, instructors, studio_classes, packages, todas con RLS; mas dos fixes
+de seguridad sobre `profiles` —privilege-escalation en `007` y fail-open
+con `NULL` en `008`—; estructura de ramas Git formalizada — `main`
+protegida + `develop`).
 
 ## Completed
 
@@ -60,14 +61,29 @@ estructura de ramas Git formalizada — `main` protegida + `develop`).
   `SignOutButton.tsx`; `routes/RequireAuth.tsx` (guarda minima por sesion,
   sin rol todavia); `pages/LoginPage.tsx` y `pages/HomePage.tsx`; y
   `App.tsx` montando `BrowserRouter` + `AuthProvider` + rutas `/login` y
-  `/` (protegida). Falta el prerequisito manual de configurar el proveedor
-  Google en el dashboard de Supabase para probar el flujo con una cuenta
-  real (ver "Next Task").
+  `/` (protegida).
+- Login con email/password en `apps/web` (rama `feat/email-password-auth`),
+  alternando con Google en la misma `/login` sin cambiar de ruta.
+  `authService.ts` gana `signUpWithEmail(email, password, fullName)` y
+  `signInWithEmail(email, password)`, mismo patron throw-on-error que el
+  resto del servicio; `full_name` viaja en `options.data` de `signUp`, que
+  el trigger `handle_new_user()` ya lee, sin tocar SQL. Formulario nuevo
+  `EmailPasswordForm.tsx` con validacion `zod` (email valido, contrasena
+  >= 8 caracteres) y `noValidate` en el `<form>` — sin eso, la validacion
+  nativa del navegador bloqueaba el submit antes de que corriera la de
+  `zod` (bug real encontrado probando en vivo, no solo compilando).
+  Mensajes de error mapeados para `Invalid login credentials`, `User
+  already registered` y `Email not confirmed`. Probado de punta a punta
+  con una cuenta real via alias `+` de Gmail: registro, deteccion correcta
+  de "correo sin confirmar" al intentar entrar antes de confirmar, y
+  `profile` creado igual que con Google (verificado en Supabase, cuenta de
+  prueba borrada despues).
 
 ## In Progress
 
-- Nada activamente en progreso. Todo mergeado a `develop`. Proximo paso:
-  ver "Next Task" abajo.
+- `feat/email-password-auth` implementada y verificada localmente, falta
+  abrir el PR hacia `develop` y mergearlo. Proximo paso: ver "Next Task"
+  abajo.
 
 ## Pending
 
@@ -201,18 +217,14 @@ sin Edge Functions).
 ## Next Task
 
 PR #1 (migraciones) y PR #2 (Google OAuth en `apps/web`) ya mergeados a
-`develop`. Google OAuth configurado en el dashboard de Supabase y
-verificado end-to-end con una cuenta real (2026-08-28): login con
-`riqiperes14@gmail.com`, `auth.users` creado, trigger
-`on_auth_user_created` creo el `profile` correctamente (`role =
-CUSTOMER`, `business_id` = negocio `MBA MID`, `full_name` desde los
-metadatos de Google). El flujo de Google OAuth queda cerrado y probado
-de punta a punta, no solo compilando.
+`develop`, ambos verificados end-to-end con cuentas reales (Google:
+`riqiperes14@gmail.com`; email/password: alias `+` de la misma cuenta).
 
-1. Resto de la etapa "Authentication" del roadmap: email/password,
-   recuperacion de contrasena, verificacion de email, login en
-   `apps/admin`, y proteccion de rutas por rol (hoy `RequireAuth` solo
-   protege por "hay sesion o no").
-2. Configurar los dos proyectos de Cloudflare Pages (`apps/web`,
+1. Abrir el PR de `feat/email-password-auth` hacia `develop` y mergearlo.
+2. Resto de la etapa "Authentication" del roadmap: recuperacion de
+   contrasena, reenvio de verificacion de email, login en `apps/admin`, y
+   proteccion de rutas por rol (hoy `RequireAuth` solo protege por "hay
+   sesion o no").
+3. Configurar los dos proyectos de Cloudflare Pages (`apps/web`,
    `apps/admin`) siguiendo `docs/deployment.md` — mas adelante en el
    roadmap (paso 23), no urgente todavia.

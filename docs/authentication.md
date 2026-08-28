@@ -70,7 +70,26 @@ flujo se verifico de punta a punta con una cuenta real (2026-08-28): login
 exitoso, fila creada en `auth.users`, y el trigger `on_auth_user_created`
 creo el `profile` correspondiente automaticamente.
 
-Todavia NO implementado: email/password, recuperacion de contrasena,
+Registro e inicio de sesion con email/password tambien implementado en
+`apps/web`: mismo `/login`, con un formulario (`EmailPasswordForm.tsx`)
+debajo del boton de Google que alterna entre "Iniciar sesion" y "Crear
+cuenta" sin cambiar de ruta. Agrega a `authService.ts`
+`signUpWithEmail(email, password, fullName)` y
+`signInWithEmail(email, password)`, mismo patron throw-on-error que el
+resto del servicio. Validacion de formato con `zod` (email valido,
+contrasena minimo 8 caracteres) — el `<form>` usa `noValidate` para que la
+validacion nativa del navegador no bloquee el submit antes de que corra la
+de `zod`. Si Supabase requiere confirmar el correo (el caso de este
+proyecto), `signUpWithEmail` no devuelve sesion y la UI muestra "revisa tu
+correo" en vez de navegar; `AuthProvider` sigue siendo el unico que
+reacciona a que haya sesion o no, sin cambios ahi. Errores comunes de
+Supabase (`Invalid login credentials`, `User already registered`, `Email
+not confirmed`) se mapean a mensajes en espanol; probado de punta a punta
+con una cuenta real via alias `+` de Gmail (2026-08-28): registro,
+confirmacion pendiente detectada correctamente al intentar entrar antes de
+confirmar, `profile` creado igual que con Google.
+
+Todavia NO implementado: recuperacion de contrasena, reenvio de
 verificacion de email, login en `apps/admin`, y proteccion de rutas por rol
 (`RequireAuth` solo protege por "hay sesion o no"; la proteccion real de
 datos la sigue haciendo RLS).
