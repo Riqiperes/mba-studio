@@ -3,11 +3,13 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-08-28 (migraciones 001-008 aplicadas al Supabase
-de desarrollo: business, profiles + rol, instructors, studio_classes,
-packages, todas con RLS; mas dos fixes de seguridad sobre `profiles`
-—privilege-escalation en `007` y fail-open con `NULL` en `008`—; estructura
-de ramas Git formalizada — `main` protegida + `develop`).
+Ultima actualizacion: 2026-08-28 (Google OAuth login implementado en
+`apps/web` — rama `feat/auth-google-oauth-web` —, con el cliente de
+Supabase ahora tipado con `Database`; mas migraciones 001-008 aplicadas al
+Supabase de desarrollo: business, profiles + rol, instructors,
+studio_classes, packages, todas con RLS; mas dos fixes de seguridad sobre
+`profiles` —privilege-escalation en `007` y fail-open con `NULL` en `008`—;
+estructura de ramas Git formalizada — `main` protegida + `develop`).
 
 ## Completed
 
@@ -44,6 +46,22 @@ de ramas Git formalizada — `main` protegida + `develop`).
 - Rama `feat/database-schema-rls` completa (migraciones 001-008,
   commits hasta `83d5906`) y pusheada a GitHub; falta abrir el Pull
   Request hacia `develop` (ver "Next Task").
+- Rama `feat/auth-google-oauth-web`: Google OAuth ("Continuar con Google")
+  funcionando de punta a punta en `apps/web`, siguiendo el spec de
+  `docs/superpowers/specs/2026-08-28-google-oauth-web-design.md`. Incluye:
+  `lib/supabaseClient.ts` (cliente unico, ahora tipado con
+  `createClient<Database>` usando los tipos generados en
+  `lib/database.types.ts`); `features/auth/services/authService.ts`
+  (`signInWithGoogle`, `signOut`, `getProfile`, `subscribeToAuthChanges` —
+  unico punto que llama a `supabase.auth.*`); `features/auth/hooks/AuthProvider.tsx`
+  + `useAuth()` (Context de sesion, carga automatica del `profile` al
+  autenticarse); `features/auth/components/GoogleSignInButton.tsx` y
+  `SignOutButton.tsx`; `routes/RequireAuth.tsx` (guarda minima por sesion,
+  sin rol todavia); `pages/LoginPage.tsx` y `pages/HomePage.tsx`; y
+  `App.tsx` montando `BrowserRouter` + `AuthProvider` + rutas `/login` y
+  `/` (protegida). Falta el prerequisito manual de configurar el proveedor
+  Google en el dashboard de Supabase para probar el flujo con una cuenta
+  real (ver "Next Task").
 
 ## In Progress
 
@@ -90,7 +108,13 @@ Testing, Deployment (Cloudflare Pages).
 
 ## Funcionalidades implementadas
 
-Ninguna funcionalidad de negocio todavia. Solo scaffolding de arquitectura.
+- Login con Google (Google OAuth via Supabase Auth) en `apps/web`, con
+  sesion persistida, carga automatica del `profile` y logout — ver
+  "Completed" arriba. Falta configurar el provider en Supabase para
+  probarlo con una cuenta real.
+
+Ninguna funcionalidad de negocio (Studio/Academia) todavia. El resto sigue
+siendo scaffolding de arquitectura.
 
 ## Integraciones configuradas
 
@@ -179,13 +203,19 @@ sin Edge Functions).
    (con `gh pr create --base develop --head feat/database-schema-rls`, o
    manualmente en
    https://github.com/Riqiperes/mba-studio/pull/new/feat/database-schema-rls)
-   y mergearlo una vez revisado.
+   y mergearlo una vez revisado; lo mismo para `feat/auth-google-oauth-web`
+   una vez revisada.
 2. Configurar Google OAuth en el dashboard de Supabase (Authentication >
-   Providers > Google) y probar el flujo de registro/login real, para
+   Providers > Google) siguiendo el "Prerequisito manual" de
+   `docs/superpowers/specs/2026-08-28-google-oauth-web-design.md` (y
+   `docs/authentication.md`), y probar el flujo de login real, para
    confirmar que el trigger `on_auth_user_created` crea el `profile`
-   correctamente end-to-end (ver `docs/authentication.md`).
-3. Etapa "Authentication" del roadmap: email/password + proteccion de
-   rutas en `apps/web` y `apps/admin`.
+   correctamente end-to-end. Es el bloqueante actual antes de poder probar
+   `feat/auth-google-oauth-web` con una cuenta real.
+3. Resto de la etapa "Authentication" del roadmap: email/password,
+   recuperacion de contrasena, verificacion de email, login en
+   `apps/admin`, y proteccion de rutas por rol (hoy `RequireAuth` solo
+   protege por "hay sesion o no").
 4. Configurar los dos proyectos de Cloudflare Pages (`apps/web`,
    `apps/admin`) siguiendo `docs/deployment.md` — mas adelante en el
    roadmap (paso 23), no urgente todavia.
