@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+/*
+ * Tokens de marca (white-label). Estos valores por defecto corresponden a
+ * MBA MID; cuando exista configuracion de negocio en base de datos
+ * (docs/white-label.md), estos tokens se sobreescribiran en runtime.
+ */
+@theme {
+  --color-brand-primary: #111827;
+  --color-brand-accent: #d97706;
+}
+
+body {
+  @apply min-h-screen bg-white text-gray-900 antialiased;
+}

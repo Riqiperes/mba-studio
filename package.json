@@ -1,0 +1,27 @@
+{
+  "name": "mba-studio",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Plataforma de membresias y reservaciones para MBA MID (Studio de Pilates y Academia de Ballet/Danza).",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace apps/web",
+    "dev:admin": "npm run dev --workspace apps/admin",
+    "build": "npm run build --workspace apps/web && npm run build --workspace apps/admin",
+    "build:web": "npm run build --workspace apps/web",
+    "build:admin": "npm run build --workspace apps/admin",
+    "lint": "npm run lint --workspace apps/web && npm run lint --workspace apps/admin",
+    "typecheck": "npm run typecheck --workspace apps/web && npm run typecheck --workspace apps/admin",
+    "test": "npm run test --workspace apps/web --if-present && npm run test --workspace apps/admin --if-present"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

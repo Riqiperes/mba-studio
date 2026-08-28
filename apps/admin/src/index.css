@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #111827;
+  --color-brand-accent: #d97706;
+}
+
+body {
+  @apply min-h-screen bg-gray-50 text-gray-900 antialiased;
+}

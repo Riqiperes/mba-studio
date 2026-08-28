@@ -1,0 +1,50 @@
+# Roadmap
+
+Orden recomendado de construccion incremental. Cada etapa debe dejar el
+proyecto funcionando (build verde) antes de pasar a la siguiente.
+
+1. Repository — hecho (repo Git conectado a GitHub).
+2. Project configuration — **en progreso**: scaffolding del monorepo,
+   `CLAUDE.md`, `docs/`, configuracion base de TypeScript/ESLint/Tailwind.
+3. Supabase — crear proyecto, configurar Auth, obtener URL/anon key.
+4. Database — primeras migraciones (`business`, `profiles`, `instructors`,
+   `studio_classes`, `packages`).
+5. RLS — policies para las tablas anteriores.
+6. Authentication — email/password + proteccion de rutas.
+7. Google OAuth — "Continuar con Google".
+8. Base UI — layouts, navegacion, componentes compartidos minimos.
+9. Studio packages — CRUD de paquetes (admin) + catalogo (cliente).
+10. Studio classes — CRUD de clases (admin) + calendario (cliente).
+11. Bookings — reservar/cancelar clase.
+12. Credits — otorgar/consumir/devolver creditos, ligado a bookings y
+    payments.
+13. Waitlist — lista de espera con orden determinista.
+14. Stripe — Checkout + Webhook + idempotencia.
+15. Payments — historial de pagos (cliente y admin).
+16. User dashboard — perfil, creditos, proximas clases, historial.
+17. Admin dashboard — metricas generales.
+18. Academy — inscripciones, grupos, horarios, colegiaturas, bajas.
+19. Notifications — generacion de eventos de notificacion (email primero).
+20. WhatsApp — proveedor real (Meta/Twilio/UltraMsg) detras de la
+    abstraccion ya preparada.
+21. White-label configuration — tabla `business` consumida por la UI (ver
+    `docs/white-label.md`).
+22. Testing — tests de las reglas criticas listadas en `docs/testing.md`.
+23. Deployment — Cloudflare Pages + Supabase produccion (ver
+    `docs/deployment.md`).
+24. Documentation — mantener `docs/` y `CLAUDE.md` al dia con lo
+    implementado.
+25. Recovery verification — validar que `docs/PROJECT_RECOVERY.md` funciona
+    de verdad clonando en un entorno limpio.
+
+## Decisiones pendientes (no implementar hasta decidir con el negocio)
+
+- Ventana exacta de cancelacion de reservaciones (devuelve credito o no).
+- Ventana de confirmacion al liberarse un cupo en lista de espera.
+- Dias de gracia antes de marcar una colegiatura como "pago atrasado".
+- Proveedor de WhatsApp definitivo (Meta / Twilio / UltraMsg) para
+  produccion.
+- Proveedor de email definitivo.
+
+Cuando se decidan, documentar el valor en `docs/business-rules.md` en el
+mismo cambio que se implemente.
