@@ -55,8 +55,8 @@ frontend es UX, no seguridad.
 
 ## Estado actual
 
-Google OAuth implementado en `apps/web` (rama `feat/auth-google-oauth-web`):
-pagina `/login` con boton "Continuar con Google" que llama
+Google OAuth implementado en `apps/web` y mergeado a `develop`: pagina
+`/login` con boton "Continuar con Google" que llama
 `authService.signInWithGoogle()`; estado de sesion global via
 `AuthProvider`/`useAuth()` (`features/auth/hooks/AuthProvider.tsx`), que se
 suscribe a los cambios de sesion y carga el `profile` automaticamente al
@@ -65,9 +65,12 @@ que redirige a `/login` sin sesion; y logout via `SignOutButton`. Detalle
 completo del diseno en
 `docs/superpowers/specs/2026-08-28-google-oauth-web-design.md`.
 
+El proveedor de Google ya esta configurado en el dashboard de Supabase, y el
+flujo se verifico de punta a punta con una cuenta real (2026-08-28): login
+exitoso, fila creada en `auth.users`, y el trigger `on_auth_user_created`
+creo el `profile` correspondiente automaticamente.
+
 Todavia NO implementado: email/password, recuperacion de contrasena,
 verificacion de email, login en `apps/admin`, y proteccion de rutas por rol
 (`RequireAuth` solo protege por "hay sesion o no"; la proteccion real de
-datos la sigue haciendo RLS). Falta ademas configurar el proveedor Google en
-el dashboard de Supabase (prerequisito manual, ver seccion de arriba) antes
-de poder probar el flujo con una cuenta real.
+datos la sigue haciendo RLS).

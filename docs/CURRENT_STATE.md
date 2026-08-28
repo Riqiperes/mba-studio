@@ -43,10 +43,11 @@ estructura de ramas Git formalizada — `main` protegida + `develop`).
   `packages`, mas el endurecimiento de privilegios de `006` y los dos
   fixes de seguridad de `007`/`008` sobre `profiles`. Todas con RLS
   habilitado. Ver "Migraciones existentes" abajo.
-- Rama `feat/database-schema-rls` completa (migraciones 001-008,
-  commits hasta `83d5906`) y pusheada a GitHub; falta abrir el Pull
-  Request hacia `develop` (ver "Next Task").
-- Rama `feat/auth-google-oauth-web`: Google OAuth ("Continuar con Google")
+- PR #1 (`feat/database-schema-rls`, migraciones 001-008) y PR #2
+  (`feat/auth-google-oauth-web`) mergeados a `develop` (PR #2 se
+  retargeteo de `feat/database-schema-rls` a `develop` una vez el #1
+  entro). Ambas ramas borradas (local y remoto) despues del merge.
+- Google OAuth ("Continuar con Google")
   funcionando de punta a punta en `apps/web`, siguiendo el spec de
   `docs/superpowers/specs/2026-08-28-google-oauth-web-design.md`. Incluye:
   `lib/supabaseClient.ts` (cliente unico, ahora tipado con
@@ -65,8 +66,8 @@ estructura de ramas Git formalizada — `main` protegida + `develop`).
 
 ## In Progress
 
-- Nada activamente en progreso. `feat/database-schema-rls` esta lista
-  para PR. Proximo paso: ver "Next Task" abajo.
+- Nada activamente en progreso. Todo mergeado a `develop`. Proximo paso:
+  ver "Next Task" abajo.
 
 ## Pending
 
@@ -199,23 +200,19 @@ sin Edge Functions).
 
 ## Next Task
 
-1. Abrir el Pull Request de `feat/database-schema-rls` hacia `develop`
-   (con `gh pr create --base develop --head feat/database-schema-rls`, o
-   manualmente en
-   https://github.com/Riqiperes/mba-studio/pull/new/feat/database-schema-rls)
-   y mergearlo una vez revisado; lo mismo para `feat/auth-google-oauth-web`
-   una vez revisada.
-2. Configurar Google OAuth en el dashboard de Supabase (Authentication >
-   Providers > Google) siguiendo el "Prerequisito manual" de
-   `docs/superpowers/specs/2026-08-28-google-oauth-web-design.md` (y
-   `docs/authentication.md`), y probar el flujo de login real, para
-   confirmar que el trigger `on_auth_user_created` crea el `profile`
-   correctamente end-to-end. Es el bloqueante actual antes de poder probar
-   `feat/auth-google-oauth-web` con una cuenta real.
-3. Resto de la etapa "Authentication" del roadmap: email/password,
+PR #1 (migraciones) y PR #2 (Google OAuth en `apps/web`) ya mergeados a
+`develop`. Google OAuth configurado en el dashboard de Supabase y
+verificado end-to-end con una cuenta real (2026-08-28): login con
+`riqiperes14@gmail.com`, `auth.users` creado, trigger
+`on_auth_user_created` creo el `profile` correctamente (`role =
+CUSTOMER`, `business_id` = negocio `MBA MID`, `full_name` desde los
+metadatos de Google). El flujo de Google OAuth queda cerrado y probado
+de punta a punta, no solo compilando.
+
+1. Resto de la etapa "Authentication" del roadmap: email/password,
    recuperacion de contrasena, verificacion de email, login en
    `apps/admin`, y proteccion de rutas por rol (hoy `RequireAuth` solo
    protege por "hay sesion o no").
-4. Configurar los dos proyectos de Cloudflare Pages (`apps/web`,
+2. Configurar los dos proyectos de Cloudflare Pages (`apps/web`,
    `apps/admin`) siguiendo `docs/deployment.md` — mas adelante en el
    roadmap (paso 23), no urgente todavia.
