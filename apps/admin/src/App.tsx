@@ -3,6 +3,7 @@ import { AuthProvider } from "@/features/auth/hooks/AuthProvider";
 import { RequireAuth } from "@/routes/RequireAuth";
 import { LoginPage } from "@/pages/LoginPage";
 import { HomePage } from "@/pages/HomePage";
+import { InstructorsPage } from "@/pages/InstructorsPage";
 
 function App() {
   return (
@@ -15,6 +16,14 @@ function App() {
             element={
               <RequireAuth>
                 <HomePage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/instructors"
+            element={
+              <RequireAuth>
+                <InstructorsPage />
               </RequireAuth>
             }
           />
