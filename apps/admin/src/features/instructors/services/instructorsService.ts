@@ -61,7 +61,7 @@ export async function updateInstructor(
   id: string,
   input: { fullName?: string; bio?: string | null; photoUrl?: string | null },
 ): Promise<Instructor> {
-  const updateData: Record<string, string | null> = {};
+  const updateData: { full_name?: string; bio?: string | null; photo_url?: string | null } = {};
 
   if (input.fullName !== undefined) updateData.full_name = input.fullName;
   if (input.bio !== undefined) updateData.bio = input.bio;
@@ -69,7 +69,7 @@ export async function updateInstructor(
 
   const { data, error } = await supabase
     .from("instructors")
-    .update(updateData as any)
+    .update(updateData)
     .eq("id", id)
     .select(SELECT_COLUMNS)
     .single();
