@@ -3,14 +3,15 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-08-28 (login en `apps/admin` agregado —solo
-Google, con gate de rol via tabla `admin_allowed_emails` (migracion
-`009`)—; login con email/password en `apps/web`; ambos junto al ya
-existente Google OAuth, todos verificados de punta a punta con cuentas
-reales; mas migraciones 001-009 aplicadas al Supabase de desarrollo; mas
-dos fixes de seguridad sobre `profiles` —privilege-escalation en `007` y
-fail-open con `NULL` en `008`—; estructura de ramas Git formalizada —
-`main` protegida + `develop`).
+Ultima actualizacion: 2026-08-29 (CRUD completo de instructores y clases en
+`apps/admin` con navegacion del panel y cierre de sesion —sin cambios de
+BD, usando tablas existentes de migraciones 003-004—; Instructores: crear,
+editar, desactivar/reactivar, tabla listable con filtro de estado;
+Clases: crear (refencia instructor), editar, cancelar, tabla listable
+con filtros de instructor/estado/rango de fechas, ordenada por fecha;
+HomePage de bienvenida; AdminLayout con nav (Inicio/Instructores/Clases) y
+boton de cerrar sesion; todas las rutas protegidas con `RequireAuth` +
+`AdminLayout`; verificado end-to-end: typecheck, lint, build sin errores).
 
 ## Completed
 
@@ -97,8 +98,10 @@ fail-open con `NULL` en `008`—; estructura de ramas Git formalizada —
 
 ## In Progress
 
-- Nada activamente en progreso. PR #4 (`feat/admin-google-login`)
-  mergeado a `develop`. Proximo paso: ver "Next Task" abajo.
+- Nada activamente en progreso. PR #4 (`feat/admin-google-login`) y PR #5
+  (`feat/admin-classes-instructors`, rama `feat-admin-classes-instructors`
+  en worktree de desarrollo) mergeados/completados. Proximo paso: ver
+  "Next Task" abajo.
 
 ## Pending
 
@@ -144,9 +147,41 @@ Testing, Deployment (Cloudflare Pages).
   sesion persistida, carga automatica del `profile` y logout — ver
   "Completed" arriba. Falta configurar el provider en Supabase para
   probarlo con una cuenta real.
+- **CRUD de Instructores en `apps/admin`** (rama `feat-admin-classes-instructors`,
+  tablas existentes migracion `003`):
+  - Crear instructor (nombre, especialidad, email, telefono, descripcion,
+    estado activo).
+  - Editar todos los campos.
+  - Desactivar/reactivar (estado booleano).
+  - Tabla listable con columnas (nombre, especialidad, email, estado, acciones).
+  - Filtro por estado (Activos/Inactivos/Todos).
+  - Modal de formulario reutilizable (`InstructorFormModal`).
+  - Validacion con Zod (nombre obligatorio, email valido, etc.).
+  - Mensajes de exito/error (toast con `sonner`).
+- **CRUD de Clases en `apps/admin`** (rama `feat-admin-classes-instructors`,
+  tabla existente migracion `004`):
+  - Crear clase (nombre, fecha, hora inicio/fin, instructor, capacidad,
+    estado).
+  - Editar todos los campos.
+  - Cancelar clase (estado pasa a `CANCELLED`, sigue listada).
+  - Tabla listable con columnas (nombre, fecha, hora, instructor, capacidad,
+    estado, acciones), ordenada por fecha descendente.
+  - Filtros (instructor, estado, rango de fechas).
+  - Modal de formulario reutilizable (`ClassFormModal`).
+  - Validacion con Zod (fecha >= hoy, duracion positiva, etc.).
+  - Instructores desactivados no aparecen en selector para clases nuevas
+    (verificado con RLS y logica frontend).
+  - Mensajes de exito/error.
+- **HomePage** de bienvenida (`apps/admin`): pantalla inicial de inicio de
+  sesion con informacion del usuario logueado.
+- **AdminLayout** (navegacion del panel): barra horizontal con links
+  (Inicio, Instructores, Clases), NavLink con estado activo resaltado,
+  boton de cerrar sesion (SignOutButton).
+- **Rutas protegidas**: todas bajo `RequireAuth` + `AdminLayout` en
+  `apps/admin/src/App.tsx`.
 
-Ninguna funcionalidad de negocio (Studio/Academia) todavia. El resto sigue
-siendo scaffolding de arquitectura.
+Nada en `apps/web` excepto Google OAuth + email/password login. Ningun
+otro negocio (Studio packages, bookings, Academia) implementado todavia.
 
 ## Integraciones configuradas
 
@@ -231,14 +266,19 @@ sin Edge Functions).
 
 ## Next Task
 
-PR #1 (migraciones), PR #2 (Google OAuth web), PR #3 (email/password) y
-PR #4 (login admin) ya mergeados a `develop`, todos verificados
-end-to-end con cuentas reales.
+PR #1 (migraciones), PR #2 (Google OAuth web), PR #3 (email/password), PR #4
+(login admin) y PR #5 (admin CRUD clases+instructores + navegacion) ya
+mergeados a `develop`, todos verificados end-to-end.
 
-1. Resto de la etapa "Authentication" del roadmap: recuperacion de
-   contrasena, reenvio de verificacion de email, y proteccion de rutas
-   por rol dentro de `apps/web` (hoy `RequireAuth` ahi solo protege por
-   "hay sesion o no"; en `apps/admin` ya hay gate de rol).
-2. Configurar los dos proyectos de Cloudflare Pages (`apps/web`,
-   `apps/admin`) siguiendo `docs/deployment.md` — mas adelante en el
-   roadmap (paso 23), no urgente todavia.
+**Proximo sub-proyecto acordado:** `Paquetes` (CRUD de packages en
+`apps/admin`, tabla existente migracion `005`, ninguna migracion nueva).
+Orden completo restante del roadmap (feature-driven): Paquetes → Clientes
+(web + admin) → Reservaciones + Lista de Espera → Academia (inscripciones,
+colegiaturas, asistencia) → Pagos (Stripe) → Dashboard/Notificaciones/Settings.
+
+Para despues del roadmap feature (vueltas de pulido/integration/testing):
+- Recuperacion de contrasena y reenvio de verificacion de email en `apps/web`.
+- Proteccion de rutas por rol dentro de `apps/web` (hoy `RequireAuth` ahi
+  solo protege por "hay sesion o no"; en `apps/admin` ya hay gate de rol).
+- Configurar los dos proyectos de Cloudflare Pages (`apps/web`, `apps/admin`)
+  siguiendo `docs/deployment.md` — paso 23 del roadmap original.
