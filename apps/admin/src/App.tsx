@@ -1,8 +1,11 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "@/features/auth/hooks/AuthProvider";
 import { RequireAuth } from "@/routes/RequireAuth";
+import { AdminLayout } from "@/layouts/AdminLayout";
 import { LoginPage } from "@/pages/LoginPage";
 import { HomePage } from "@/pages/HomePage";
+import { InstructorsPage } from "@/pages/InstructorsPage";
+import { ClassesPage } from "@/pages/ClassesPage";
 
 function App() {
   return (
@@ -14,7 +17,29 @@ function App() {
             path="/"
             element={
               <RequireAuth>
-                <HomePage />
+                <AdminLayout>
+                  <HomePage />
+                </AdminLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/instructors"
+            element={
+              <RequireAuth>
+                <AdminLayout>
+                  <InstructorsPage />
+                </AdminLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/classes"
+            element={
+              <RequireAuth>
+                <AdminLayout>
+                  <ClassesPage />
+                </AdminLayout>
               </RequireAuth>
             }
           />
