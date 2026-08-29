@@ -29,6 +29,9 @@ export function InstructorsPage() {
   }
 
   async function handleToggleActive(instructor: Instructor) {
+    if (instructor.active && !window.confirm(`Desactivar a ${instructor.fullName}?`)) {
+      return;
+    }
     setActionError(null);
     try {
       await setActive(instructor.id, !instructor.active);

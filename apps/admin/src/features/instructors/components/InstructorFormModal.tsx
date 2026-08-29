@@ -47,6 +47,15 @@ export function InstructorFormModal({ open, initialValue, onClose, onSubmit }: P
     setFormError(null);
   }, [open, initialValue]);
 
+  useEffect(() => {
+    if (!open) return;
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
+
   if (!open) return null;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -67,9 +76,9 @@ export function InstructorFormModal({ open, initialValue, onClose, onSubmit }: P
     setIsSaving(true);
     try {
       await onSubmit({
-        fullName,
-        bio: bio || null,
-        photoUrl: photoUrl || null,
+        fullName: result.data.fullName,
+        bio: result.data.bio || null,
+        photoUrl: result.data.photoUrl || null,
       });
       onClose();
     } catch (err) {

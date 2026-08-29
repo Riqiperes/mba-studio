@@ -98,10 +98,12 @@ boton de cerrar sesion; todas las rutas protegidas con `RequireAuth` +
 
 ## In Progress
 
-- PR #4 (`feat/admin-google-login`) ya mergeado a `develop`. PR #5
-  (`feat/admin-classes-instructors`, rama `feat-admin-classes-instructors`
-  en worktree de desarrollo) esta completo y verificado end-to-end, pero
-  todavia NO esta mergeado — se esta por proponer para merge a `develop`.
+- PR #4 (`feat/admin-google-login`) y PR #5 (`feat/admin-classes-instructors`,
+  CRUD de clases+instructores en `apps/admin`) ya mergeados a `develop`.
+  PR #6 (`fix/pr5-minor-polish`) esta abierto, pendiente de revision y
+  merge — corrige 7 de los 8 hallazgos Minor parkeados de la revision
+  final de PR #5 (detalle completo en la descripcion del PR #6 en
+  GitHub).
   Proximo paso: ver "Next Task" abajo.
 
 ## Pending
@@ -274,10 +276,12 @@ sin Edge Functions).
 
 ## Next Task
 
-PR #1 (migraciones), PR #2 (Google OAuth web), PR #3 (email/password) y PR #4
-(login admin) ya mergeados a `develop`. PR #5 (admin CRUD clases+instructores
-+ navegacion) esta completo y verificado end-to-end, pendiente de abrirse
-como Pull Request y mergearse a `develop`.
+PR #1 (migraciones), PR #2 (Google OAuth web), PR #3 (email/password), PR #4
+(login admin) y PR #5 (admin CRUD clases+instructores + navegacion) ya
+mergeados a `develop`. PR #6 (`fix/pr5-minor-polish`) esta abierto,
+pendiente de revision y merge — corrige 7 de los 8 hallazgos Minor
+parkeados de la revision final de PR #5 (detalle en la descripcion del
+PR #6 en GitHub).
 
 **Proximo sub-proyecto acordado:** `Paquetes` (CRUD de packages en
 `apps/admin`, tabla existente migracion `005`, ninguna migracion nueva).
