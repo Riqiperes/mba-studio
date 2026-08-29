@@ -4,6 +4,7 @@ import { RequireAuth } from "@/routes/RequireAuth";
 import { LoginPage } from "@/pages/LoginPage";
 import { HomePage } from "@/pages/HomePage";
 import { InstructorsPage } from "@/pages/InstructorsPage";
+import { ClassesPage } from "@/pages/ClassesPage";
 
 function App() {
   return (
@@ -24,6 +25,14 @@ function App() {
             element={
               <RequireAuth>
                 <InstructorsPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/classes"
+            element={
+              <RequireAuth>
+                <ClassesPage />
               </RequireAuth>
             }
           />
