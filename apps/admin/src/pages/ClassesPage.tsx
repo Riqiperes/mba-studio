@@ -9,7 +9,7 @@ import { useInstructors } from "@/features/instructors/hooks/useInstructors";
 export function ClassesPage() {
   const [filters, setFilters] = useState<ClassFilters>({});
   const { classes, loading, error, create, update, cancel } = useClasses(filters);
-  const { instructors } = useInstructors();
+  const { instructors, error: instructorsError } = useInstructors();
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<StudioClass | null>(null);
   const [cancelError, setCancelError] = useState<string | null>(null);
@@ -43,8 +43,7 @@ export function ClassesPage() {
     try {
       await cancel(studioClass.id);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "No se pudo cancelar la clase.";
-      setCancelError(message);
+      setCancelError("No se pudo cancelar la clase. Intenta de nuevo.");
       console.error("[classes] cancelar fallo", err);
     }
   }
@@ -66,6 +65,7 @@ export function ClassesPage() {
 
       {loading && <p className="text-sm text-gray-500">Cargando...</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
+      {instructorsError && <p className="text-sm text-red-600">{instructorsError}</p>}
       {cancelError && <p className="text-sm text-red-600">{cancelError}</p>}
       {!loading && !error && (
         <ClassesTable

@@ -7,7 +7,7 @@ Ultima actualizacion: 2026-08-29 (CRUD completo de instructores y clases en
 `apps/admin` con navegacion del panel y cierre de sesion —sin cambios de
 BD, usando tablas existentes de migraciones 003-004—; Instructores: crear,
 editar, desactivar/reactivar, tabla listable con filtro de estado;
-Clases: crear (refencia instructor), editar, cancelar, tabla listable
+Clases: crear (referencia instructor), editar, cancelar, tabla listable
 con filtros de instructor/estado/rango de fechas, ordenada por fecha;
 HomePage de bienvenida; AdminLayout con nav (Inicio/Instructores/Clases) y
 boton de cerrar sesion; todas las rutas protegidas con `RequireAuth` +
@@ -98,10 +98,11 @@ boton de cerrar sesion; todas las rutas protegidas con `RequireAuth` +
 
 ## In Progress
 
-- Nada activamente en progreso. PR #4 (`feat/admin-google-login`) y PR #5
+- PR #4 (`feat/admin-google-login`) ya mergeado a `develop`. PR #5
   (`feat/admin-classes-instructors`, rama `feat-admin-classes-instructors`
-  en worktree de desarrollo) mergeados/completados. Proximo paso: ver
-  "Next Task" abajo.
+  en worktree de desarrollo) esta completo y verificado end-to-end, pero
+  todavia NO esta mergeado — se esta por proponer para merge a `develop`.
+  Proximo paso: ver "Next Task" abajo.
 
 ## Pending
 
@@ -148,30 +149,37 @@ Testing, Deployment (Cloudflare Pages).
   "Completed" arriba. Falta configurar el provider en Supabase para
   probarlo con una cuenta real.
 - **CRUD de Instructores en `apps/admin`** (rama `feat-admin-classes-instructors`,
-  tablas existentes migracion `003`):
-  - Crear instructor (nombre, especialidad, email, telefono, descripcion,
-    estado activo).
+  tabla existente migracion `003`):
+  - Crear instructor (`fullName` obligatorio, `bio` opcional, `photoUrl`
+    opcional).
   - Editar todos los campos.
-  - Desactivar/reactivar (estado booleano).
-  - Tabla listable con columnas (nombre, especialidad, email, estado, acciones).
-  - Filtro por estado (Activos/Inactivos/Todos).
+  - Desactivar/reactivar (estado booleano `active`).
+  - Tabla listable con columnas (nombre, estado, acciones). Sin filtro de
+    estado (no existe filtro en `InstructorsPage`).
   - Modal de formulario reutilizable (`InstructorFormModal`).
-  - Validacion con Zod (nombre obligatorio, email valido, etc.).
-  - Mensajes de exito/error (toast con `sonner`).
+  - Validacion con Zod (`fullName` obligatorio, `photoUrl` debe ser URL
+    valida si se ingresa; no hay campo de email en este formulario).
+  - Mensajes de error inline (texto rojo bajo el formulario o la tabla,
+    ver `mapSaveError` en `InstructorFormModal.tsx`); sin toast — `sonner`
+    no es dependencia de `apps/admin` (ver `apps/admin/package.json`).
 - **CRUD de Clases en `apps/admin`** (rama `feat-admin-classes-instructors`,
   tabla existente migracion `004`):
-  - Crear clase (nombre, fecha, hora inicio/fin, instructor, capacidad,
-    estado).
+  - Crear clase (titulo, instructor, fecha/hora de inicio, fecha/hora de
+    fin, cupo maximo).
   - Editar todos los campos.
   - Cancelar clase (estado pasa a `CANCELLED`, sigue listada).
-  - Tabla listable con columnas (nombre, fecha, hora, instructor, capacidad,
-    estado, acciones), ordenada por fecha descendente.
-  - Filtros (instructor, estado, rango de fechas).
+  - Tabla listable con columnas (titulo, instructor, horario, cupo,
+    estado, acciones), ordenada por `starts_at` ascendente (mas proxima
+    primero — ver `listClasses` en `classesService.ts`).
+  - Filtros (instructor, estado, rango de fechas desde/hasta — ver
+    `ClassFiltersBar.tsx`).
   - Modal de formulario reutilizable (`ClassFormModal`).
-  - Validacion con Zod (fecha >= hoy, duracion positiva, etc.).
+  - Validacion con Zod (titulo y instructor obligatorios, fecha/hora de
+    inicio y fin obligatorias, fin posterior a inicio, cupo entero
+    positivo; sin validacion de fecha minima/pasada).
   - Instructores desactivados no aparecen en selector para clases nuevas
     (verificado con RLS y logica frontend).
-  - Mensajes de exito/error.
+  - Mensajes de error inline (mismo patron que Instructores, sin toast).
 - **HomePage** de bienvenida (`apps/admin`): pantalla inicial de inicio de
   sesion con informacion del usuario logueado.
 - **AdminLayout** (navegacion del panel): barra horizontal con links
@@ -266,9 +274,10 @@ sin Edge Functions).
 
 ## Next Task
 
-PR #1 (migraciones), PR #2 (Google OAuth web), PR #3 (email/password), PR #4
-(login admin) y PR #5 (admin CRUD clases+instructores + navegacion) ya
-mergeados a `develop`, todos verificados end-to-end.
+PR #1 (migraciones), PR #2 (Google OAuth web), PR #3 (email/password) y PR #4
+(login admin) ya mergeados a `develop`. PR #5 (admin CRUD clases+instructores
++ navegacion) esta completo y verificado end-to-end, pendiente de abrirse
+como Pull Request y mergearse a `develop`.
 
 **Proximo sub-proyecto acordado:** `Paquetes` (CRUD de packages en
 `apps/admin`, tabla existente migracion `005`, ninguna migracion nueva).

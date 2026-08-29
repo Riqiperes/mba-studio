@@ -17,6 +17,15 @@ type StudioClassRow = {
   updated_at: string;
 };
 
+// `dateTo` es un YYYY-MM-DD (input local); suma un dia para comparar con
+// `starts_at` como limite exclusivo, evitando que Postgres castee a
+// medianoche UTC y excluya las clases del propio dia `dateTo`.
+function nextDayIso(dateStr: string): string {
+  const date = new Date(`${dateStr}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + 1);
+  return date.toISOString().slice(0, 10);
+}
+
 function toStudioClass(row: StudioClassRow): StudioClass {
   return {
     id: row.id,
@@ -38,7 +47,10 @@ export async function listClasses(filters: ClassFilters = {}): Promise<StudioCla
   if (filters.instructorId) query = query.eq("instructor_id", filters.instructorId);
   if (filters.status) query = query.eq("status", filters.status);
   if (filters.dateFrom) query = query.gte("starts_at", filters.dateFrom);
-  if (filters.dateTo) query = query.lte("starts_at", filters.dateTo);
+  // El input date es una fecha local; la comparacion en la DB es en UTC —
+  // aceptable para este MVP de una sola zona horaria (ver comentario en
+  // nextDayIso).
+  if (filters.dateTo) query = query.lt("starts_at", nextDayIso(filters.dateTo));
 
   const { data, error } = await query.order("starts_at", { ascending: true });
 
