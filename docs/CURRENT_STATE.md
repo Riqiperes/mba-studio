@@ -97,9 +97,8 @@ fail-open con `NULL` en `008`—; estructura de ramas Git formalizada —
 
 ## In Progress
 
-- `feat/admin-google-login` implementada y verificada localmente, falta
-  abrir el PR hacia `develop` y mergearlo. Proximo paso: ver "Next Task"
-  abajo.
+- Nada activamente en progreso. PR #4 (`feat/admin-google-login`)
+  mergeado a `develop`. Proximo paso: ver "Next Task" abajo.
 
 ## Pending
 
@@ -232,13 +231,14 @@ sin Edge Functions).
 
 ## Next Task
 
-PR #1 (migraciones), PR #2 (Google OAuth) y PR #3 (email/password) ya
-mergeados a `develop`, todos verificados end-to-end con cuentas reales.
+PR #1 (migraciones), PR #2 (Google OAuth web), PR #3 (email/password) y
+PR #4 (login admin) ya mergeados a `develop`, todos verificados
+end-to-end con cuentas reales.
 
 1. Resto de la etapa "Authentication" del roadmap: recuperacion de
-   contrasena, reenvio de verificacion de email, login en `apps/admin`, y
-   proteccion de rutas por rol (hoy `RequireAuth` solo protege por "hay
-   sesion o no").
-3. Configurar los dos proyectos de Cloudflare Pages (`apps/web`,
+   contrasena, reenvio de verificacion de email, y proteccion de rutas
+   por rol dentro de `apps/web` (hoy `RequireAuth` ahi solo protege por
+   "hay sesion o no"; en `apps/admin` ya hay gate de rol).
+2. Configurar los dos proyectos de Cloudflare Pages (`apps/web`,
    `apps/admin`) siguiendo `docs/deployment.md` — mas adelante en el
    roadmap (paso 23), no urgente todavia.
