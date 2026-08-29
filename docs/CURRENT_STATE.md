@@ -81,9 +81,8 @@ protegida + `develop`).
 
 ## In Progress
 
-- `feat/email-password-auth` implementada y verificada localmente, falta
-  abrir el PR hacia `develop` y mergearlo. Proximo paso: ver "Next Task"
-  abajo.
+- Nada activamente en progreso. PR #3 (`feat/email-password-auth`)
+  mergeado a `develop`. Proximo paso: ver "Next Task" abajo.
 
 ## Pending
 
@@ -216,12 +215,10 @@ sin Edge Functions).
 
 ## Next Task
 
-PR #1 (migraciones) y PR #2 (Google OAuth en `apps/web`) ya mergeados a
-`develop`, ambos verificados end-to-end con cuentas reales (Google:
-`riqiperes14@gmail.com`; email/password: alias `+` de la misma cuenta).
+PR #1 (migraciones), PR #2 (Google OAuth) y PR #3 (email/password) ya
+mergeados a `develop`, todos verificados end-to-end con cuentas reales.
 
-1. Abrir el PR de `feat/email-password-auth` hacia `develop` y mergearlo.
-2. Resto de la etapa "Authentication" del roadmap: recuperacion de
+1. Resto de la etapa "Authentication" del roadmap: recuperacion de
    contrasena, reenvio de verificacion de email, login en `apps/admin`, y
    proteccion de rutas por rol (hoy `RequireAuth` solo protege por "hay
    sesion o no").
