@@ -3,14 +3,14 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-08-28 (login con email/password agregado en
-`apps/web` — rama `feat/email-password-auth` —, junto al ya existente
-Google OAuth; ambos verificados de punta a punta con cuentas reales; mas
-migraciones 001-008 aplicadas al Supabase de desarrollo: business, profiles
-+ rol, instructors, studio_classes, packages, todas con RLS; mas dos fixes
-de seguridad sobre `profiles` —privilege-escalation en `007` y fail-open
-con `NULL` en `008`—; estructura de ramas Git formalizada — `main`
-protegida + `develop`).
+Ultima actualizacion: 2026-08-28 (login en `apps/admin` agregado —solo
+Google, con gate de rol via tabla `admin_allowed_emails` (migracion
+`009`)—; login con email/password en `apps/web`; ambos junto al ya
+existente Google OAuth, todos verificados de punta a punta con cuentas
+reales; mas migraciones 001-009 aplicadas al Supabase de desarrollo; mas
+dos fixes de seguridad sobre `profiles` —privilege-escalation en `007` y
+fail-open con `NULL` en `008`—; estructura de ramas Git formalizada —
+`main` protegida + `develop`).
 
 ## Completed
 
@@ -78,11 +78,28 @@ protegida + `develop`).
   de "correo sin confirmar" al intentar entrar antes de confirmar, y
   `profile` creado igual que con Google (verificado en Supabase, cuenta de
   prueba borrada despues).
+- Login en `apps/admin` (rama `feat/admin-google-login`): solo Google (sin
+  email/password, staff interno). Mismos archivos que `apps/web`
+  (`lib/supabaseClient.ts`+`database.types.ts`, `authService.ts` reducido
+  a `signInWithGoogle/signOut/getProfile/subscribeToAuthChanges`,
+  `AuthProvider`/`useAuth`, `GoogleSignInButton`, `SignOutButton`), mas
+  `RequireAuth` con gate de rol: si `profile.role` no es
+  `STAFF/BUSINESS_ADMIN/SUPER_ADMIN`, pantalla "Sin acceso" + boton de
+  cerrar sesion. Nueva migracion `009_admin_allowed_emails.sql`: tabla
+  `admin_allowed_emails` (sin RLS abierta, solo tocable desde el SQL
+  editor) + `handle_new_user()` actualizado para asignar el rol de esa
+  tabla al registrarse si el email esta ahi, `CUSTOMER` si no — la
+  decision de quien es admin vive en la base de datos, nunca en el
+  frontend. Sembrado `riqiperes14@gmail.com` como `SUPER_ADMIN` (con
+  backfill de su profile existente). Probado de punta a punta: esa cuenta
+  entra al panel con `Rol: SUPER_ADMIN`; otra cuenta de Google no listada
+  recibe `CUSTOMER` y ve "Sin acceso".
 
 ## In Progress
 
-- Nada activamente en progreso. PR #3 (`feat/email-password-auth`)
-  mergeado a `develop`. Proximo paso: ver "Next Task" abajo.
+- `feat/admin-google-login` implementada y verificada localmente, falta
+  abrir el PR hacia `develop` y mergearlo. Proximo paso: ver "Next Task"
+  abajo.
 
 ## Pending
 
