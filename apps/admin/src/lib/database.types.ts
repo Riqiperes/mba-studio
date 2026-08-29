@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_allowed_emails: {
+        Row: {
+          created_at: string
+          email: string
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          role?: Database["public"]["Enums"]["user_role"]
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          role?: Database["public"]["Enums"]["user_role"]
+        }
+        Relationships: []
+      }
       business: {
         Row: {
           accent_color: string
@@ -58,6 +76,54 @@ export type Database = {
           whatsapp_number?: string | null
         }
         Relationships: []
+      }
+      dependents: {
+        Row: {
+          active: boolean
+          birth_date: string | null
+          business_id: string
+          created_at: string
+          full_name: string
+          guardian_id: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          birth_date?: string | null
+          business_id: string
+          created_at?: string
+          full_name: string
+          guardian_id: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          birth_date?: string | null
+          business_id?: string
+          created_at?: string
+          full_name?: string
+          guardian_id?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dependents_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dependents_guardian_id_fkey"
+            columns: ["guardian_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       instructors: {
         Row: {
