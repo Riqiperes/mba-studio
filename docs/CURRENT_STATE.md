@@ -3,15 +3,21 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-08-29 (CRUD completo de instructores y clases en
-`apps/admin` con navegacion del panel y cierre de sesion —sin cambios de
-BD, usando tablas existentes de migraciones 003-004—; Instructores: crear,
-editar, desactivar/reactivar, tabla listable con filtro de estado;
-Clases: crear (referencia instructor), editar, cancelar, tabla listable
-con filtros de instructor/estado/rango de fechas, ordenada por fecha;
-HomePage de bienvenida; AdminLayout con nav (Inicio/Instructores/Clases) y
-boton de cerrar sesion; todas las rutas protegidas con `RequireAuth` +
-`AdminLayout`; verificado end-to-end: typecheck, lint, build sin errores).
+Ultima actualizacion: 2026-08-29 (CRUD de paquetes en `apps/admin` —sin
+cambios de BD, tabla existente de migracion 005—: crear, editar,
+desactivar/reactivar, tabla listable con columnas nombre/creditos/precio/
+vigencia/estado; precio se captura en pesos enteros en el form y el
+service lo convierte a `price_cents`; moneda fija en MXN, sin selector;
+AdminLayout gana el link "Paquetes". Sesion previa: CRUD completo de
+instructores y clases en `apps/admin` con navegacion del panel y cierre
+de sesion —sin cambios de BD, usando tablas existentes de migraciones
+003-004—; Instructores: crear, editar, desactivar/reactivar, tabla
+listable sin filtro de estado; Clases: crear (referencia instructor),
+editar, cancelar, tabla listable con filtros de instructor/estado/rango
+de fechas, ordenada por fecha; HomePage de bienvenida; AdminLayout con
+nav y boton de cerrar sesion; todas las rutas protegidas con
+`RequireAuth` + `AdminLayout`; verificado end-to-end: typecheck, lint,
+build sin errores).
 
 ## Completed
 
@@ -98,12 +104,11 @@ boton de cerrar sesion; todas las rutas protegidas con `RequireAuth` +
 
 ## In Progress
 
-- PR #4 (`feat/admin-google-login`) y PR #5 (`feat/admin-classes-instructors`,
-  CRUD de clases+instructores en `apps/admin`) ya mergeados a `develop`.
-  PR #6 (`fix/pr5-minor-polish`) esta abierto, pendiente de revision y
-  merge — corrige 7 de los 8 hallazgos Minor parkeados de la revision
-  final de PR #5 (detalle completo en la descripcion del PR #6 en
-  GitHub).
+- PR #4 (`feat/admin-google-login`), PR #5 (`feat/admin-classes-instructors`)
+  y PR #6 (`fix/pr5-minor-polish`) ya mergeados a `develop`. PR nuevo de
+  `feat/admin-packages` (CRUD de paquetes) esta por abrirse — codigo
+  completo, typecheck/lint/build limpios, verificacion visual en
+  navegador pendiente (requiere login, no automatizable).
   Proximo paso: ver "Next Task" abajo.
 
 ## Pending
@@ -182,11 +187,39 @@ Testing, Deployment (Cloudflare Pages).
   - Instructores desactivados no aparecen en selector para clases nuevas
     (verificado con RLS y logica frontend).
   - Mensajes de error inline (mismo patron que Instructores, sin toast).
+- **CRUD de Paquetes en `apps/admin`** (rama `feat/admin-packages`, tabla
+  existente migracion `005`):
+  - Crear paquete (nombre, descripcion opcional, creditos, precio,
+    vigencia en dias opcional).
+  - Editar todos los campos.
+  - Desactivar/reactivar (estado booleano `active`).
+  - Tabla listable con columnas (nombre, creditos, precio, vigencia,
+    estado, acciones).
+  - Precio se captura en pesos enteros en el formulario (input
+    `type="number"`, sin decimales); `packagesService.ts` lo convierte a
+    `price_cents` (x100) al guardar en la BD y de vuelta a pesos al leer
+    para mostrar en la tabla (formateado con `Intl.NumberFormat`). Los
+    centavos quedan disponibles en la columna de la BD para cuando
+    Stripe cobre comision, aunque hoy no se editen directamente.
+  - Moneda fija en `MXN`, sin selector en el formulario (un solo negocio,
+    sin Stripe todavia — YAGNI).
+  - Vigencia en dias es opcional: campo vacio se guarda como `NULL`
+    ("sin vencimiento" en la tabla).
+  - Modal de formulario reutilizable (`PackageFormModal`), con los fixes
+    ya aprendidos en Instructores/Clases desde el arranque: usa
+    `result.data` de Zod (no estado crudo), cierre con tecla Escape,
+    `noValidate` en el `<form>`.
+  - `confirm()` del navegador antes de desactivar un paquete (no antes de
+    reactivar).
+  - Validacion con Zod (nombre obligatorio, creditos entero positivo,
+    precio entero no negativo, vigencia entero positivo o vacio).
+  - Mensajes de error inline (mismo patron que Instructores/Clases, sin
+    toast).
 - **HomePage** de bienvenida (`apps/admin`): pantalla inicial de inicio de
   sesion con informacion del usuario logueado.
 - **AdminLayout** (navegacion del panel): barra horizontal con links
-  (Inicio, Instructores, Clases), NavLink con estado activo resaltado,
-  boton de cerrar sesion (SignOutButton).
+  (Inicio, Instructores, Clases, Paquetes), NavLink con estado activo
+  resaltado, boton de cerrar sesion (SignOutButton).
 - **Rutas protegidas**: todas bajo `RequireAuth` + `AdminLayout` en
   `apps/admin/src/App.tsx`.
 
@@ -277,17 +310,17 @@ sin Edge Functions).
 ## Next Task
 
 PR #1 (migraciones), PR #2 (Google OAuth web), PR #3 (email/password), PR #4
-(login admin) y PR #5 (admin CRUD clases+instructores + navegacion) ya
-mergeados a `develop`. PR #6 (`fix/pr5-minor-polish`) esta abierto,
-pendiente de revision y merge — corrige 7 de los 8 hallazgos Minor
-parkeados de la revision final de PR #5 (detalle en la descripcion del
-PR #6 en GitHub).
+(login admin), PR #5 (admin CRUD clases+instructores + navegacion) y PR #6
+(pulido de Minor de PR #5) ya mergeados a `develop`. `feat/admin-packages`
+(CRUD de paquetes) esta completo y verificado (typecheck/lint/build),
+pendiente de abrirse como Pull Request, verificacion visual manual en
+navegador, y merge.
 
-**Proximo sub-proyecto acordado:** `Paquetes` (CRUD de packages en
-`apps/admin`, tabla existente migracion `005`, ninguna migracion nueva).
-Orden completo restante del roadmap (feature-driven): Paquetes → Clientes
-(web + admin) → Reservaciones + Lista de Espera → Academia (inscripciones,
-colegiaturas, asistencia) → Pagos (Stripe) → Dashboard/Notificaciones/Settings.
+**Proximo sub-proyecto acordado despues de Paquetes:** `Clientes` (web +
+admin). Orden completo restante del roadmap (feature-driven): Paquetes →
+Clientes (web + admin) → Reservaciones + Lista de Espera → Academia
+(inscripciones, colegiaturas, asistencia) → Pagos (Stripe) →
+Dashboard/Notificaciones/Settings.
 
 Para despues del roadmap feature (vueltas de pulido/integration/testing):
 - Recuperacion de contrasena y reenvio de verificacion de email en `apps/web`.

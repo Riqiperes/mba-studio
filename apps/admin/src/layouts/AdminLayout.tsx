@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { to: "/", label: "Inicio" },
   { to: "/instructors", label: "Instructores" },
   { to: "/classes", label: "Clases" },
+  { to: "/packages", label: "Paquetes" },
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {
