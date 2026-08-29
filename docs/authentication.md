@@ -89,7 +89,24 @@ con una cuenta real via alias `+` de Gmail (2026-08-28): registro,
 confirmacion pendiente detectada correctamente al intentar entrar antes de
 confirmar, `profile` creado igual que con Google.
 
+Login implementado en `apps/admin` (solo Google, sin email/password: es
+staff interno, no auto-registro publico). Mismo patron que `apps/web`
+(`authService`, `AuthProvider`/`useAuth`, `GoogleSignInButton`), mas un
+gate de rol en `RequireAuth`: si `profile.role` no es `STAFF`,
+`BUSINESS_ADMIN` o `SUPER_ADMIN`, muestra una pantalla "Sin acceso" con
+boton de cerrar sesion (no un redirect-loop a `/login`).
+
+Quien recibe rol de staff/admin lo decide la base de datos, nunca el
+frontend: tabla `admin_allowed_emails` (migracion `009`, sin RLS abierta —
+solo se toca desde el SQL editor de Supabase) mas el trigger
+`handle_new_user()` (`002_profiles.sql`, actualizado en `009`), que asigna
+el rol de la tabla si el email que se registra esta ahi, o `CUSTOMER` si
+no. Sembrado con `riqiperes14@gmail.com` como `SUPER_ADMIN`. Probado de
+punta a punta (2026-08-28): esa cuenta entra al panel con
+`Rol: SUPER_ADMIN`; una cuenta de Google distinta, no listada, recibe
+`CUSTOMER` automaticamente y ve "Sin acceso" al intentar entrar a admin.
+
 Todavia NO implementado: recuperacion de contrasena, reenvio de
-verificacion de email, login en `apps/admin`, y proteccion de rutas por rol
-(`RequireAuth` solo protege por "hay sesion o no"; la proteccion real de
-datos la sigue haciendo RLS).
+verificacion de email, y proteccion de rutas por rol dentro de `apps/web`
+(ahi `RequireAuth` solo protege por "hay sesion o no"; la proteccion real
+de datos la sigue haciendo RLS).
