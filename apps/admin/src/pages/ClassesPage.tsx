@@ -39,6 +39,9 @@ export function ClassesPage() {
   }
 
   async function handleCancel(studioClass: StudioClass) {
+    if (!window.confirm(`Cancelar la clase "${studioClass.title}"?`)) {
+      return;
+    }
     setCancelError(null);
     try {
       await cancel(studioClass.id);

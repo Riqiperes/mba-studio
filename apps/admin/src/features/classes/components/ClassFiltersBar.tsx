@@ -22,8 +22,9 @@ export function ClassFiltersBar({ instructors, filters, onChange }: Props) {
 
   function updateStatusFilter(value: string) {
     const nextFilters: ClassFilters = { ...filters };
-    if (value) {
-      nextFilters.status = value as StudioClassStatus;
+    const matched = STATUS_OPTIONS.find((status) => status === value);
+    if (matched) {
+      nextFilters.status = matched;
     } else {
       delete nextFilters.status;
     }

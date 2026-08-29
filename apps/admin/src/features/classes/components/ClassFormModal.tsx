@@ -9,7 +9,10 @@ const schema = z
     instructorId: z.string().min(1, "Elige un instructor"),
     startsAt: z.string().min(1, "La fecha/hora de inicio es obligatoria"),
     endsAt: z.string().min(1, "La fecha/hora de fin es obligatoria"),
-    maxCapacity: z.coerce.number().int().positive("El cupo debe ser mayor a 0"),
+    maxCapacity: z.coerce
+      .number()
+      .int("El cupo debe ser un numero entero")
+      .positive("El cupo debe ser mayor a 0"),
   })
   .refine((value) => new Date(value.endsAt) > new Date(value.startsAt), {
     message: "La hora de fin debe ser despues de la hora de inicio",
@@ -63,6 +66,18 @@ export function ClassFormModal({ open, initialValue, instructors, onClose, onSub
   const [isSaving, setIsSaving] = useState(false);
 
   const activeInstructors = instructors.filter((i) => i.active);
+  // Si se edita una clase cuyo instructor ya fue desactivado, el <select>
+  // controlado necesita esa opcion presente o queda mostrando el
+  // placeholder aunque el estado siga con el id real (la clase conserva
+  // su instructor original al guardar, esto es solo para que el select
+  // no mienta visualmente).
+  const selectableInstructors =
+    initialValue && !activeInstructors.some((i) => i.id === initialValue.instructorId)
+      ? [
+          ...activeInstructors,
+          ...instructors.filter((i) => i.id === initialValue.instructorId),
+        ]
+      : activeInstructors;
 
   useEffect(() => {
     if (!open) return;
@@ -76,6 +91,15 @@ export function ClassFormModal({ open, initialValue, instructors, onClose, onSub
     // activeInstructors se deriva de `instructors`, que ya esta en deps.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialValue, instructors]);
+
+  useEffect(() => {
+    if (!open) return;
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
 
   if (!open) return null;
 
@@ -144,9 +168,10 @@ export function ClassFormModal({ open, initialValue, instructors, onClose, onSub
             className="rounded-md border border-gray-300 px-3 py-2 text-sm"
           >
             <option value="">Elige un instructor</option>
-            {activeInstructors.map((instructor) => (
+            {selectableInstructors.map((instructor) => (
               <option key={instructor.id} value={instructor.id}>
                 {instructor.fullName}
+                {!instructor.active ? " (inactivo)" : ""}
               </option>
             ))}
           </select>
