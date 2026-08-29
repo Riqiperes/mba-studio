@@ -8,6 +8,7 @@ export function InstructorsPage() {
   const { instructors, loading, error, create, update, setActive } = useInstructors();
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Instructor | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   function openCreate() {
     setEditing(null);
@@ -27,6 +28,16 @@ export function InstructorsPage() {
     }
   }
 
+  async function handleToggleActive(instructor: Instructor) {
+    setActionError(null);
+    try {
+      await setActive(instructor.id, !instructor.active);
+    } catch (err) {
+      setActionError("No se pudo actualizar el instructor. Intenta de nuevo.");
+      console.error("[instructors] setActive fallo", err);
+    }
+  }
+
   return (
     <div id="instructors-page" className="mx-auto max-w-3xl p-6">
       <div className="mb-4 flex items-center justify-between">
@@ -42,11 +53,12 @@ export function InstructorsPage() {
 
       {loading && <p className="text-sm text-gray-500">Cargando...</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
+      {actionError && <p className="text-sm text-red-600">{actionError}</p>}
       {!loading && !error && (
         <InstructorsTable
           instructors={instructors}
           onEdit={openEdit}
-          onToggleActive={(instructor) => setActive(instructor.id, !instructor.active)}
+          onToggleActive={handleToggleActive}
         />
       )}
 
