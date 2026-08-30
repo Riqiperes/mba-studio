@@ -31,9 +31,15 @@ export function CustomerDetailPage() {
   async function handleSaveCustomer(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setEditError(null);
+
+    if (!fullName.trim()) {
+      setEditError("El nombre es obligatorio");
+      return;
+    }
+
     setIsSavingCustomer(true);
     try {
-      await update(fullName ? { fullName, phone: phone || null } : { phone: phone || null });
+      await update({ fullName, phone: phone || null });
     } catch (err) {
       setEditError("No se pudo actualizar el cliente. Intenta de nuevo.");
       console.error("[customers] update fallo", err);

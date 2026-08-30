@@ -268,7 +268,9 @@ otro negocio (Studio packages, bookings, Academia) implementado todavia.
 ## Integraciones configuradas
 
 - **Supabase**: proyecto (`MBA-STUDIO`, ref `eazyblybekyygimqpjjw`, region
-  `us-east-1`) con 5 tablas y RLS (ver "Migraciones existentes"). Se usa
+  `us-east-1`) con 7 tablas (`business`, `profiles`, `instructors`,
+  `studio_classes`, `packages`, `admin_allowed_emails`, `dependents`) y RLS
+  (ver "Migraciones existentes"). Se usa
   como backend compartido de desarrollo/staging para todo el equipo (local
   y previews de Cloudflare Pages) — ver `docs/deployment.md`. `apps/web/.env`
   y `apps/admin/.env` ya apuntan a este proyecto para desarrollo local.
@@ -348,9 +350,9 @@ explicita del usuario; `packages` solo expone los activos publicamente.
 ## Deployment actual
 
 Ningun deploy de frontend todavia (Cloudflare Pages pendiente de
-configurar, ver "Next Task"). El proyecto de Supabase existe pero solo como
-backend de base de datos/auth, sin nada desplegado en el (sin migraciones,
-sin Edge Functions).
+configurar, ver "Next Task"). El proyecto de Supabase ya tiene las
+migraciones aplicadas (ver "Migraciones existentes" arriba), pero no hay
+Edge Functions desplegadas ni frontend desplegado en Cloudflare Pages.
 
 ## Next Task
 
