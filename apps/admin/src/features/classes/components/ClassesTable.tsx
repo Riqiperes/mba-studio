@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { Instructor } from "@/features/instructors/types/Instructor";
 import type { StudioClass } from "../types/StudioClass";
 
@@ -41,6 +42,9 @@ export function ClassesTable({ classes, instructors, onEdit, onCancel }: Props) 
             <td className="py-2">{studioClass.maxCapacity}</td>
             <td className="py-2">{studioClass.status}</td>
             <td className="py-2">
+              <Link to={`/classes/${studioClass.id}`} className="mr-3 text-brand-primary hover:underline">
+                Ver reservaciones
+              </Link>
               <button
                 type="button"
                 onClick={() => onEdit(studioClass)}

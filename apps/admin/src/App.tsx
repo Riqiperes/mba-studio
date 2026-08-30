@@ -10,6 +10,7 @@ import { PackagesPage } from "@/pages/PackagesPage";
 import { CustomersPage } from "@/pages/CustomersPage";
 import { CustomerDetailPage } from "@/pages/CustomerDetailPage";
 import { StudentsPage } from "@/pages/StudentsPage";
+import { ClassBookingsPage } from "@/pages/ClassBookingsPage";
 
 function App() {
   return (
@@ -73,6 +74,16 @@ function App() {
               <RequireAuth>
                 <AdminLayout>
                   <CustomerDetailPage />
+                </AdminLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/classes/:id"
+            element={
+              <RequireAuth>
+                <AdminLayout>
+                  <ClassBookingsPage />
                 </AdminLayout>
               </RequireAuth>
             }
