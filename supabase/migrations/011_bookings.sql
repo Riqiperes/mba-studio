@@ -91,6 +91,14 @@ begin
     raise exception 'Clase no encontrada o no esta programada';
   end if;
 
+  if public.current_user_role() not in ('STAFF', 'BUSINESS_ADMIN', 'SUPER_ADMIN') then
+    raise exception 'No autorizado';
+  end if;
+  if public.current_user_role() <> 'SUPER_ADMIN'
+     and v_business_id <> public.current_user_business_id() then
+    raise exception 'No autorizado';
+  end if;
+
   if exists (
     select 1 from public.bookings
     where class_id = p_class_id and customer_id = p_customer_id and status = 'CONFIRMED'
@@ -137,6 +145,15 @@ begin
   if not found then
     raise exception 'Reservacion no encontrada';
   end if;
+
+  if public.current_user_role() not in ('STAFF', 'BUSINESS_ADMIN', 'SUPER_ADMIN') then
+    raise exception 'No autorizado';
+  end if;
+  if public.current_user_role() <> 'SUPER_ADMIN'
+     and v_booking.business_id <> public.current_user_business_id() then
+    raise exception 'No autorizado';
+  end if;
+
   if v_booking.status = 'CANCELLED' then
     raise exception 'La reservacion ya estaba cancelada';
   end if;
@@ -160,6 +177,14 @@ begin
 
   if not found then
     raise exception 'Entrada de lista de espera no encontrada';
+  end if;
+
+  if public.current_user_role() not in ('STAFF', 'BUSINESS_ADMIN', 'SUPER_ADMIN') then
+    raise exception 'No autorizado';
+  end if;
+  if public.current_user_role() <> 'SUPER_ADMIN'
+     and v_entry.business_id <> public.current_user_business_id() then
+    raise exception 'No autorizado';
   end if;
 
   v_booking := public.book_class(v_entry.customer_id, v_entry.class_id);
@@ -186,6 +211,14 @@ begin
     raise exception 'Cliente no encontrado';
   end if;
 
+  if public.current_user_role() not in ('STAFF', 'BUSINESS_ADMIN', 'SUPER_ADMIN') then
+    raise exception 'No autorizado';
+  end if;
+  if public.current_user_role() <> 'SUPER_ADMIN'
+     and v_business_id <> public.current_user_business_id() then
+    raise exception 'No autorizado';
+  end if;
+
   insert into public.customer_credits_ledger (business_id, customer_id, delta, reason, granted_by, notes)
   values (v_business_id, p_customer_id, p_amount, 'MANUAL_GRANT', auth.uid(), p_notes);
 end;
@@ -196,12 +229,15 @@ grant execute on function public.cancel_booking(uuid) to authenticated;
 grant execute on function public.promote_from_waitlist(uuid) to authenticated;
 grant execute on function public.grant_credits(uuid, integer, text) to authenticated;
 
--- Ninguna de las 4 funciones hace un chequeo interno de rol/auth -- dependen
--- por completo de los grants. Postgres otorga EXECUTE a PUBLIC por defecto al
--- crear una funcion, y el setup por defecto de Supabase ademas otorga EXECUTE
--- a anon/authenticated/service_role via ALTER DEFAULT PRIVILEGES. Sin estos
--- revokes, un usuario anonimo podria invocar book_class/cancel_booking/
--- promote_from_waitlist/grant_credits directamente via RPC sin sesion.
+-- Las 4 funciones ya validan rol (STAFF/BUSINESS_ADMIN/SUPER_ADMIN) y tenant
+-- (business_id = current_user_business_id() salvo SUPER_ADMIN) al inicio de
+-- cada una -- ver los `raise exception 'No autorizado'` arriba. Los revokes
+-- de abajo son una capa adicional: Postgres otorga EXECUTE a PUBLIC por
+-- defecto al crear una funcion, y el setup por defecto de Supabase ademas
+-- otorga EXECUTE a anon/authenticated/service_role via ALTER DEFAULT
+-- PRIVILEGES. Sin estos revokes, un usuario anonimo podria invocar las
+-- funciones directamente via RPC sin sesion (aunque el chequeo de rol
+-- interno igual las rechazaria por falta de current_user_role()).
 revoke execute on function public.book_class(uuid, uuid) from public;
 revoke execute on function public.cancel_booking(uuid) from public;
 revoke execute on function public.promote_from_waitlist(uuid) from public;
