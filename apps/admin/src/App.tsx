@@ -9,6 +9,7 @@ import { ClassesPage } from "@/pages/ClassesPage";
 import { PackagesPage } from "@/pages/PackagesPage";
 import { CustomersPage } from "@/pages/CustomersPage";
 import { CustomerDetailPage } from "@/pages/CustomerDetailPage";
+import { StudentsPage } from "@/pages/StudentsPage";
 
 function App() {
   return (
@@ -72,6 +73,16 @@ function App() {
               <RequireAuth>
                 <AdminLayout>
                   <CustomerDetailPage />
+                </AdminLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/students"
+            element={
+              <RequireAuth>
+                <AdminLayout>
+                  <StudentsPage />
                 </AdminLayout>
               </RequireAuth>
             }
