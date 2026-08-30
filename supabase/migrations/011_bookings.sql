@@ -39,6 +39,13 @@ create table public.waitlist (
 );
 create unique index waitlist_unique on public.waitlist (class_id, customer_id);
 
+-- customer_id no es unique (un cliente puede tener muchas filas de ledger),
+-- pero getCreditBalance() y el chequeo de credito en book_class() filtran
+-- por customer_id en cada carga de pagina / cada reservacion -- la tabla es
+-- append-only y solo crece.
+create index customer_credits_ledger_customer_id_idx
+  on public.customer_credits_ledger (customer_id);
+
 alter table public.customer_credits_ledger enable row level security;
 create policy "credits_ledger_select_staff"
   on public.customer_credits_ledger for select
@@ -76,12 +83,26 @@ returns public.bookings
 language plpgsql security definer set search_path = public
 as $$
 declare
+  v_actor_role public.user_role;
   v_business_id uuid;
+  v_customer_business_id uuid;
   v_max_capacity integer;
   v_current_count integer;
   v_balance integer;
   v_booking public.bookings;
 begin
+  -- v_actor_role puede ser NULL si el actor no tiene fila propia en
+  -- profiles; `NULL not in (...)` tambien es NULL, y un IF de plpgsql
+  -- trata NULL como FALSE (fail-open) -- ver 008_fix_null_actor_role_
+  -- fail_open.sql, mismo patron. El chequeo explicito `is null` fuerza
+  -- el default a "bloquear". Va antes de cualquier lock/lookup de fila:
+  -- un actor no autorizado nunca debe llegar al FOR UPDATE de abajo.
+  v_actor_role := public.current_user_role();
+  if v_actor_role is null
+     or v_actor_role not in ('STAFF', 'BUSINESS_ADMIN', 'SUPER_ADMIN') then
+    raise exception 'No autorizado';
+  end if;
+
   select business_id, max_capacity into v_business_id, v_max_capacity
   from public.studio_classes
   where id = p_class_id and status = 'SCHEDULED'
@@ -91,11 +112,16 @@ begin
     raise exception 'Clase no encontrada o no esta programada';
   end if;
 
-  if public.current_user_role() not in ('STAFF', 'BUSINESS_ADMIN', 'SUPER_ADMIN') then
+  if v_actor_role is distinct from 'SUPER_ADMIN'
+     and v_business_id is distinct from public.current_user_business_id() then
     raise exception 'No autorizado';
   end if;
-  if public.current_user_role() <> 'SUPER_ADMIN'
-     and v_business_id <> public.current_user_business_id() then
+
+  select business_id into v_customer_business_id from public.profiles where id = p_customer_id;
+  if not found then
+    raise exception 'Cliente no encontrado';
+  end if;
+  if v_customer_business_id is distinct from v_business_id then
     raise exception 'No autorizado';
   end if;
 
@@ -116,7 +142,7 @@ begin
 
   select coalesce(sum(delta), 0) into v_balance
   from public.customer_credits_ledger
-  where customer_id = p_customer_id;
+  where customer_id = p_customer_id and business_id = v_business_id;
 
   if v_balance < 1 then
     raise exception 'El cliente no tiene creditos disponibles';
@@ -138,19 +164,23 @@ returns void
 language plpgsql security definer set search_path = public
 as $$
 declare
+  v_actor_role public.user_role;
   v_booking public.bookings;
 begin
+  v_actor_role := public.current_user_role();
+  if v_actor_role is null
+     or v_actor_role not in ('STAFF', 'BUSINESS_ADMIN', 'SUPER_ADMIN') then
+    raise exception 'No autorizado';
+  end if;
+
   select * into v_booking from public.bookings where id = p_booking_id for update;
 
   if not found then
     raise exception 'Reservacion no encontrada';
   end if;
 
-  if public.current_user_role() not in ('STAFF', 'BUSINESS_ADMIN', 'SUPER_ADMIN') then
-    raise exception 'No autorizado';
-  end if;
-  if public.current_user_role() <> 'SUPER_ADMIN'
-     and v_booking.business_id <> public.current_user_business_id() then
+  if v_actor_role is distinct from 'SUPER_ADMIN'
+     and v_booking.business_id is distinct from public.current_user_business_id() then
     raise exception 'No autorizado';
   end if;
 
@@ -170,20 +200,24 @@ returns public.bookings
 language plpgsql security definer set search_path = public
 as $$
 declare
+  v_actor_role public.user_role;
   v_entry public.waitlist;
   v_booking public.bookings;
 begin
+  v_actor_role := public.current_user_role();
+  if v_actor_role is null
+     or v_actor_role not in ('STAFF', 'BUSINESS_ADMIN', 'SUPER_ADMIN') then
+    raise exception 'No autorizado';
+  end if;
+
   select * into v_entry from public.waitlist where id = p_waitlist_id for update;
 
   if not found then
     raise exception 'Entrada de lista de espera no encontrada';
   end if;
 
-  if public.current_user_role() not in ('STAFF', 'BUSINESS_ADMIN', 'SUPER_ADMIN') then
-    raise exception 'No autorizado';
-  end if;
-  if public.current_user_role() <> 'SUPER_ADMIN'
-     and v_entry.business_id <> public.current_user_business_id() then
+  if v_actor_role is distinct from 'SUPER_ADMIN'
+     and v_entry.business_id is distinct from public.current_user_business_id() then
     raise exception 'No autorizado';
   end if;
 
@@ -200,8 +234,15 @@ returns void
 language plpgsql security definer set search_path = public
 as $$
 declare
+  v_actor_role public.user_role;
   v_business_id uuid;
 begin
+  v_actor_role := public.current_user_role();
+  if v_actor_role is null
+     or v_actor_role not in ('STAFF', 'BUSINESS_ADMIN', 'SUPER_ADMIN') then
+    raise exception 'No autorizado';
+  end if;
+
   if p_amount <= 0 then
     raise exception 'La cantidad de creditos debe ser mayor a 0';
   end if;
@@ -211,11 +252,8 @@ begin
     raise exception 'Cliente no encontrado';
   end if;
 
-  if public.current_user_role() not in ('STAFF', 'BUSINESS_ADMIN', 'SUPER_ADMIN') then
-    raise exception 'No autorizado';
-  end if;
-  if public.current_user_role() <> 'SUPER_ADMIN'
-     and v_business_id <> public.current_user_business_id() then
+  if v_actor_role is distinct from 'SUPER_ADMIN'
+     and v_business_id is distinct from public.current_user_business_id() then
     raise exception 'No autorizado';
   end if;
 
