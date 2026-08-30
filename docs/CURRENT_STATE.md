@@ -3,7 +3,16 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-08-29 (CRUD de paquetes en `apps/admin` —sin
+Ultima actualizacion: 2026-08-29 (CRUD de Clientes y Alumnos en
+`apps/admin` —migracion nueva 010 para la tabla `dependents`, resto sobre
+`profiles` existente—: directorio de clientes de solo lectura/edicion
+basica sobre `profiles` con rol `CUSTOMER`; CRUD de alumnos por cliente
+(crear, editar, desactivar/reactivar) en el detalle de cada cliente; vista
+global `/students` con columna "Tutor"; panel de inicio (`HomePage`)
+rediseñado como grid de botones grandes (Instructores, Clases, Paquetes,
+Clientes, Alumnos); AdminLayout gana los links "Clientes" y "Alumnos".
+Naming: tabla/codigo en ingles `dependents`, toda la UI dice "Alumno(s)",
+nunca "Dependiente". Sesion previa: CRUD de paquetes en `apps/admin` —sin
 cambios de BD, tabla existente de migracion 005—: crear, editar,
 desactivar/reactivar, tabla listable con columnas nombre/creditos/precio/
 vigencia/estado; precio se captura en pesos enteros en el form y el
@@ -105,10 +114,12 @@ build sin errores).
 ## In Progress
 
 - PR #4 (`feat/admin-google-login`), PR #5 (`feat/admin-classes-instructors`)
-  y PR #6 (`fix/pr5-minor-polish`) ya mergeados a `develop`. PR nuevo de
-  `feat/admin-packages` (CRUD de paquetes) esta por abrirse — codigo
-  completo, typecheck/lint/build limpios, verificacion visual en
-  navegador pendiente (requiere login, no automatizable).
+  y PR #6 (`fix/pr5-minor-polish`) ya mergeados a `develop`. PR de
+  `feat/admin-packages` (CRUD de paquetes) mergeado. Sub-proyecto
+  `Clientes + Alumnos` (rama `feat/admin-customers`) esta completo y
+  verificado por codigo (typecheck/lint/build sin errores), pendiente de
+  abrirse como Pull Request, verificacion visual manual en navegador
+  (requiere login, no automatizable), y merge.
   Proximo paso: ver "Next Task" abajo.
 
 ## Pending
@@ -215,11 +226,39 @@ Testing, Deployment (Cloudflare Pages).
     precio entero no negativo, vigencia entero positivo o vacio).
   - Mensajes de error inline (mismo patron que Instructores/Clases, sin
     toast).
-- **HomePage** de bienvenida (`apps/admin`): pantalla inicial de inicio de
-  sesion con informacion del usuario logueado.
+- **CRUD de Clientes y Alumnos en `apps/admin`** (rama `feat/admin-customers`,
+  tabla nueva `dependents` en migracion `010`, resto sobre `profiles`
+  existente):
+  - Directorio de clientes (`/customers`, `CustomersPage`): lista
+    perfiles con `role = 'CUSTOMER'` (nombre, telefono), sin crear
+    clientes desde el admin (se registran ellos mismos en `apps/web`).
+  - Detalle de cliente (`/customers/:id`, `CustomerDetailPage`): editar
+    nombre/telefono del cliente (`customersService.updateCustomer`,
+    `UPDATE` sobre `profiles`), mas la tabla de alumnos de ese cliente.
+  - CRUD de alumnos (tabla `dependents`, FK `guardian_id` a `profiles`,
+    `business_id` para el camino a multi-tenant): crear (nombre
+    obligatorio, fecha de nacimiento opcional y no futura), editar,
+    desactivar/reactivar (booleano `active`).
+  - Vista global `/students` (`StudentsPage`): todos los alumnos de todos
+    los clientes, con columna "Tutor" (nombre del cliente,
+    `showGuardianColumn` en `DependentsTable`).
+  - Modal de formulario reutilizable (`DependentFormModal`), mismo patron
+    aprendido en Paquetes: `result.data` de Zod, cierre con tecla Escape,
+    `noValidate` en el `<form>`, `mapSaveError` para distinguir RLS de
+    constraint.
+  - `confirm()` del navegador antes de desactivar un alumno (no antes de
+    reactivar), mismo patron que Paquetes.
+  - RLS de `dependents`: solo `STAFF`/`BUSINESS_ADMIN` de su `business_id`
+    o `SUPER_ADMIN` pueden leer/escribir; sin policy de autoservicio del
+    cliente todavia (se agrega cuando exista pantalla real en `apps/web`).
+  - Naming: tabla y codigo en ingles (`dependents`, `guardian_id`), pero
+    toda la UI visible dice "Alumno"/"Alumnos", nunca "Dependiente".
+- **HomePage** (`apps/admin`): rediseñado de saludo de texto a panel de
+  botones grandes (grid con Instructores, Clases, Paquetes, Clientes,
+  Alumnos), cada uno navega a su ruta via `Link` de React Router.
 - **AdminLayout** (navegacion del panel): barra horizontal con links
-  (Inicio, Instructores, Clases, Paquetes), NavLink con estado activo
-  resaltado, boton de cerrar sesion (SignOutButton).
+  (Inicio, Instructores, Clases, Paquetes, Clientes, Alumnos), NavLink con
+  estado activo resaltado, boton de cerrar sesion (SignOutButton).
 - **Rutas protegidas**: todas bajo `RequireAuth` + `AdminLayout` en
   `apps/admin/src/App.tsx`.
 
@@ -295,6 +334,12 @@ versionadas en `supabase/migrations/`:
   `NULL`). Verificado forzando `current_user_role() = NULL` y bypasseando
   RLS a proposito (como `postgres`) para probar que el trigger se
   protege solo, sin depender de RLS.
+- `010_dependents.sql` — tabla `dependents` (alumnos de un cliente,
+  ej. hijos, usados para inscripciones de Academia): `guardian_id` FK a
+  `profiles`, `business_id` FK a `business`, `full_name`, `birth_date`
+  opcional, `active` booleano. RLS: solo `STAFF`/`BUSINESS_ADMIN` de su
+  `business_id` o `SUPER_ADMIN` pueden leer/escribir; sin policy de
+  autoservicio del cliente todavia.
 
 Decision pendiente de validar con uso real: `studio_classes` e
 `instructors` son de lectura publica (catalogo/marketing) por decision
@@ -310,17 +355,19 @@ sin Edge Functions).
 ## Next Task
 
 PR #1 (migraciones), PR #2 (Google OAuth web), PR #3 (email/password), PR #4
-(login admin), PR #5 (admin CRUD clases+instructores + navegacion) y PR #6
-(pulido de Minor de PR #5) ya mergeados a `develop`. `feat/admin-packages`
-(CRUD de paquetes) esta completo y verificado (typecheck/lint/build),
-pendiente de abrirse como Pull Request, verificacion visual manual en
-navegador, y merge.
+(login admin), PR #5 (admin CRUD clases+instructores + navegacion), PR #6
+(pulido Minor de PR #5) y el PR de `feat/admin-packages` (CRUD de paquetes)
+ya mergeados a `develop`. El sub-proyecto `Clientes + Alumnos` (rama
+`feat/admin-customers`) esta completo y verificado por codigo
+(typecheck/lint/build sin errores), pendiente de abrirse como Pull
+Request, verificacion visual manual en navegador (requiere login, no
+automatizable), y merge.
 
-**Proximo sub-proyecto acordado despues de Paquetes:** `Clientes` (web +
-admin). Orden completo restante del roadmap (feature-driven): Paquetes →
-Clientes (web + admin) → Reservaciones + Lista de Espera → Academia
-(inscripciones, colegiaturas, asistencia) → Pagos (Stripe) →
-Dashboard/Notificaciones/Settings.
+**Proximo sub-proyecto acordado despues de Clientes + Alumnos:**
+`Reservaciones + Lista de Espera`. Orden completo restante del roadmap
+(feature-driven): Paquetes → Clientes + Alumnos → Reservaciones + Lista de
+Espera → Academia (inscripciones, colegiaturas, asistencia) → Pagos
+(Stripe) → Dashboard/Notificaciones/Settings.
 
 Para despues del roadmap feature (vueltas de pulido/integration/testing):
 - Recuperacion de contrasena y reenvio de verificacion de email en `apps/web`.

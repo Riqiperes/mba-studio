@@ -7,6 +7,8 @@ const NAV_ITEMS = [
   { to: "/instructors", label: "Instructores" },
   { to: "/classes", label: "Clases" },
   { to: "/packages", label: "Paquetes" },
+  { to: "/customers", label: "Clientes" },
+  { to: "/students", label: "Alumnos" },
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {
