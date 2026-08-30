@@ -48,3 +48,21 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
 
 Cuando se decidan, documentar el valor en `docs/business-rules.md` en el
 mismo cambio que se implemente.
+
+## Deuda tecnica conocida
+
+- **`mapSaveError`/`err instanceof Error` no detecta errores de Supabase**:
+  `ClassFormModal.tsx`, `InstructorFormModal.tsx`, `DependentFormModal.tsx`
+  y `PackageFormModal.tsx` usan `err instanceof Error ? err.message : ...`
+  para clasificar errores de guardado (RLS, constraint, etc.). Se
+  verifico en vivo (sesion 2026-08-30, verificacion manual de
+  reservaciones+lista de espera) que un error de `supabase.rpc()`/
+  `.from()` es un objeto plano en runtime, no una instancia real de
+  `Error`, asi que esa condicion siempre es falsa y el mensaje cae al
+  generico ("No se pudo guardar. Intenta de nuevo.") en vez de
+  distinguir permiso vs validacion vs desconocido. La feature de
+  reservaciones/creditos (`apps/admin/src/utils/getErrorMessage.ts`)
+  ya usa un chequeo por duck-typing que si funciona; aplicar el mismo
+  fix a `mapSaveError` en los 4 modales de arriba cuando se toque esa
+  area de nuevo (no se incluyo en el fix de reservaciones para no
+  ampliar el diff de un plan ya cerrado).
