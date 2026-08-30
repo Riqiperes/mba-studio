@@ -3,7 +3,20 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-08-29 (CRUD de Clientes y Alumnos en
+Ultima actualizacion: 2026-08-30 (Reservaciones + Lista de Espera + Creditos
+en `apps/admin` —migracion nueva 011 para tablas `bookings`/`waitlist`/
+`customer_credits_ledger` y 4 funciones RPC `security definer`
+transaccionales (`book_class`, `cancel_booking`, `promote_from_waitlist`,
+`grant_credits`)—: ledger de creditos por cliente con otorgamiento manual
+desde el detalle de cliente; reservar/cancelar una clase a nombre de un
+cliente desde `/classes/:id`; lista de espera con promocion manual (nunca
+automatica); toda escritura de `bookings`/`customer_credits_ledger` pasa
+por las 4 funciones RPC (RLS solo permite `select` en esas dos tablas) que
+validan cupo/credito atomicamente Y, desde un fix posterior de seguridad,
+rol (`STAFF`/`BUSINESS_ADMIN`/`SUPER_ADMIN`) y tenant (`business_id`)
+internamente — ver "Known Issues" para el detalle del hallazgo de
+seguridad y el bug de manejo de errores encontrados durante la
+verificacion manual. Sesion previa: CRUD de Clientes y Alumnos en
 `apps/admin` —migracion nueva 010 para la tabla `dependents`, resto sobre
 `profiles` existente—: directorio de clientes de solo lectura/edicion
 basica sobre `profiles` con rol `CUSTOMER`; CRUD de alumnos por cliente
@@ -113,13 +126,15 @@ build sin errores).
 
 ## In Progress
 
-- PR #4 (`feat/admin-google-login`), PR #5 (`feat/admin-classes-instructors`)
-  y PR #6 (`fix/pr5-minor-polish`) ya mergeados a `develop`. PR de
-  `feat/admin-packages` (CRUD de paquetes) mergeado. Sub-proyecto
-  `Clientes + Alumnos` (rama `feat/admin-customers`) esta completo y
-  verificado por codigo (typecheck/lint/build sin errores), pendiente de
-  abrirse como Pull Request, verificacion visual manual en navegador
-  (requiere login, no automatizable), y merge.
+- PR #4 (`feat/admin-google-login`), PR #5 (`feat/admin-classes-instructors`),
+  PR #6 (`fix/pr5-minor-polish`), el PR de `feat/admin-packages` (CRUD de
+  paquetes) y PR #8 (`feat/admin-customers`, Clientes + Alumnos) ya
+  mergeados a `develop`. Sub-proyecto `Reservaciones + Lista de Espera +
+  Creditos` (rama `feat/admin-bookings`) esta completo y verificado por
+  codigo (typecheck/lint/build sin errores en las 5 tareas del plan) y por
+  verificacion manual end-to-end en navegador (login real, checklist del
+  plan — ver "Known Issues" para lo que esa verificacion encontro y
+  corrigio), pendiente de abrirse como Pull Request y merge.
   Proximo paso: ver "Next Task" abajo.
 
 ## Pending
@@ -140,6 +155,36 @@ Testing, Deployment (Cloudflare Pages).
   `npm run dev:admin` (puerto 5174) sirven la pantalla de bienvenida
   correctamente, verificado en navegador.
 - No hay tests todavia (esperado en esta fase, ver `docs/testing.md`).
+- **[Resuelto]** Las 4 funciones RPC de reservaciones/creditos
+  (`book_class`, `cancel_booking`, `promote_from_waitlist`,
+  `grant_credits`, migracion `011_bookings.sql`) se aprobaron en su primer
+  review sin ningun chequeo interno de rol ni `business_id` — solo
+  dependian del `grant` a `authenticated`, asi que cualquier usuario
+  autenticado con rol `CUSTOMER` podia otorgarse creditos a si mismo o
+  reservar/cancelar a nombre de cualquier cliente de cualquier negocio.
+  Encontrado por un review de seguridad automatico en segundo plano
+  (no por ninguno de los 4 reviews de tarea del plan). Corregido antes de
+  seguir con el resto del plan: las 4 funciones ahora validan
+  `current_user_role() in ('STAFF','BUSINESS_ADMIN','SUPER_ADMIN')` y
+  tenant (`business_id = current_user_business_id()` salvo
+  `SUPER_ADMIN`) al inicio. Re-aplicado a Supabase dev via
+  `011_bookings_authz_fix`; advisors sin hallazgos nuevos tras el cambio.
+- **[Resuelto]** `err instanceof Error ? err.message : "generico"` (patron
+  usado en toda la feature de reservaciones y tambien en `mapSaveError` de
+  Clases/Instructores/Alumnos/Paquetes) nunca detecta un error real de
+  `supabase.rpc()`/`.from()`: `PostgrestError` es un objeto plano en
+  runtime en la version instalada de `@supabase/supabase-js`, pese a que
+  su codigo fuente declara `extends Error`. Esto ocultaba todo mensaje de
+  negocio de las RPCs ("cupo lleno", "ya tiene reservacion activa", "sin
+  creditos disponibles", "no autorizado") detras de un mensaje generico
+  inutil. Encontrado durante la verificacion manual end-to-end de la Task
+  5 del plan de reservaciones (ninguno de los 4 reviews de tarea lo
+  detecto, todos revisaron el diff sin correr la app en vivo). Corregido
+  en la feature de reservaciones/creditos con
+  `apps/admin/src/utils/getErrorMessage.ts` (duck-typing sobre `message`).
+  Los 4 modales preexistentes con `mapSaveError` comparten la misma raiz
+  del bug pero quedan sin corregir por ahora — ver "Deuda tecnica
+  conocida" en `docs/roadmap.md`.
 
 ## Recent Decisions
 
@@ -253,6 +298,34 @@ Testing, Deployment (Cloudflare Pages).
     cliente todavia (se agrega cuando exista pantalla real en `apps/web`).
   - Naming: tabla y codigo en ingles (`dependents`, `guardian_id`), pero
     toda la UI visible dice "Alumno"/"Alumnos", nunca "Dependiente".
+- **Reservaciones + Lista de Espera + Creditos en `apps/admin`** (rama
+  `feat/admin-bookings`, tablas nuevas `bookings`/`waitlist`/
+  `customer_credits_ledger` en migracion `011`):
+  - Ledger de creditos por cliente (`features/credits`): balance
+    (`getCreditBalance`, suma de `delta` en `customer_credits_ledger`) y
+    otorgamiento manual (`GrantCreditsModal`, cantidad entera positiva +
+    nota opcional) visible en `/customers/:id`.
+  - Reservar/cancelar una clase a nombre de un cliente
+    (`/classes/:id`, `ClassBookingsPage`, link "Ver reservaciones" desde
+    `ClassesTable`): tabla de reservados con boton "Cancelar", boton
+    "Reservar cliente" (deshabilitado cuando la clase esta llena).
+  - Lista de espera (`waitlist`): boton "Agregar a lista de espera"
+    aparece cuando la clase esta llena; boton "Promover" (siempre manual,
+    nunca automatico) y "Quitar".
+  - Toda escritura de `bookings`/`customer_credits_ledger` pasa por 4
+    funciones RPC `security definer` transaccionales (`book_class`,
+    `cancel_booking`, `promote_from_waitlist`, `grant_credits`) que
+    validan cupo/credito atomicamente con `for update`, mas rol y tenant
+    internamente (ver "Known Issues"); `waitlist` acepta INSERT/DELETE
+    directos con RLS normal (staff-scoped).
+  - Mensajes de error de las RPCs se muestran verbatim (español, listos
+    para UI) via `apps/admin/src/utils/getErrorMessage.ts`, sin
+    `mapSaveError`.
+  - Verificado end-to-end en navegador con sesion real: otorgar creditos,
+    reservar, reservacion duplicada rechazada, cupo lleno deshabilita
+    reservar y habilita lista de espera, agregar/quitar de lista de
+    espera, cancelar reservacion devuelve el credito y libera cupo,
+    Escape cierra los modales.
 - **HomePage** (`apps/admin`): rediseñado de saludo de texto a panel de
   botones grandes (grid con Instructores, Clases, Paquetes, Clientes,
   Alumnos), cada uno navega a su ruta via `Link` de React Router.
@@ -268,8 +341,9 @@ otro negocio (Studio packages, bookings, Academia) implementado todavia.
 ## Integraciones configuradas
 
 - **Supabase**: proyecto (`MBA-STUDIO`, ref `eazyblybekyygimqpjjw`, region
-  `us-east-1`) con 7 tablas (`business`, `profiles`, `instructors`,
-  `studio_classes`, `packages`, `admin_allowed_emails`, `dependents`) y RLS
+  `us-east-1`) con 10 tablas (`business`, `profiles`, `instructors`,
+  `studio_classes`, `packages`, `admin_allowed_emails`, `dependents`,
+  `bookings`, `waitlist`, `customer_credits_ledger`) y RLS
   (ver "Migraciones existentes"). Se usa
   como backend compartido de desarrollo/staging para todo el equipo (local
   y previews de Cloudflare Pages) — ver `docs/deployment.md`. `apps/web/.env`
@@ -342,6 +416,24 @@ versionadas en `supabase/migrations/`:
   opcional, `active` booleano. RLS: solo `STAFF`/`BUSINESS_ADMIN` de su
   `business_id` o `SUPER_ADMIN` pueden leer/escribir; sin policy de
   autoservicio del cliente todavia.
+- `011_bookings.sql` — tablas `customer_credits_ledger`, `bookings`
+  (`unique index` en `class_id, customer_id` con `status = 'CONFIRMED'`
+  para evitar reservas duplicadas activas), `waitlist` (`unique index` en
+  `class_id, customer_id`); 4 funciones `security definer` con
+  `search_path` fijo (`book_class`, `cancel_booking`,
+  `promote_from_waitlist`, `grant_credits`) que validan cupo/credito con
+  `for update` (bloqueo de fila, evita condiciones de carrera), mas rol
+  (`STAFF`/`BUSINESS_ADMIN`/`SUPER_ADMIN`) y tenant internamente; RLS de
+  `bookings`/`customer_credits_ledger` solo permite `select` (toda
+  escritura pasa por las 4 funciones), `waitlist` permite INSERT/DELETE
+  directos con RLS normal staff-scoped. El archivo en el repo ya incluye
+  el fix de seguridad de rol/tenant descrito en "Known Issues" arriba —
+  no quedo una migracion `011_bookings_authz_fix.sql` separada en
+  `supabase/migrations/` porque el fix se aplico editando el 011 antes de
+  hacer merge (todavia no compartido), reaplicando solo los cuerpos de
+  las funciones al proyecto de Supabase via `apply_migration` con nombre
+  `011_bookings_authz_fix` (visible en el historial de migraciones de
+  Supabase, no como archivo nuevo en el repo).
 
 Decision pendiente de validar con uso real: `studio_classes` e
 `instructors` son de lectura publica (catalogo/marketing) por decision
@@ -358,18 +450,20 @@ Edge Functions desplegadas ni frontend desplegado en Cloudflare Pages.
 
 PR #1 (migraciones), PR #2 (Google OAuth web), PR #3 (email/password), PR #4
 (login admin), PR #5 (admin CRUD clases+instructores + navegacion), PR #6
-(pulido Minor de PR #5) y el PR de `feat/admin-packages` (CRUD de paquetes)
-ya mergeados a `develop`. El sub-proyecto `Clientes + Alumnos` (rama
-`feat/admin-customers`) esta completo y verificado por codigo
-(typecheck/lint/build sin errores), pendiente de abrirse como Pull
-Request, verificacion visual manual en navegador (requiere login, no
-automatizable), y merge.
+(pulido Minor de PR #5), el PR de `feat/admin-packages` (CRUD de paquetes)
+y PR #8 (`feat/admin-customers`, Clientes + Alumnos) ya mergeados a
+`develop`. El sub-proyecto `Reservaciones + Lista de Espera + Creditos`
+(rama `feat/admin-bookings`) esta completo y verificado por codigo
+(typecheck/lint/build sin errores en las 5 tareas del plan, mas un fix de
+seguridad y un fix de manejo de errores encontrados durante la
+verificacion — ver "Known Issues") y por verificacion manual end-to-end en
+navegador con sesion real, pendiente de abrirse como Pull Request y merge.
 
-**Proximo sub-proyecto acordado despues de Clientes + Alumnos:**
-`Reservaciones + Lista de Espera`. Orden completo restante del roadmap
-(feature-driven): Paquetes → Clientes + Alumnos → Reservaciones + Lista de
-Espera → Academia (inscripciones, colegiaturas, asistencia) → Pagos
-(Stripe) → Dashboard/Notificaciones/Settings.
+**Proximo sub-proyecto acordado despues de Reservaciones + Lista de
+Espera:** `Academia` (inscripciones, colegiaturas, asistencia). Orden
+completo restante del roadmap (feature-driven): Paquetes → Clientes +
+Alumnos → Reservaciones + Lista de Espera → Academia → Pagos (Stripe) →
+Dashboard/Notificaciones/Settings.
 
 Para despues del roadmap feature (vueltas de pulido/integration/testing):
 - Recuperacion de contrasena y reenvio de verificacion de email en `apps/web`.
