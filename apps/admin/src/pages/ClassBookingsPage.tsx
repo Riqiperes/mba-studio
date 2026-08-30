@@ -9,7 +9,7 @@ import { getErrorMessage } from "@/utils/getErrorMessage";
 export function ClassBookingsPage() {
   const { id } = useParams<{ id: string }>();
   const classId = id ?? "";
-  const { classes } = useClasses({});
+  const { classes, loading: classesLoading, error: classesError } = useClasses({});
   const studioClass = classes.find((c) => c.id === classId);
   const { customers } = useCustomers();
   const { bookings, waitlist, loading, error, book, cancel, addWaiting, removeWaiting, promote } =
@@ -59,8 +59,16 @@ export function ClassBookingsPage() {
     }
   }
 
-  if (!studioClass) {
+  if (classesLoading) {
     return <div className="mx-auto max-w-3xl p-6 text-sm text-gray-500">Cargando...</div>;
+  }
+
+  if (classesError || !studioClass) {
+    return (
+      <div className="mx-auto max-w-3xl p-6 text-sm text-red-600">
+        {classesError ?? "Clase no encontrada."}
+      </div>
+    );
   }
 
   return (

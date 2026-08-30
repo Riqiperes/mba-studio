@@ -325,7 +325,15 @@ Testing, Deployment (Cloudflare Pages).
     reservar, reservacion duplicada rechazada, cupo lleno deshabilita
     reservar y habilita lista de espera, agregar/quitar de lista de
     espera, cancelar reservacion devuelve el credito y libera cupo,
-    Escape cierra los modales.
+    Escape cierra los modales. **No verificados en vivo** (dataset de
+    desarrollo con un solo cliente, insuficiente para ambos casos):
+    promover con exito desde lista de espera (solo se probo el
+    "Promover" deshabilitado por `isFull`, no una promocion real) y
+    reservar con balance de creditos en 0 (el mensaje "sin creditos
+    disponibles" no se disparo en vivo). Ambos reusan el mismo mecanismo
+    de RPC + `getErrorMessage` ya probado por el caso de reservacion
+    duplicada, asi que el riesgo residual es bajo, pero falta confirmarlo
+    con un segundo cliente de prueba antes de darlos por hecho.
 - **HomePage** (`apps/admin`): rediseñado de saludo de texto a panel de
   botones grandes (grid con Instructores, Clases, Paquetes, Clientes,
   Alumnos), cada uno navega a su ruta via `Link` de React Router.
