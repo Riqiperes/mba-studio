@@ -7,6 +7,8 @@ import { HomePage } from "@/pages/HomePage";
 import { InstructorsPage } from "@/pages/InstructorsPage";
 import { ClassesPage } from "@/pages/ClassesPage";
 import { PackagesPage } from "@/pages/PackagesPage";
+import { CustomersPage } from "@/pages/CustomersPage";
+import { CustomerDetailPage } from "@/pages/CustomerDetailPage";
 
 function App() {
   return (
@@ -50,6 +52,26 @@ function App() {
               <RequireAuth>
                 <AdminLayout>
                   <PackagesPage />
+                </AdminLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/customers"
+            element={
+              <RequireAuth>
+                <AdminLayout>
+                  <CustomersPage />
+                </AdminLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/customers/:id"
+            element={
+              <RequireAuth>
+                <AdminLayout>
+                  <CustomerDetailPage />
                 </AdminLayout>
               </RequireAuth>
             }
