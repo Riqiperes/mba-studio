@@ -5,6 +5,8 @@ import { DependentsTable } from "@/features/dependents/components/DependentsTabl
 import { useDependentsByGuardian } from "@/features/dependents/hooks/useDependents";
 import { useCustomer } from "@/features/customers/hooks/useCustomers";
 import type { Dependent } from "@/features/dependents/types/Dependent";
+import { GrantCreditsModal } from "@/features/credits/components/GrantCreditsModal";
+import { useCustomerCredits } from "@/features/credits/hooks/useCustomerCredits";
 
 export function CustomerDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +23,13 @@ export function CustomerDetailPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingDependent, setEditingDependent] = useState<Dependent | null>(null);
   const [dependentActionError, setDependentActionError] = useState<string | null>(null);
+
+  const { balance, loading: creditsLoading, error: creditsError, grant } = useCustomerCredits(customerId);
+  const [creditsModalOpen, setCreditsModalOpen] = useState(false);
+
+  async function handleGrantCredits(amount: number, notes?: string | null) {
+    await grant(amount, notes);
+  }
 
   useEffect(() => {
     if (!customer) return;
@@ -124,6 +133,28 @@ export function CustomerDetailPage() {
         </button>
       </form>
       {editError && <p className="mb-4 text-sm text-red-600">{editError}</p>}
+
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-brand-primary">Creditos</h2>
+        <button
+          type="button"
+          onClick={() => setCreditsModalOpen(true)}
+          className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+        >
+          Otorgar creditos
+        </button>
+      </div>
+      {creditsLoading && <p className="mb-6 text-sm text-gray-500">Cargando...</p>}
+      {creditsError && <p className="mb-6 text-sm text-red-600">{creditsError}</p>}
+      {!creditsLoading && !creditsError && (
+        <p className="mb-6 text-2xl font-semibold text-brand-primary">{balance}</p>
+      )}
+
+      <GrantCreditsModal
+        open={creditsModalOpen}
+        onClose={() => setCreditsModalOpen(false)}
+        onSubmit={handleGrantCredits}
+      />
 
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-brand-primary">Alumnos</h2>
