@@ -4,6 +4,7 @@ import { BookCustomerModal } from "@/features/bookings/components/BookCustomerMo
 import { useClassBookings } from "@/features/bookings/hooks/useClassBookings";
 import { useClasses } from "@/features/classes/hooks/useClasses";
 import { useCustomers } from "@/features/customers/hooks/useCustomers";
+import { getErrorMessage } from "@/utils/getErrorMessage";
 
 export function ClassBookingsPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,7 +26,7 @@ export function ClassBookingsPage() {
     try {
       await cancel(bookingId);
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "No se pudo cancelar.");
+      setActionError(getErrorMessage(err, "No se pudo cancelar."));
       console.error("[bookings] cancelar fallo", err);
     }
   }
@@ -35,7 +36,7 @@ export function ClassBookingsPage() {
     try {
       await promote(waitlistId);
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "No se pudo promover.");
+      setActionError(getErrorMessage(err, "No se pudo promover."));
       console.error("[waitlist] promover fallo", err);
     }
   }
@@ -45,7 +46,7 @@ export function ClassBookingsPage() {
     try {
       await removeWaiting(id);
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "No se pudo quitar de la lista.");
+      setActionError(getErrorMessage(err, "No se pudo quitar de la lista."));
       console.error("[waitlist] quitar fallo", err);
     }
   }

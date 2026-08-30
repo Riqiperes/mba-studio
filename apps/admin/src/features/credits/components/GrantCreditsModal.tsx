@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { z } from "zod";
+import { getErrorMessage } from "@/utils/getErrorMessage";
 
 const schema = z.object({
   amount: z.coerce
@@ -61,7 +62,7 @@ export function GrantCreditsModal({ open, onClose, onSubmit }: Props) {
       await onSubmit(result.data.amount, result.data.notes || null);
       onClose();
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "No se pudo otorgar creditos.");
+      setFormError(getErrorMessage(err, "No se pudo otorgar creditos."));
       console.error("[credits] grant fallo", err);
     } finally {
       setIsSaving(false);

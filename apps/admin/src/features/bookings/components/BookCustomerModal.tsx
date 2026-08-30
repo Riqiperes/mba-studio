@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import type { Customer } from "@/features/customers/types/Customer";
+import { getErrorMessage } from "@/utils/getErrorMessage";
 
 type Props = {
   open: boolean;
@@ -44,7 +45,7 @@ export function BookCustomerModal({ open, title, submitLabel, customers, onClose
       await onSubmit(customerId);
       onClose();
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "No se pudo completar la accion.");
+      setFormError(getErrorMessage(err, "No se pudo completar la accion."));
       console.error("[bookings] modal submit fallo", err);
     } finally {
       setIsSaving(false);
