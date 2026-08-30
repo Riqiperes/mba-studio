@@ -1,0 +1,13 @@
+/**
+ * Forma en camelCase de una fila de `profiles` con rol CUSTOMER (ver
+ * supabase/migrations/002_profiles.sql). El mapeo snake_case ->
+ * camelCase vive en features/customers/services/customersService.ts.
+ */
+export type Customer = {
+  id: string;
+  businessId: string;
+  fullName: string | null;
+  phone: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
