@@ -116,6 +116,7 @@ export function AcademyGroupDetailPage() {
 
       <EnrollStudentModal
         open={modalOpen}
+        businessId={group.businessId}
         customers={customers}
         onClose={() => setModalOpen(false)}
         onSubmit={handleEnroll}
