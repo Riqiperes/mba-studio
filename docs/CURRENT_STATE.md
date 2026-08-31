@@ -3,7 +3,15 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-08-30 (Reservaciones + Lista de Espera + Creditos
+Ultima actualizacion: 2026-08-31 (Academia — Grupos e Inscripciones en `apps/admin`
+—migracion nueva 012 para tablas `academy_groups`, `academy_group_schedules` y
+`academy_enrollments` con RLS staff-scoped—: CRUD de grupos con instructor
+opcional y horarios semanales repetibles; detalle de grupo con lista de alumnos
+inscritos; modal para inscribir alumnos existentes o crear alumnos inline para
+clientes registrados; dar de baja alumnos; prevencion de inscripciones
+duplicadas via unique index condicional; navegacion y boton en HomePage hacia
+`/academy/groups` y `/academy/groups/:id`; verificado con typecheck, lint y
+build en ambas apps). Sesion previa: Reservaciones + Lista de Espera + Creditos
 en `apps/admin` —migracion nueva 011 para tablas `bookings`/`waitlist`/
 `customer_credits_ledger` y 4 funciones RPC `security definer`
 transaccionales (`book_class`, `cancel_booking`, `promote_from_waitlist`,
@@ -128,13 +136,12 @@ build sin errores).
 
 - PR #4 (`feat/admin-google-login`), PR #5 (`feat/admin-classes-instructors`),
   PR #6 (`fix/pr5-minor-polish`), el PR de `feat/admin-packages` (CRUD de
-  paquetes) y PR #8 (`feat/admin-customers`, Clientes + Alumnos) ya
-  mergeados a `develop`. Sub-proyecto `Reservaciones + Lista de Espera +
-  Creditos` (rama `feat/admin-bookings`) esta completo y verificado por
-  codigo (typecheck/lint/build sin errores en las 5 tareas del plan) y por
-  verificacion manual end-to-end en navegador (login real, checklist del
-  plan — ver "Known Issues" para lo que esa verificacion encontro y
-  corrigio), pendiente de abrirse como Pull Request y merge.
+  paquetes), PR #8 (`feat/admin-customers`, Clientes + Alumnos) y PR #9
+  (`feat/admin-bookings`, Reservaciones + Lista de Espera + Creditos) ya
+  mergeados a `develop`. Sub-proyecto `Academia — Grupos e Inscripciones`
+  (rama `feat/admin-academy-groups`) esta completo y verificado por
+  codigo (typecheck/lint/build sin errores en ambas apps) y por revision
+  de calidad/seguridad, listo para PR y merge a `develop`.
   Proximo paso: ver "Next Task" abajo.
 
 ## Pending
@@ -334,14 +341,41 @@ Testing, Deployment (Cloudflare Pages).
     de RPC + `getErrorMessage` ya probado por el caso de reservacion
     duplicada, asi que el riesgo residual es bajo, pero falta confirmarlo
     con un segundo cliente de prueba antes de darlos por hecho.
+- **Academia — Grupos e inscripciones en `apps/admin`** (rama `feat/admin-academy-groups`,
+  tablas nuevas `academy_groups`, `academy_group_schedules`, `academy_enrollments` en
+  migracion `012_academy_groups.sql`):
+  - CRUD de grupos de Academia (`/academy/groups`, `AcademyGroupsPage`): nombre
+    obligatorio, instructor asignable opcionalmente (select sobre `useInstructors`),
+    horarios semanales repetibles (día de la semana 0-6 + hora inicio/fin con validación
+    `end_time > start_time`).
+  - Resumen de horarios formateado en tabla ("Mar 17:00-18:00, Jue 17:00-18:00") y conteo
+    en vivo de inscritos activos.
+  - Formulario modal (`AcademyGroupFormModal`) con Zod, `noValidate`, soporte para
+    agregar/quitar filas de horarios y cierre con Escape.
+  - Detalle del grupo (`/academy/groups/:id`, `AcademyGroupDetailPage`): encabezado con
+    nombre, instructor y horario formateado; tabla de alumnos inscritos con nombre del
+    alumno, tutor (`profiles.full_name`) y fecha de inscripción; botón para dar de baja
+    (cambia `status` a `'BAJA'`) con confirmación de navegador.
+  - Inscripción de alumnos (`EnrollStudentModal`): selector de cliente existente (`useCustomers`),
+    selector de alumnos de ese tutor (`useDependentsByGuardian`) con opción de crear alumno nuevo
+    inline (nombre + fecha de nacimiento opcional) sin salir del modal, fecha de inscripción
+    (date input, default hoy).
+  - Control de duplicados: `unique index` condicional en BD (`academy_enrollments_active_unique`
+    donde `status = 'ACTIVA'`), permitiendo reinscribir a alumnos previamente dados de baja y
+    permitiendo que un alumno esté inscrito en múltiples grupos distintos simultáneamente.
+  - Manejo de errores: usa `apps/admin/src/utils/getErrorMessage.ts` para capturar errores de RLS
+    y constraints en runtime.
+  - Sin funciones RPC: escritura directa vía RLS staff-scoped (`STAFF`, `BUSINESS_ADMIN`,
+    `SUPER_ADMIN`), sin cupo máximo por grupo en este sub-proyecto.
+  - Navegación: link "Academia" en `AdminLayout` y botón "Academia" en el grid de `HomePage`.
 - **HomePage** (`apps/admin`): rediseñado de saludo de texto a panel de
   botones grandes (grid con Instructores, Clases, Paquetes, Clientes,
-  Alumnos), cada uno navega a su ruta via `Link` de React Router.
+  Alumnos, Academia), cada uno navega a su ruta via `Link` de React Router.
 - **AdminLayout** (navegacion del panel): barra horizontal con links
-  (Inicio, Instructores, Clases, Paquetes, Clientes, Alumnos), NavLink con
+  (Inicio, Instructores, Clases, Paquetes, Clientes, Alumnos, Academia), NavLink con
   estado activo resaltado, boton de cerrar sesion (SignOutButton).
 - **Rutas protegidas**: todas bajo `RequireAuth` + `AdminLayout` en
-  `apps/admin/src/App.tsx`.
+  `apps/admin/src/App.tsx` (incluyendo `/academy/groups` y `/academy/groups/:id`).
 
 Nada en `apps/web` excepto Google OAuth + email/password login. Ningun
 otro negocio (Studio packages, bookings, Academia) implementado todavia.
@@ -442,6 +476,13 @@ versionadas en `supabase/migrations/`:
   las funciones al proyecto de Supabase via `apply_migration` con nombre
   `011_bookings_authz_fix` (visible en el historial de migraciones de
   Supabase, no como archivo nuevo en el repo).
+- `012_academy_groups.sql` — tablas `academy_groups` (nombre, instructor opcional,
+  booleano `active`), `academy_group_schedules` (denormaliza `business_id`, dia 0-6,
+  horas inicio/fin, orden de tiempo con check), y `academy_enrollments` (`dependent_id`,
+  `group_id`, `enrollment_date`, `status` `'ACTIVA'|'BAJA'`; unique index condicional
+  `academy_enrollments_active_unique` para evitar inscripciones activas duplicadas del
+  mismo alumno al mismo grupo). RLS habilitado en las tres tablas con politicas
+  staff-scoped (`STAFF`, `BUSINESS_ADMIN`, `SUPER_ADMIN`).
 
 Decision pendiente de validar con uso real: `studio_classes` e
 `instructors` son de lectura publica (catalogo/marketing) por decision
@@ -458,20 +499,22 @@ Edge Functions desplegadas ni frontend desplegado en Cloudflare Pages.
 
 PR #1 (migraciones), PR #2 (Google OAuth web), PR #3 (email/password), PR #4
 (login admin), PR #5 (admin CRUD clases+instructores + navegacion), PR #6
-(pulido Minor de PR #5), el PR de `feat/admin-packages` (CRUD de paquetes)
-y PR #8 (`feat/admin-customers`, Clientes + Alumnos) ya mergeados a
-`develop`. El sub-proyecto `Reservaciones + Lista de Espera + Creditos`
-(rama `feat/admin-bookings`) esta completo y verificado por codigo
-(typecheck/lint/build sin errores en las 5 tareas del plan, mas un fix de
-seguridad y un fix de manejo de errores encontrados durante la
-verificacion — ver "Known Issues") y por verificacion manual end-to-end en
-navegador con sesion real, pendiente de abrirse como Pull Request y merge.
+(pulido Minor de PR #5), el PR de `feat/admin-packages` (CRUD de paquetes),
+PR #8 (`feat/admin-customers`, Clientes + Alumnos) y PR #9 (`feat/admin-bookings`,
+Reservaciones + Lista de Espera + Creditos) ya mergeados a `develop`.
+El sub-proyecto `Academia — Grupos e Inscripciones` (rama `feat/admin-academy-groups`)
+esta completo y verificado por codigo (typecheck/lint/build sin errores en ambas
+apps) y por revision de diseno/calidad, pendiente de merge via Pull Request.
 
-**Proximo sub-proyecto acordado despues de Reservaciones + Lista de
-Espera:** `Academia` (inscripciones, colegiaturas, asistencia). Orden
-completo restante del roadmap (feature-driven): Paquetes → Clientes +
-Alumnos → Reservaciones + Lista de Espera → Academia → Pagos (Stripe) →
-Dashboard/Notificaciones/Settings.
+**Proximo sub-proyecto acordado despues de Academia (Grupos + Inscripciones):**
+`Academia — Clientes sin cuenta ("de mostrador")` (`docs/roadmap.md` punto 18b)
+para permitir inscribir alumnos cuyos tutores pagan en efectivo y no tienen
+cuenta en Supabase Auth, relajando la obligatoriedad de `guardian_id` en
+`dependents`.
+
+Orden completo restante del roadmap (feature-driven):
+Academia (18b Clientes sin cuenta → 18c Colegiaturas → 18d Asistencia) →
+Pagos (Stripe) → Dashboard/Notificaciones/Settings.
 
 Para despues del roadmap feature (vueltas de pulido/integration/testing):
 - Recuperacion de contrasena y reenvio de verificacion de email en `apps/web`.
