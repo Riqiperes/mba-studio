@@ -156,6 +156,114 @@ export type Database = {
           },
         ]
       }
+      academy_payments: {
+        Row: {
+          id: string
+          business_id: string
+          enrollment_id: string
+          period_start: string
+          period_end: string
+          status: string
+          amount_cents: number
+          paid_at: string | null
+          payment_method: string | null
+          reference: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          business_id: string
+          enrollment_id: string
+          period_start: string
+          period_end: string
+          status?: string
+          amount_cents: number
+          paid_at?: string | null
+          payment_method?: string | null
+          reference?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          business_id?: string
+          enrollment_id?: string
+          period_start?: string
+          period_end?: string
+          status?: string
+          amount_cents?: number
+          paid_at?: string | null
+          payment_method?: string | null
+          reference?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_payments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_payments_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "academy_enrollments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academy_tuition_periods: {
+        Row: {
+          id: string
+          business_id: string
+          group_id: string
+          day_of_month: number | null
+          amount_cents: number
+          active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          business_id: string
+          group_id: string
+          day_of_month?: number | null
+          amount_cents: number
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          business_id?: string
+          group_id?: string
+          day_of_month?: number | null
+          amount_cents?: number
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_tuition_periods_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_tuition_periods_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "academy_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_allowed_emails: {
         Row: {
           created_at: string
