@@ -23,7 +23,26 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
 15. Payments — historial de pagos (cliente y admin).
 16. User dashboard — perfil, creditos, proximas clases, historial.
 17. Admin dashboard — metricas generales.
-18. Academy — inscripciones, grupos, horarios, colegiaturas, bajas.
+18. Academy — dividido en sub-proyectos, mismo patron que Bookings/Credits/
+    Waitlist:
+    18a. Grupos + Inscripciones — CRUD de grupos (nombre, instructor
+         opcional, horario semanal con varios dias/horas), inscribir/dar
+         de baja Alumnos existentes (`dependents`) a un grupo. El cliente
+         debe tener cuenta ya creada (flujo de Clientes existente); sin
+         cupo maximo por grupo todavia.
+    18b. Clientes sin cuenta ("clientes de mostrador") — permite inscribir
+         a un Alumno cuyo tutor no quiere/no tiene cuenta (paga en
+         efectivo, nunca inicia sesion). Requiere relajar
+         `dependents.guardian_id` (hoy FK obligatoria a `profiles`) para
+         aceptar un guardian ligero sin login (nombre/alias/telefono para
+         WhatsApp). Afecta tambien al Studio, no solo a Academia -- ver
+         `docs/preguntas-para-negocio.md` item 3 (registro de pagos en
+         efectivo).
+    18c. Colegiaturas — estado simple `PAGADO`/`NO_PAGADO` por periodo de
+         inscripcion (sin Stripe todavia), que el staff marca manualmente
+         al cobrar en efectivo/transferencia; alertas de pago atrasado
+         (ver `docs/business-rules.md`).
+    18d. Asistencia — registro de asistencia por sesion de grupo.
 19. Notifications — generacion de eventos de notificacion (email primero).
 20. WhatsApp — proveedor real (Meta/Twilio/UltraMsg) detras de la
     abstraccion ya preparada.

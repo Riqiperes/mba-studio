@@ -63,3 +63,21 @@ implemente.
     Pregunta: ¿qué canal usan hoy para avisar a clientes (WhatsApp,
     email, SMS) y con qué proveedor quieren operar en producción (Meta
     WhatsApp API, Twilio, UltraMsg, etc.)?
+
+11. **Fechas de cobro de colegiatura (Academia).** Hoy: se va a capturar
+    la fecha de inscripción de cada alumno a un grupo, pero todavía no
+    existe la lógica de cobro/vencimiento (eso es un sub-proyecto
+    aparte). Pregunta: ¿las colegiaturas se cobran el mismo día del mes
+    en que se inscribió cada alumno, o hay una fecha de corte fija para
+    todos (ej. día 5 de cada mes) sin importar cuándo se inscribieron?
+
+12. **Cupo máximo por grupo de Academia.** Hoy: los grupos de Academia
+    (Ballet, etc.) no van a tener límite de cupo por ahora, a diferencia
+    de las clases del Studio. Pregunta: ¿algún grupo real tiene un
+    límite de alumnos por espacio/seguridad, o realmente no aplica?
+
+13. **Información adicional por grupo de Academia.** Hoy: un grupo solo
+    va a tener nombre, instructor (opcional) y horario(s) semanales.
+    Pregunta: ¿necesitan capturar algo más por grupo — nivel, edad
+    mínima/máxima, salón/ubicación, cuota mensual específica de ese
+    grupo?
