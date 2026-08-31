@@ -9,8 +9,12 @@ type Props = {
   onToggleActive?: (dependent: Dependent) => void;
 };
 
-function guardianName(dependent: DependentRow): string {
-  return "guardianName" in dependent ? (dependent.guardianName ?? "-") : "-";
+function formatGuardian(dependent: DependentRow): string {
+  const name = dependent.guardianName ?? "-";
+  if (dependent.guardianPhone) {
+    return `${name} (${dependent.guardianPhone})`;
+  }
+  return name;
 }
 
 export function DependentsTable({ dependents, showGuardianColumn, onEdit, onToggleActive }: Props) {
@@ -35,7 +39,7 @@ export function DependentsTable({ dependents, showGuardianColumn, onEdit, onTogg
         {dependents.map((dependent) => (
           <tr key={dependent.id} className="border-b border-gray-100">
             <td className="py-2">{dependent.fullName}</td>
-            {showGuardianColumn && <td className="py-2">{guardianName(dependent)}</td>}
+            {showGuardianColumn && <td className="py-2">{formatGuardian(dependent)}</td>}
             <td className="py-2">{dependent.birthDate ?? "-"}</td>
             <td className="py-2">
               <span

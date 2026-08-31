@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useParams } from "react-router-dom";
-import { DependentFormModal } from "@/features/dependents/components/DependentFormModal";
+import { DependentFormModal, type DependentFormInput } from "@/features/dependents/components/DependentFormModal";
 import { DependentsTable } from "@/features/dependents/components/DependentsTable";
 import { useDependentsByGuardian } from "@/features/dependents/hooks/useDependents";
 import { useCustomer } from "@/features/customers/hooks/useCustomers";
@@ -67,11 +67,17 @@ export function CustomerDetailPage() {
     setModalOpen(true);
   }
 
-  async function handleDependentSubmit(input: { fullName: string; birthDate?: string | null }) {
+  async function handleDependentSubmit(input: DependentFormInput) {
     if (editingDependent) {
-      await updateDependent(editingDependent.id, input);
+      await updateDependent(editingDependent.id, {
+        fullName: input.fullName,
+        birthDate: input.birthDate ?? null,
+      });
     } else {
-      await create(input);
+      await create({
+        fullName: input.fullName,
+        birthDate: input.birthDate ?? null,
+      });
     }
   }
 
@@ -181,6 +187,7 @@ export function CustomerDetailPage() {
       <DependentFormModal
         open={modalOpen}
         initialValue={editingDependent}
+        showGuardianFields={false}
         onClose={() => setModalOpen(false)}
         onSubmit={handleDependentSubmit}
       />
