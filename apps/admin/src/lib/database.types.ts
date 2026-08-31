@@ -32,6 +32,58 @@ export type Database = {
         }
         Relationships: []
       }
+      bookings: {
+        Row: {
+          business_id: string
+          class_id: string
+          created_at: string
+          customer_id: string
+          id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          class_id: string
+          created_at?: string
+          customer_id: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          class_id?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "studio_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business: {
         Row: {
           accent_color: string
@@ -76,6 +128,61 @@ export type Database = {
           whatsapp_number?: string | null
         }
         Relationships: []
+      }
+      customer_credits_ledger: {
+        Row: {
+          business_id: string
+          created_at: string
+          customer_id: string
+          delta: number
+          granted_by: string | null
+          id: string
+          notes: string | null
+          reason: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          customer_id: string
+          delta: number
+          granted_by?: string | null
+          id?: string
+          notes?: string | null
+          reason: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          customer_id?: string
+          delta?: number
+          granted_by?: string | null
+          id?: string
+          notes?: string | null
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_credits_ledger_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_credits_ledger_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_credits_ledger_granted_by_fkey"
+            columns: ["granted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dependents: {
         Row: {
@@ -308,15 +415,93 @@ export type Database = {
           },
         ]
       }
+      waitlist: {
+        Row: {
+          business_id: string
+          class_id: string
+          created_at: string
+          customer_id: string
+          id: string
+        }
+        Insert: {
+          business_id: string
+          class_id: string
+          created_at?: string
+          customer_id: string
+          id?: string
+        }
+        Update: {
+          business_id?: string
+          class_id?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "studio_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      book_class: {
+        Args: { p_customer_id: string; p_class_id: string }
+        Returns: {
+          business_id: string
+          class_id: string
+          created_at: string
+          customer_id: string
+          id: string
+          status: string
+          updated_at: string
+        }
+      }
+      cancel_booking: {
+        Args: { p_booking_id: string }
+        Returns: undefined
+      }
       current_user_business_id: { Args: never; Returns: string }
       current_user_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      grant_credits: {
+        Args: { p_customer_id: string; p_amount: number; p_notes?: string }
+        Returns: undefined
+      }
+      promote_from_waitlist: {
+        Args: { p_waitlist_id: string }
+        Returns: {
+          business_id: string
+          class_id: string
+          created_at: string
+          customer_id: string
+          id: string
+          status: string
+          updated_at: string
+        }
       }
     }
     Enums: {
