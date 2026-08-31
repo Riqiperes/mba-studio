@@ -3,15 +3,24 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-08-31 (Academia — Grupos e Inscripciones en `apps/admin`
-—migracion nueva 012 para tablas `academy_groups`, `academy_group_schedules` y
-`academy_enrollments` con RLS staff-scoped—: CRUD de grupos con instructor
-opcional y horarios semanales repetibles; detalle de grupo con lista de alumnos
-inscritos; modal para inscribir alumnos existentes o crear alumnos inline para
-clientes registrados; dar de baja alumnos; prevencion de inscripciones
-duplicadas via unique index condicional; navegacion y boton en HomePage hacia
-`/academy/groups` y `/academy/groups/:id`; verificado con typecheck, lint y
-build en ambas apps). Sesion previa: Reservaciones + Lista de Espera + Creditos
+Ultima actualizacion: 2026-08-31 (Academia — Clientes sin cuenta / tutores de mostrador
+en `apps/admin` —migracion nueva 013 para hacer `guardian_id` nullable y agregar
+`guardian_name` y `guardian_phone` en `dependents` con check constraint de
+integridad—: soporte para registrar e inscribir alumnos de tutores que pagan
+en mostrador sin cuenta en Supabase Auth; modal de inscripcion en Academia con
+selector de modo "Cliente con cuenta" vs "Tutor de mostrador" para crear e
+inscribir en un solo paso; vista global `/students` permite crear y editar
+alumnos con tutor de mostrador y muestra nombre y telefono de contacto;
+resolucion transparente del tutor en el detalle de grupos y tablas de alumnos;
+verificado con typecheck, lint y build en ambas apps). Sesion previa: Academia
+— Grupos e Inscripciones en `apps/admin` —migracion nueva 012 para tablas
+`academy_groups`, `academy_group_schedules` y `academy_enrollments` con RLS
+staff-scoped—: CRUD de grupos con instructor opcional y horarios semanales
+repetibles; detalle de grupo con lista de alumnos inscritos; modal para inscribir
+alumnos existentes o crear alumnos inline para clientes registrados; dar de baja
+alumnos; prevencion de inscripciones duplicadas via unique index condicional;
+navegacion y boton en HomePage hacia `/academy/groups` y `/academy/groups/:id`;
+verificado con typecheck, lint y build en ambas apps). Sesion previa: Reservaciones + Lista de Espera + Creditos
 en `apps/admin` —migracion nueva 011 para tablas `bookings`/`waitlist`/
 `customer_credits_ledger` y 4 funciones RPC `security definer`
 transaccionales (`book_class`, `cancel_booking`, `promote_from_waitlist`,
@@ -136,12 +145,13 @@ build sin errores).
 
 - PR #4 (`feat/admin-google-login`), PR #5 (`feat/admin-classes-instructors`),
   PR #6 (`fix/pr5-minor-polish`), el PR de `feat/admin-packages` (CRUD de
-  paquetes), PR #8 (`feat/admin-customers`, Clientes + Alumnos) y PR #9
-  (`feat/admin-bookings`, Reservaciones + Lista de Espera + Creditos) ya
-  mergeados a `develop`. Sub-proyecto `Academia — Grupos e Inscripciones`
-  (rama `feat/admin-academy-groups`) esta completo y verificado por
-  codigo (typecheck/lint/build sin errores en ambas apps) y por revision
-  de calidad/seguridad, listo para PR y merge a `develop`.
+  paquetes), PR #8 (`feat/admin-customers`, Clientes + Alumnos), PR #9
+  (`feat/admin-bookings`, Reservaciones + Lista de Espera + Creditos) y PR #10
+  (`feat/admin-academy-groups`, Academia Grupos + Inscripciones) ya mergeados a
+  `develop`. Sub-proyecto `Academia — Clientes sin cuenta ("tutores de mostrador")`
+  (rama `feat/admin-academy-unregistered-guardians`) esta completo y verificado
+  por codigo (typecheck/lint/build sin errores en ambas apps) y por revision
+  de diseno/calidad, listo para PR y merge a `develop`.
   Proximo paso: ver "Next Task" abajo.
 
 ## Pending
@@ -368,6 +378,20 @@ Testing, Deployment (Cloudflare Pages).
   - Sin funciones RPC: escritura directa vía RLS staff-scoped (`STAFF`, `BUSINESS_ADMIN`,
     `SUPER_ADMIN`), sin cupo máximo por grupo en este sub-proyecto.
   - Navegación: link "Academia" en `AdminLayout` y botón "Academia" en el grid de `HomePage`.
+- **Academia — Clientes sin cuenta ("tutores de mostrador") en `apps/admin`** (rama
+  `feat/admin-academy-unregistered-guardians`, migracion `013_dependents_unregistered_guardians.sql`):
+  - Flexibilización de esquema: `dependents.guardian_id` pasa a ser nullable, se agregan
+    `guardian_name` y `guardian_phone`, y se impone check constraint `dependents_guardian_check`
+    para asegurar que todo alumno tenga tutor con cuenta o nombre de tutor registrado.
+  - Modal de inscripción (`EnrollStudentModal`): pestañas para alternar entre "Cliente con cuenta"
+    (flujo existente) y "Tutor de mostrador (sin cuenta)" (captura nombre/teléfono del tutor,
+    nombre/fecha de nacimiento del alumno y fecha de inscripción; crea e inscribe en un solo paso).
+  - Directorio global de alumnos (`/students`, `StudentsPage`): botón "Nuevo alumno" para dar de
+    alta alumnos con tutor de mostrador directamente, tabla con formato `Tutor (Teléfono)`, y
+    edición de datos de tutor de mostrador en `DependentFormModal`.
+  - Detalle de grupo (`AcademyGroupDetailPage`): resolución automática y transparente del nombre
+    del tutor para inscripciones de clientes con cuenta o de mostrador.
+  - Manejo de errores actualizado en formularios de dependientes con `getErrorMessage.ts`.
 - **HomePage** (`apps/admin`): rediseñado de saludo de texto a panel de
   botones grandes (grid con Instructores, Clases, Paquetes, Clientes,
   Alumnos, Academia), cada uno navega a su ruta via `Link` de React Router.
@@ -483,6 +507,9 @@ versionadas en `supabase/migrations/`:
   `academy_enrollments_active_unique` para evitar inscripciones activas duplicadas del
   mismo alumno al mismo grupo). RLS habilitado en las tres tablas con politicas
   staff-scoped (`STAFF`, `BUSINESS_ADMIN`, `SUPER_ADMIN`).
+- `013_dependents_unregistered_guardians.sql` — relaja `dependents.guardian_id` a nullable,
+  agrega `guardian_name` y `guardian_phone`, y añade check constraint `dependents_guardian_check`
+  para dar soporte a alumnos cuyos tutores pagan en mostrador sin cuenta Auth.
 
 Decision pendiente de validar con uso real: `studio_classes` e
 `instructors` son de lectura publica (catalogo/marketing) por decision
@@ -500,21 +527,22 @@ Edge Functions desplegadas ni frontend desplegado en Cloudflare Pages.
 PR #1 (migraciones), PR #2 (Google OAuth web), PR #3 (email/password), PR #4
 (login admin), PR #5 (admin CRUD clases+instructores + navegacion), PR #6
 (pulido Minor de PR #5), el PR de `feat/admin-packages` (CRUD de paquetes),
-PR #8 (`feat/admin-customers`, Clientes + Alumnos) y PR #9 (`feat/admin-bookings`,
-Reservaciones + Lista de Espera + Creditos) ya mergeados a `develop`.
-El sub-proyecto `Academia — Grupos e Inscripciones` (rama `feat/admin-academy-groups`)
-esta completo y verificado por codigo (typecheck/lint/build sin errores en ambas
-apps) y por revision de diseno/calidad, pendiente de merge via Pull Request.
+PR #8 (`feat/admin-customers`, Clientes + Alumnos), PR #9 (`feat/admin-bookings`,
+Reservaciones + Lista de Espera + Creditos) y PR #10 (`feat/admin-academy-groups`,
+Academia Grupos + Inscripciones) ya mergeados a `develop`.
+El sub-proyecto `Academia — Clientes sin cuenta ("tutores de mostrador")`
+(rama `feat/admin-academy-unregistered-guardians`) esta completo y verificado por
+codigo (typecheck/lint/build sin errores en ambas apps) y por revision de
+diseno/calidad, pendiente de merge via Pull Request.
 
-**Proximo sub-proyecto acordado despues de Academia (Grupos + Inscripciones):**
-`Academia — Clientes sin cuenta ("de mostrador")` (`docs/roadmap.md` punto 18b)
-para permitir inscribir alumnos cuyos tutores pagan en efectivo y no tienen
-cuenta en Supabase Auth, relajando la obligatoriedad de `guardian_id` en
-`dependents`.
+**Proximo sub-proyecto acordado despues de Clientes sin cuenta:**
+`Academia — Colegiaturas` (`docs/roadmap.md` punto 18c) para registrar estados de
+pago (`PAGADO`/`NO_PAGADO`) manuales por periodo de inscripcion para cobros en
+efectivo y transferencia con alertas de atraso.
 
 Orden completo restante del roadmap (feature-driven):
-Academia (18b Clientes sin cuenta → 18c Colegiaturas → 18d Asistencia) →
-Pagos (Stripe) → Dashboard/Notificaciones/Settings.
+Academia (18c Colegiaturas → 18d Asistencia) → Pagos (Stripe) →
+Dashboard/Notificaciones/Settings.
 
 Para despues del roadmap feature (vueltas de pulido/integration/testing):
 - Recuperacion de contrasena y reenvio de verificacion de email en `apps/web`.
