@@ -14,6 +14,148 @@ export type Database = {
   }
   public: {
     Tables: {
+      academy_enrollments: {
+        Row: {
+          business_id: string
+          created_at: string
+          dependent_id: string
+          enrollment_date: string
+          group_id: string
+          id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          dependent_id: string
+          enrollment_date?: string
+          group_id: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          dependent_id?: string
+          enrollment_date?: string
+          group_id?: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_enrollments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_enrollments_dependent_id_fkey"
+            columns: ["dependent_id"]
+            isOneToOne: false
+            referencedRelation: "dependents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_enrollments_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "academy_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academy_group_schedules: {
+        Row: {
+          business_id: string
+          day_of_week: number
+          end_time: string
+          group_id: string
+          id: string
+          start_time: string
+        }
+        Insert: {
+          business_id: string
+          day_of_week: number
+          end_time: string
+          group_id: string
+          id?: string
+          start_time: string
+        }
+        Update: {
+          business_id?: string
+          day_of_week?: number
+          end_time?: string
+          group_id?: string
+          id?: string
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_group_schedules_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_group_schedules_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "academy_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academy_groups: {
+        Row: {
+          active: boolean
+          business_id: string
+          created_at: string
+          id: string
+          instructor_id: string | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          business_id: string
+          created_at?: string
+          id?: string
+          instructor_id?: string | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          business_id?: string
+          created_at?: string
+          id?: string
+          instructor_id?: string | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_groups_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_groups_instructor_id_fkey"
+            columns: ["instructor_id"]
+            isOneToOne: false
+            referencedRelation: "instructors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_allowed_emails: {
         Row: {
           created_at: string
@@ -467,7 +609,7 @@ export type Database = {
     }
     Functions: {
       book_class: {
-        Args: { p_customer_id: string; p_class_id: string }
+        Args: { p_class_id: string; p_customer_id: string }
         Returns: {
           business_id: string
           class_id: string
@@ -477,18 +619,21 @@ export type Database = {
           status: string
           updated_at: string
         }
+        SetofOptions: {
+          from: "*"
+          to: "bookings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
-      cancel_booking: {
-        Args: { p_booking_id: string }
-        Returns: undefined
-      }
+      cancel_booking: { Args: { p_booking_id: string }; Returns: undefined }
       current_user_business_id: { Args: never; Returns: string }
       current_user_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
       }
       grant_credits: {
-        Args: { p_customer_id: string; p_amount: number; p_notes?: string }
+        Args: { p_amount: number; p_customer_id: string; p_notes?: string }
         Returns: undefined
       }
       promote_from_waitlist: {
@@ -501,6 +646,12 @@ export type Database = {
           id: string
           status: string
           updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "bookings"
+          isOneToOne: true
+          isSetofReturn: false
         }
       }
     }
