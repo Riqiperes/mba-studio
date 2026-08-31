@@ -7,6 +7,7 @@ const PANEL_ITEMS = [
   { to: "/packages", label: "Paquetes" },
   { to: "/customers", label: "Clientes" },
   { to: "/students", label: "Alumnos" },
+  { to: "/academy/groups", label: "Academia" },
 ];
 
 export function HomePage() {
