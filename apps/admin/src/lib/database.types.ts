@@ -333,7 +333,9 @@ export type Database = {
           business_id: string
           created_at: string
           full_name: string
-          guardian_id: string
+          guardian_id: string | null
+          guardian_name: string | null
+          guardian_phone: string | null
           id: string
           updated_at: string
         }
@@ -343,7 +345,9 @@ export type Database = {
           business_id: string
           created_at?: string
           full_name: string
-          guardian_id: string
+          guardian_id?: string | null
+          guardian_name?: string | null
+          guardian_phone?: string | null
           id?: string
           updated_at?: string
         }
@@ -353,7 +357,9 @@ export type Database = {
           business_id?: string
           created_at?: string
           full_name?: string
-          guardian_id?: string
+          guardian_id?: string | null
+          guardian_name?: string | null
+          guardian_phone?: string | null
           id?: string
           updated_at?: string
         }

@@ -29,13 +29,17 @@ function toEnrollment(row: EnrollmentRow): AcademyEnrollment {
 }
 
 type EnrollmentWithStudentRow = EnrollmentRow & {
-  dependents: { full_name: string; profiles: { full_name: string | null } | null } | null;
+  dependents: {
+    full_name: string;
+    guardian_name: string | null;
+    profiles: { full_name: string | null } | null;
+  } | null;
 };
 
 export async function listEnrollmentsByGroup(groupId: string): Promise<AcademyEnrollmentWithStudent[]> {
   const { data, error } = await supabase
     .from("academy_enrollments")
-    .select(`${ENROLLMENT_COLUMNS}, dependents(full_name, profiles(full_name))`)
+    .select(`${ENROLLMENT_COLUMNS}, dependents(full_name, guardian_name, profiles(full_name))`)
     .eq("group_id", groupId)
     .eq("status", "ACTIVA")
     .order("enrollment_date", { ascending: true });
@@ -44,7 +48,7 @@ export async function listEnrollmentsByGroup(groupId: string): Promise<AcademyEn
   return (data as EnrollmentWithStudentRow[]).map((row) => ({
     ...toEnrollment(row),
     studentName: row.dependents?.full_name ?? "-",
-    guardianName: row.dependents?.profiles?.full_name ?? null,
+    guardianName: row.dependents?.guardian_name ?? row.dependents?.profiles?.full_name ?? null,
   }));
 }
 
