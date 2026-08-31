@@ -33,7 +33,11 @@ export function useDependentsByGuardian(guardianId: string, businessId: string) 
 
   async function create(input: DependentInput) {
     if (!businessId) throw new Error("Falta el business_id del cliente.");
-    await createDependent(businessId, guardianId, input);
+    await createDependent(businessId, {
+      guardianId,
+      fullName: input.fullName,
+      birthDate: input.birthDate ?? null,
+    });
     await reload();
   }
 
