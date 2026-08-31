@@ -12,6 +12,7 @@ import { CustomerDetailPage } from "@/pages/CustomerDetailPage";
 import { StudentsPage } from "@/pages/StudentsPage";
 import { ClassBookingsPage } from "@/pages/ClassBookingsPage";
 import { AcademyGroupsPage } from "@/pages/AcademyGroupsPage";
+import { AcademyGroupDetailPage } from "@/pages/AcademyGroupDetailPage";
 
 function App() {
   return (
@@ -105,6 +106,16 @@ function App() {
               <RequireAuth>
                 <AdminLayout>
                   <AcademyGroupsPage />
+                </AdminLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/academy/groups/:id"
+            element={
+              <RequireAuth>
+                <AdminLayout>
+                  <AcademyGroupDetailPage />
                 </AdminLayout>
               </RequireAuth>
             }
