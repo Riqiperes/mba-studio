@@ -1,56 +1,49 @@
 import { useState } from "react";
 import { useStudioClasses } from "@/features/studio/hooks/useStudioClasses";
 import { ClassesCalendar } from "@/features/studio/components/ClassesCalendar";
-import { ClassesFilterBar } from "@/features/studio/components/ClassesFilterBar";
+import { WeekSelector } from "@/features/studio/components/WeekSelector";
 import type { ClassFilters } from "@/features/studio/types/StudioClass";
 
+function getWeekStart(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  return d;
+}
+
+function formatDate(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function addDays(date: Date, days: number): Date {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
 export function ClassesCalendarPage() {
-  const [filters, setFilters] = useState<ClassFilters>({
-    instructorId: "",
-    dateFrom: "",
-    dateTo: "",
-  });
+  const today = new Date();
+  const todayWeekStart = formatDate(getWeekStart(today));
+  const [weekStart, setWeekStart] = useState<string>(todayWeekStart);
 
-  const { classes, instructors, loading, error } = useStudioClasses(filters);
+  // Compute dateFrom (Monday) and dateTo (Sunday) from weekStart
+  const dateFrom = weekStart;
+  const dateTo = formatDate(addDays(new Date(weekStart + "T00:00:00"), 6));
 
-  const handleFilterChange = (newFilters: ClassFilters) => {
-    setFilters(newFilters);
-  };
-
-  const handleClearFilters = () => {
-    setFilters({ instructorId: "", dateFrom: "", dateTo: "" });
-  };
-
-  const hasActiveFilters = Boolean(filters.instructorId || filters.dateFrom || filters.dateTo);
+  const filters: ClassFilters = { dateFrom, dateTo };
+  const { classes, loading, error } = useStudioClasses(filters);
 
   return (
-    <div id="classes-calendar-page" className="mx-auto max-w-5xl p-6">
-      <header className="mb-8">
-        <h1 className="text-2xl font-semibold text-brand-primary">Horario de clases</h1>
-        <p className="mt-1 text-gray-600">
-          Próximas clases de Pilates. Usa los filtros para encontrar la que buscas.
+    <div id="classes-calendar-page" className="mx-auto max-w-5xl px-4 py-4 pb-24">
+      <header className="mb-4">
+        <h1 className="text-xl font-semibold text-brand-primary">Horario de clases</h1>
+        <p className="mt-1 text-sm text-gray-600">
+          Próximas clases de Pilates. Navega por semanas.
         </p>
       </header>
 
-      <ClassesFilterBar
-        instructors={instructors}
-        filters={filters}
-        onChange={handleFilterChange}
-        onClear={handleClearFilters}
-      />
-
-      {hasActiveFilters && (
-        <div className="mb-4 flex items-center justify-between text-sm text-gray-500">
-          <span>Filtros activos</span>
-          <button
-            type="button"
-            onClick={handleClearFilters}
-            className="text-brand-primary hover:underline"
-          >
-            Limpiar todo
-          </button>
-        </div>
-      )}
+      <WeekSelector selectedWeekStart={weekStart} onChange={setWeekStart} />
 
       {error && (
         <div id="classes-error" className="mb-6 rounded-md bg-red-50 p-4 text-sm text-red-600">

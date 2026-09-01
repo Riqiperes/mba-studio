@@ -2,10 +2,13 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "@/features/auth/hooks/AuthProvider";
 import { RequireAuth } from "@/routes/RequireAuth";
 import { LoginPage } from "@/pages/LoginPage";
-import { HomePage } from "@/pages/HomePage";
 import { MainLayout } from "@/layouts/MainLayout";
+import { LandingPage } from "@/pages/LandingPage";
 import { PackagesCatalogPage } from "@/features/packages/components/PackagesCatalog";
+import { PackageDetailPage } from "@/features/packages/components/PackageDetailPage";
 import { ClassesCalendarPage } from "@/features/studio/components/ClassesCalendarPage";
+import { ClassDetailPage } from "@/features/studio/components/ClassDetailPage";
+import { UserProfilePage } from "@/features/auth/components/UserProfilePage";
 
 function App() {
   return (
@@ -20,9 +23,12 @@ function App() {
               </RequireAuth>
             }
           >
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<LandingPage />} />
             <Route path="/packages" element={<PackagesCatalogPage />} />
+            <Route path="/packages/:id" element={<PackageDetailPage />} />
             <Route path="/classes" element={<ClassesCalendarPage />} />
+            <Route path="/classes/:id" element={<ClassDetailPage />} />
+            <Route path="/profile" element={<UserProfilePage />} />
           </Route>
         </Routes>
       </AuthProvider>

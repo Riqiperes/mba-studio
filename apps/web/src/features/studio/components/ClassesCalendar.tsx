@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { StudioClassWithInstructor } from "../types/StudioClass";
 
 function formatDate(dateStr: string): string {
@@ -57,33 +58,34 @@ export function ClassesCalendar({ classes }: { classes: StudioClassWithInstructo
             </h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {dayClasses.map((cls) => (
-                <article
-                  key={cls.id}
-                  id={`class-card-${cls.id}`}
-                  className="flex flex-col rounded-lg border border-gray-200 bg-white p-5 shadow-sm"
-                >
-                  <h3 className="font-medium text-brand-primary">{cls.title}</h3>
-                  <div className="mt-2 flex flex-col gap-1 text-sm text-gray-600">
-                    <p className="flex items-center gap-1">
-                      <span className="font-medium">{formatTime(cls.startsAt)}</span>
-                      <span className="text-gray-400">–</span>
-                      <span>{formatTime(cls.endsAt)}</span>
-                    </p>
-                    {cls.instructorName && (
+                <Link key={cls.id} to={`/classes/${cls.id}`}>
+                  <article
+                    id={`class-card-${cls.id}`}
+                    className="flex flex-col rounded-lg border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <h3 className="font-medium text-brand-primary">{cls.title}</h3>
+                    <div className="mt-2 flex flex-col gap-1 text-sm text-gray-600">
                       <p className="flex items-center gap-1">
-                        <span className="font-medium">{cls.instructorName}</span>
+                        <span className="font-medium">{formatTime(cls.startsAt)}</span>
+                        <span className="text-gray-400">–</span>
+                        <span>{formatTime(cls.endsAt)}</span>
                       </p>
-                    )}
-                    <p className="flex items-center gap-1 text-gray-500">
-                      Cupo: {cls.maxCapacity}
-                    </p>
-                  </div>
-                  <div className="mt-auto pt-3 flex items-center justify-between border-t border-gray-100">
-                    <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                      {getStatusLabel(cls.status)}
-                    </span>
-                  </div>
-                </article>
+                      {cls.instructorName && (
+                        <p className="flex items-center gap-1">
+                          <span className="font-medium">{cls.instructorName}</span>
+                        </p>
+                      )}
+                      <p className="flex items-center gap-1 text-gray-500">
+                        Cupo: {cls.maxCapacity}
+                      </p>
+                    </div>
+                    <div className="mt-auto pt-3 flex items-center justify-between border-t border-gray-100">
+                      <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                        {getStatusLabel(cls.status)}
+                      </span>
+                    </div>
+                  </article>
+                </Link>
               ))}
             </div>
           </section>

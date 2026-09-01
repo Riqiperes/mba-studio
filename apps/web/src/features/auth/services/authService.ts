@@ -60,6 +60,34 @@ export async function getProfile(userId: string): Promise<Profile> {
   };
 }
 
+export async function updateProfile(
+  userId: string,
+  input: { fullName: string | null; phone: string | null },
+): Promise<Profile> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({
+      full_name: input.fullName,
+      phone: input.phone,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", userId)
+    .select("id, business_id, role, full_name, phone, created_at, updated_at")
+    .single();
+
+  if (error) throw error;
+
+  return {
+    id: data.id,
+    businessId: data.business_id,
+    role: data.role,
+    fullName: data.full_name,
+    phone: data.phone,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+  };
+}
+
 export function subscribeToAuthChanges(
   callback: (session: Session | null) => void,
 ): () => void {

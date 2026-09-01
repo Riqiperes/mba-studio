@@ -6,7 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { getProfile, subscribeToAuthChanges } from "../services/authService";
+import { getProfile, subscribeToAuthChanges, signOut as signOutService } from "../services/authService";
 import type { Profile } from "../types/profile";
 
 type AuthContextValue = {
@@ -14,6 +14,7 @@ type AuthContextValue = {
   profile: Profile | null;
   loading: boolean;
   error: string | null;
+  signOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -66,8 +67,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const signOut = async () => {
+    await signOutService();
+  };
+
   return (
-    <AuthContext.Provider value={{ session, profile, loading, error }}>
+    <AuthContext.Provider value={{ session, profile, loading, error, signOut }}>
       {children}
     </AuthContext.Provider>
   );
