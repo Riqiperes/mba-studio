@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useStudioClasses } from "@/features/studio/hooks/useStudioClasses";
 import { ClassesCalendar } from "@/features/studio/components/ClassesCalendar";
 import { WeekSelector } from "@/features/studio/components/WeekSelector";
@@ -31,7 +31,7 @@ export function ClassesCalendarPage() {
   const dateFrom = weekStart;
   const dateTo = formatDate(addDays(new Date(weekStart + "T00:00:00"), 6));
 
-  const filters: ClassFilters = { dateFrom, dateTo };
+  const filters = useMemo<ClassFilters>(() => ({ dateFrom, dateTo }), [dateFrom, dateTo]);
   const { classes, loading, error } = useStudioClasses(filters);
 
   return (

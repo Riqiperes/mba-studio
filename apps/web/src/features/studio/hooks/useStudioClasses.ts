@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { listUpcomingClasses, listInstructors } from "../services/studioClassesService";
 import type { StudioClassWithInstructor, ClassFilters } from "../types/StudioClass";
 
@@ -8,12 +8,22 @@ export function useStudioClasses(filters: ClassFilters = {}) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Memoize filters to prevent unnecessary reloads
+  const memoizedFilters = useMemo(
+    () => ({
+      instructorId: filters.instructorId ?? "",
+      dateFrom: filters.dateFrom ?? "",
+      dateTo: filters.dateTo ?? "",
+    }),
+    [filters.instructorId, filters.dateFrom, filters.dateTo],
+  );
+
   const reload = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const [classesData, instructorsData] = await Promise.all([
-        listUpcomingClasses(filters),
+        listUpcomingClasses(memoizedFilters),
         listInstructors(),
       ]);
       setClasses(classesData);
@@ -24,7 +34,7 @@ export function useStudioClasses(filters: ClassFilters = {}) {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [memoizedFilters]);
 
   useEffect(() => {
     reload();
