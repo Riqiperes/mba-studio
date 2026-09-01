@@ -42,3 +42,4 @@ supabase/.temp/
 # Claude Code / superpowers scratch state
 .worktrees/
 .superpowers/
+comandos-para-trabajo.md

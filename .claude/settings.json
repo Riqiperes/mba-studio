@@ -6,6 +6,9 @@
     "typescript-lsp@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
     "claude-mem@thedotmack": true,
-    "token-optimizer@alexgreensh-token-optimizer": true
+    "token-optimizer@alexgreensh-token-optimizer": true,
+    "ponytail@ponytail": true,
+    "caveman@caveman": true,
+    "skill-creator@claude-plugins-official": true
   }
 }
