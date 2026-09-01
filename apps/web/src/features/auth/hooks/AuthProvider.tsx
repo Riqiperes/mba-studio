@@ -30,10 +30,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function loadProfile(userId: string) {
       try {
         const nextProfile = await getProfile(userId);
-        if (isMounted) setProfile(nextProfile);
+        if (isMounted) {
+          setProfile(nextProfile);
+          setLoading(false);
+        }
       } catch (err) {
         if (isMounted) {
           setProfile(null);
+          setLoading(false);
           setError(
             "No se pudo cargar tu perfil. Si acabas de registrarte, es posible que la creacion automatica del perfil haya fallado.",
           );
@@ -42,20 +46,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    // supabase-js dispara este callback una vez de inmediato con la sesion
-    // actual (o null) al suscribirse, ademas de en cada cambio posterior —
-    // por eso no hace falta llamar getSession() por separado.
     const unsubscribe = subscribeToAuthChanges((nextSession) => {
       if (!isMounted) return;
 
       setSession(nextSession);
       setError(null);
-      setLoading(false);
 
       if (nextSession) {
         loadProfile(nextSession.user.id);
       } else {
         setProfile(null);
+        setLoading(false);
       }
     });
 
