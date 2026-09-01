@@ -13,6 +13,7 @@ import { StudentsPage } from "@/pages/StudentsPage";
 import { ClassBookingsPage } from "@/pages/ClassBookingsPage";
 import { AcademyGroupsPage } from "@/pages/AcademyGroupsPage";
 import { AcademyGroupDetailPage } from "@/pages/AcademyGroupDetailPage";
+import { AcademyOverduePage } from "@/pages/AcademyOverduePage";
 
 function App() {
   return (
@@ -106,6 +107,16 @@ function App() {
               <RequireAuth>
                 <AdminLayout>
                   <AcademyGroupsPage />
+                </AdminLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/academy/overdue"
+            element={
+              <RequireAuth>
+                <AdminLayout>
+                  <AcademyOverduePage />
                 </AdminLayout>
               </RequireAuth>
             }

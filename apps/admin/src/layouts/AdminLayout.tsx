@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { to: "/customers", label: "Clientes" },
   { to: "/students", label: "Alumnos" },
   { to: "/academy/groups", label: "Academia" },
+  { to: "/academy/overdue", label: "Colegiaturas" },
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {
