@@ -5,7 +5,7 @@
 Sexto sub-proyecto del panel administrativo (orden acordado: clases+instructores
 → paquetes → clientes+alumnos → reservaciones+lista de espera → Academia
 (grupos+inscripciones) → **Academia (clientes sin cuenta)** → Academia
-(colegiaturas) → Academia (asistencia) → pagos →
+(colegiaturas) → pagos →
 dashboard/notificaciones/settings — ver `docs/roadmap.md` punto 18b).
 
 En la operación real de una academia de ballet y danza, es muy común que padres

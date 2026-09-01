@@ -42,7 +42,10 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
          inscripcion (sin Stripe todavia), que el staff marca manualmente
          al cobrar en efectivo/transferencia; alertas de pago atrasado
          (ver `docs/business-rules.md`).
-    18d. Asistencia — registro de asistencia por sesion de grupo.
+
+> **Nota:** El sub-proyecto 18d (Asistencia — registro de asistencia por
+> sesión de grupo) fue descartado por orden de la directora. No se
+> implementará ninguna funcionalidad de asistencia en la Academia.
 19. Notifications — generacion de eventos de notificacion (email primero).
 20. WhatsApp — proveedor real (Meta/Twilio/UltraMsg) detras de la
     abstraccion ya preparada.

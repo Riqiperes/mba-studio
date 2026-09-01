@@ -62,7 +62,7 @@ una capa, no toda la app.
 Las features actuales de `apps/web`: `auth`, `studio`, `academy`,
 `bookings`, `packages`, `payments`, `notifications`. Las de `apps/admin`:
 `dashboard`, `classes`, `packages`, `customers`, `academy`, `payments`,
-`attendance`, `waitlist`, `notifications`, `settings`.
+`waitlist`, `notifications`, `settings`.
 
 ## Flujo tipico de una accion de usuario
 

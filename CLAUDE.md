@@ -9,11 +9,14 @@ proposito, no lo conviertas en un documento gigante.
 
 Plataforma de membresias y reservaciones para MBA MID: un estudio de
 Pilates (paquetes, creditos, reservaciones, lista de espera) y una academia
-de ballet/danza (inscripciones, colegiaturas, asistencia). MVP para un solo
+de ballet/danza (inscripciones, colegiaturas). MVP para un solo
 negocio, con la base de datos y la arquitectura preparadas para convertirse
 despues en un SaaS white-label multi-negocio. No se implementa
 multi-tenant real todavia, solo se deja el camino libre. Ver
 `docs/white-label.md`.
+
+> **Nota:** La funcionalidad de asistencia (control de presencia por sesión)
+> fue descartada por orden de la directora. No se implementará.
 
 ## Stack (no cambiar sin razon tecnica explicada primero)
 

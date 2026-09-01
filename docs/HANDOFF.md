@@ -32,4 +32,5 @@ Working tree: limpio
 
 1. Mergear PR de `feat/admin-academy-tuition` -> `develop` en GitHub.
 2. Actualizar `develop` en el repo principal (`git pull origin develop`) y limpiar la rama.
-3. Iniciar el siguiente sub-proyecto de Academia: **18d. Academia — Asistencia** (`docs/roadmap.md` punto 18d) para registro de asistencia por sesión de grupo.
+3. **Academia completada** — no hay más sub-proyectos de Academia. El punto 18d (Asistencia) fue descartado por orden de la directora.
+4. Siguiente etapa del roadmap: **Pagos (Stripe)** → Dashboard/Notificaciones/Settings.

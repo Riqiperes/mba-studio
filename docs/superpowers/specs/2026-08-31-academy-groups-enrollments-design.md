@@ -5,7 +5,7 @@
 Quinto sub-proyecto del panel administrativo (orden acordado: clases+
 instructores → paquetes → clientes+alumnos → reservaciones+lista de
 espera → **Academia (grupos+inscripciones)** → Academia (clientes sin
-cuenta) → Academia (colegiaturas) → Academia (asistencia) → pagos →
+cuenta) → Academia (colegiaturas) → pagos →
 dashboard/notificaciones/settings — ver `docs/roadmap.md` punto 18).
 
 La tabla `dependents` ("Alumnos") ya existe desde el sub-proyecto de
@@ -276,5 +276,8 @@ manual:
 ## Fuera de alcance (queda para sub-proyectos futuros)
 
 Vista de cliente en `apps/web`, clientes sin cuenta ("de mostrador"),
-cupo máximo por grupo, colegiaturas/estado de pago, asistencia — ver
+cupo máximo por grupo, colegiaturas/estado de pago — ver
 `docs/roadmap.md` punto 18 para el orden completo.
+
+> **Nota:** La funcionalidad de asistencia fue descartada por orden de la
+> directora y no se implementará.

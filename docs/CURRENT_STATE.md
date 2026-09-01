@@ -560,11 +560,12 @@ esta completo y verificado por codigo (typecheck/lint/build sin errores en
 ambas apps) y por revision de diseno/calidad, pendiente de merge via Pull Request.
 
 **Proximo sub-proyecto acordado despues de Colegiaturas:**
-`Academia — Asistencia` (`docs/roadmap.md` punto 18d) para registro de asistencia
-por sesion de grupo.
+Ninguno — la Academia está completa (Grupos, Inscripciones, Clientes sin cuenta, Colegiaturas).
+El sub-proyecto `Academia — Asistencia` (punto 18d del roadmap original) fue descartado
+por orden de la directora. No se implementará ninguna funcionalidad de asistencia.
 
 Orden completo restante del roadmap (feature-driven):
-Academia (18d Asistencia) → Pagos (Stripe) → Dashboard/Notificaciones/Settings.
+Pagos (Stripe) → Dashboard/Notificaciones/Settings.
 
 Para despues del roadmap feature (vueltas de pulido/integration/testing):
 - Recuperacion de contrasena y reenvio de verificacion de email en `apps_web`.

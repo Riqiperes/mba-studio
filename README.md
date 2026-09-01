@@ -2,9 +2,12 @@
 
 Plataforma de membresias y reservaciones para **MBA MID**: un estudio de
 Pilates (paquetes, creditos, reservaciones, lista de espera) y una academia
-de ballet/danza (inscripciones, colegiaturas, asistencia). MVP para un solo
+de ballet/danza (inscripciones, colegiaturas). MVP para un solo
 negocio, con la base preparada para convertirse mas adelante en un producto
 white-label / SaaS para estudios similares.
+
+> **Nota:** La funcionalidad de asistencia (control de presencia por sesión)
+> fue descartada por orden de la directora. No se implementará.
 
 ## Arquitectura y stack
 
@@ -168,7 +171,7 @@ Pendiente (ver `docs/roadmap.md` para el orden completo):
 - Autenticacion (email/password + Google OAuth).
 - Paquetes, clases, reservaciones, creditos, lista de espera.
 - Stripe (Checkout + Webhooks).
-- Academia (inscripciones, colegiaturas, asistencia).
+- Academia (inscripciones, colegiaturas).
 - Notificaciones y WhatsApp.
 - Deploy a Cloudflare Pages.
 

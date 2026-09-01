@@ -492,13 +492,13 @@ git commit -m "feat(admin): detalle de grupo con colegiatura y vista de pagos at
 
 - [ ] **Step 2: Actualizar `docs/CURRENT_STATE.md`**
 
-Documentar migración 014, colegiaturas en Academia, vista de atrasados, y actualizar el roadmap al sub-proyecto 18d (Asistencia).
+Documentar migración 014, colegiaturas en Academia, vista de atrasados, y actualizar el roadmap: Academia completada (no hay sub-proyecto 18d — Asistencia descartado por orden de la directora).
 
 - [ ] **Step 3: Commit**
 
 ```bash
 git add docs/CURRENT_STATE.md
-git commit -m "docs: colegiaturas en academia completado, siguiente sub-proyecto asistencia"
+git commit -m "docs: colegiaturas en academia completado, academia terminada (asistencia descartada)"
 ```
 
 ---
