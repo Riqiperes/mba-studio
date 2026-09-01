@@ -3,8 +3,14 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-08-31 (Academia — Clientes sin cuenta / tutores de mostrador
-en `apps/admin` —migracion nueva 013 para hacer `guardian_id` nullable y agregar
+Ultima actualizacion: 2026-08-31 (Academia — Colegiaturas en `apps_admin` —migracion nueva 014 para tablas
+`academy_tuition_periods` y `academy_payments` con RLS staff-scoped—: configuración de periodo de cobro por grupo
+(día fijo del mes o aniversario de inscripción), monto en centavos; registro manual de pagos (`PAGADO`/`NO_PAGADO`)
+con método (EFECTIVO/TRANSFERENCIA/OTRO), fecha, referencia opcional; columna "Colegiatura" en detalle de grupo
+con badge de estado del periodo actual y botón "Marcar pago"; vista de atrasados `/academy/overdue` con tabla
+filtrada por grupo, días de atraso, y acción "Marcar pagado"; navegación en AdminLayout y botón en HomePage;
+verificado con typecheck, lint y build en ambas apps). Sesion previa: Academia
+— Clientes sin cuenta / tutores de mostrador en `apps_admin` —migracion nueva 013 para hacer `guardian_id` nullable y agregar
 `guardian_name` y `guardian_phone` en `dependents` con check constraint de
 integridad—: soporte para registrar e inscribir alumnos de tutores que pagan
 en mostrador sin cuenta en Supabase Auth; modal de inscripcion en Academia con
@@ -13,7 +19,7 @@ inscribir en un solo paso; vista global `/students` permite crear y editar
 alumnos con tutor de mostrador y muestra nombre y telefono de contacto;
 resolucion transparente del tutor en el detalle de grupos y tablas de alumnos;
 verificado con typecheck, lint y build en ambas apps). Sesion previa: Academia
-— Grupos e Inscripciones en `apps/admin` —migracion nueva 012 para tablas
+— Grupos e Inscripciones en `apps_admin` —migracion nueva 012 para tablas
 `academy_groups`, `academy_group_schedules` y `academy_enrollments` con RLS
 staff-scoped—: CRUD de grupos con instructor opcional y horarios semanales
 repetibles; detalle de grupo con lista de alumnos inscritos; modal para inscribir
@@ -21,7 +27,7 @@ alumnos existentes o crear alumnos inline para clientes registrados; dar de baja
 alumnos; prevencion de inscripciones duplicadas via unique index condicional;
 navegacion y boton en HomePage hacia `/academy/groups` y `/academy/groups/:id`;
 verificado con typecheck, lint y build en ambas apps). Sesion previa: Reservaciones + Lista de Espera + Creditos
-en `apps/admin` —migracion nueva 011 para tablas `bookings`/`waitlist`/
+en `apps_admin` —migracion nueva 011 para tablas `bookings`/`waitlist`/
 `customer_credits_ledger` y 4 funciones RPC `security definer`
 transaccionales (`book_class`, `cancel_booking`, `promote_from_waitlist`,
 `grant_credits`)—: ledger de creditos por cliente con otorgamiento manual
@@ -34,7 +40,7 @@ rol (`STAFF`/`BUSINESS_ADMIN`/`SUPER_ADMIN`) y tenant (`business_id`)
 internamente — ver "Known Issues" para el detalle del hallazgo de
 seguridad y el bug de manejo de errores encontrados durante la
 verificacion manual. Sesion previa: CRUD de Clientes y Alumnos en
-`apps/admin` —migracion nueva 010 para la tabla `dependents`, resto sobre
+`apps_admin` —migracion nueva 010 para la tabla `dependents`, resto sobre
 `profiles` existente—: directorio de clientes de solo lectura/edicion
 basica sobre `profiles` con rol `CUSTOMER`; CRUD de alumnos por cliente
 (crear, editar, desactivar/reactivar) en el detalle de cada cliente; vista
@@ -42,13 +48,13 @@ global `/students` con columna "Tutor"; panel de inicio (`HomePage`)
 rediseñado como grid de botones grandes (Instructores, Clases, Paquetes,
 Clientes, Alumnos); AdminLayout gana los links "Clientes" y "Alumnos".
 Naming: tabla/codigo en ingles `dependents`, toda la UI dice "Alumno(s)",
-nunca "Dependiente". Sesion previa: CRUD de paquetes en `apps/admin` —sin
+nunca "Dependiente". Sesion previa: CRUD de paquetes en `apps_admin` —sin
 cambios de BD, tabla existente de migracion 005—: crear, editar,
 desactivar/reactivar, tabla listable con columnas nombre/creditos/precio/
 vigencia/estado; precio se captura en pesos enteros en el form y el
 service lo convierte a `price_cents`; moneda fija en MXN, sin selector;
 AdminLayout gana el link "Paquetes". Sesion previa: CRUD completo de
-instructores y clases en `apps/admin` con navegacion del panel y cierre
+instructores y clases en `apps_admin` con navegacion del panel y cierre
 de sesion —sin cambios de BD, usando tablas existentes de migraciones
 003-004—; Instructores: crear, editar, desactivar/reactivar, tabla
 listable sin filtro de estado; Clases: crear (referencia instructor),
@@ -146,20 +152,21 @@ build sin errores).
 - PR #4 (`feat/admin-google-login`), PR #5 (`feat/admin-classes-instructors`),
   PR #6 (`fix/pr5-minor-polish`), el PR de `feat/admin-packages` (CRUD de
   paquetes), PR #8 (`feat/admin-customers`, Clientes + Alumnos), PR #9
-  (`feat/admin-bookings`, Reservaciones + Lista de Espera + Creditos) y PR #10
-  (`feat/admin-academy-groups`, Academia Grupos + Inscripciones) ya mergeados a
-  `develop`. Sub-proyecto `Academia — Clientes sin cuenta ("tutores de mostrador")`
-  (rama `feat/admin-academy-unregistered-guardians`) esta completo y verificado
-  por codigo (typecheck/lint/build sin errores en ambas apps) y por revision
-  de diseno/calidad, listo para PR y merge a `develop`.
+  (`feat/admin-bookings`, Reservaciones + Lista de Espera + Creditos), PR #10
+  (`feat/admin-academy-groups`, Academia Grupos + Inscripciones) y PR #11
+  (`feat/admin-academy-unregistered-guardians`, Academia Clientes sin cuenta)
+  ya mergeados a `develop`. Sub-proyecto `Academia — Colegiaturas`
+  (rama `feat/admin-academy-tuition`) esta completo y verificado por codigo
+  (typecheck/lint/build sin errores en ambas apps) y por revision de
+  diseno/calidad, listo para PR y merge a `develop`.
   Proximo paso: ver "Next Task" abajo.
 
 ## Pending
 
 Ver `docs/roadmap.md` para el orden completo. En resumen: Auth (email/password
 + Google OAuth), Base UI, Studio (paquetes, clases, bookings, creditos,
-waitlist), Stripe, Academia, Notificaciones, WhatsApp, White-label activo,
-Testing, Deployment (Cloudflare Pages).
+waitlist), Stripe, Academia (Colegiaturas ✓, Asistencia), Notificaciones,
+WhatsApp, White-label activo, Testing, Deployment (Cloudflare Pages).
 
 ## Known Issues
 
@@ -392,6 +399,18 @@ Testing, Deployment (Cloudflare Pages).
   - Detalle de grupo (`AcademyGroupDetailPage`): resolución automática y transparente del nombre
     del tutor para inscripciones de clientes con cuenta o de mostrador.
   - Manejo de errores actualizado en formularios de dependientes con `getErrorMessage.ts`.
+- **Academia — Colegiaturas en `apps/admin`** (rama `feat/admin-academy-tuition`, migracion `014_academy_tuition.sql`):
+  - Tablas nuevas `academy_tuition_periods` (configuración por grupo: día fijo del mes o aniversario,
+    monto en centavos) y `academy_payments` (registro por inscripción y periodo: estado `PAGADO`/`NO_PAGADO`,
+    método `EFECTIVO`/`TRANSFERENCIA`/`OTRO`, fecha, referencia opcional).
+  - Detalle de grupo (`AcademyGroupDetailPage`): columna "Colegiatura" con badge de estado del periodo
+    actual (`TuitionStatusBadge`) y botón "Marcar pago" que abre `MarkPaymentModal` para registrar
+    o revertir el pago.
+  - Vista de atrasados (`/academy/overdue`, `AcademyOverduePage`): tabla de pagos con `status = NO_PAGADO`
+    y `period_end < hoy`, filtrable por grupo, con columnas Alumno, Grupo, Tutor, Teléfono, Periodo,
+    Monto, Días de atraso, y acción "Marcar pagado" inline.
+  - Navegación: link "Colegiaturas" en `AdminLayout` y botón "Colegiaturas" en grid de `HomePage`.
+  - Manejo de errores con `getErrorMessage.ts`, Zod en formularios, `noValidate`, cierre con Escape.
 - **HomePage** (`apps/admin`): rediseñado de saludo de texto a panel de
   botones grandes (grid con Instructores, Clases, Paquetes, Clientes,
   Alumnos, Academia), cada uno navega a su ruta via `Link` de React Router.
@@ -407,9 +426,10 @@ otro negocio (Studio packages, bookings, Academia) implementado todavia.
 ## Integraciones configuradas
 
 - **Supabase**: proyecto (`MBA-STUDIO`, ref `eazyblybekyygimqpjjw`, region
-  `us-east-1`) con 10 tablas (`business`, `profiles`, `instructors`,
+  `us-east-1`) con 12 tablas (`business`, `profiles`, `instructors`,
   `studio_classes`, `packages`, `admin_allowed_emails`, `dependents`,
-  `bookings`, `waitlist`, `customer_credits_ledger`) y RLS
+  `bookings`, `waitlist`, `customer_credits_ledger`, `academy_tuition_periods`,
+  `academy_payments`) y RLS
   (ver "Migraciones existentes"). Se usa
   como backend compartido de desarrollo/staging para todo el equipo (local
   y previews de Cloudflare Pages) — ver `docs/deployment.md`. `apps/web/.env`
@@ -510,6 +530,10 @@ versionadas en `supabase/migrations/`:
 - `013_dependents_unregistered_guardians.sql` — relaja `dependents.guardian_id` a nullable,
   agrega `guardian_name` y `guardian_phone`, y añade check constraint `dependents_guardian_check`
   para dar soporte a alumnos cuyos tutores pagan en mostrador sin cuenta Auth.
+- `014_academy_tuition.sql` — tablas `academy_tuition_periods` (configuración de periodo de cobro
+  por grupo: día fijo del mes o aniversario de inscripción, monto en centavos) y `academy_payments`
+  (registro de pago por inscripción y periodo: estado `PAGADO`/`NO_PAGADO`, método, fecha, referencia).
+  RLS staff-scoped en ambas tablas.
 
 Decision pendiente de validar con uso real: `studio_classes` e
 `instructors` son de lectura publica (catalogo/marketing) por decision
@@ -528,25 +552,23 @@ PR #1 (migraciones), PR #2 (Google OAuth web), PR #3 (email/password), PR #4
 (login admin), PR #5 (admin CRUD clases+instructores + navegacion), PR #6
 (pulido Minor de PR #5), el PR de `feat/admin-packages` (CRUD de paquetes),
 PR #8 (`feat/admin-customers`, Clientes + Alumnos), PR #9 (`feat/admin-bookings`,
-Reservaciones + Lista de Espera + Creditos) y PR #10 (`feat/admin-academy-groups`,
-Academia Grupos + Inscripciones) ya mergeados a `develop`.
-El sub-proyecto `Academia — Clientes sin cuenta ("tutores de mostrador")`
-(rama `feat/admin-academy-unregistered-guardians`) esta completo y verificado por
-codigo (typecheck/lint/build sin errores en ambas apps) y por revision de
-diseno/calidad, pendiente de merge via Pull Request.
+Reservaciones + Lista de Espera + Creditos), PR #10 (`feat/admin-academy-groups`,
+Academia Grupos + Inscripciones) y PR #11 (`feat/admin-academy-unregistered-guardians`,
+Academia Clientes sin cuenta) ya mergeados a `develop`.
+El sub-proyecto `Academia — Colegiaturas` (rama `feat/admin-academy-tuition`)
+esta completo y verificado por codigo (typecheck/lint/build sin errores en
+ambas apps) y por revision de diseno/calidad, pendiente de merge via Pull Request.
 
-**Proximo sub-proyecto acordado despues de Clientes sin cuenta:**
-`Academia — Colegiaturas` (`docs/roadmap.md` punto 18c) para registrar estados de
-pago (`PAGADO`/`NO_PAGADO`) manuales por periodo de inscripcion para cobros en
-efectivo y transferencia con alertas de atraso.
+**Proximo sub-proyecto acordado despues de Colegiaturas:**
+`Academia — Asistencia` (`docs/roadmap.md` punto 18d) para registro de asistencia
+por sesion de grupo.
 
 Orden completo restante del roadmap (feature-driven):
-Academia (18c Colegiaturas → 18d Asistencia) → Pagos (Stripe) →
-Dashboard/Notificaciones/Settings.
+Academia (18d Asistencia) → Pagos (Stripe) → Dashboard/Notificaciones/Settings.
 
 Para despues del roadmap feature (vueltas de pulido/integration/testing):
-- Recuperacion de contrasena y reenvio de verificacion de email en `apps/web`.
-- Proteccion de rutas por rol dentro de `apps/web` (hoy `RequireAuth` ahi
-  solo protege por "hay sesion o no"; en `apps/admin` ya hay gate de rol).
-- Configurar los dos proyectos de Cloudflare Pages (`apps/web`, `apps/admin`)
+- Recuperacion de contrasena y reenvio de verificacion de email en `apps_web`.
+- Proteccion de rutas por rol dentro de `apps_web` (hoy `RequireAuth` ahi
+  solo protege por "hay sesion o no"; en `apps_admin` ya hay gate de rol).
+- Configurar los dos proyectos de Cloudflare Pages (`apps_web`, `apps_admin`)
   siguiendo `docs/deployment.md` — paso 23 del roadmap original.

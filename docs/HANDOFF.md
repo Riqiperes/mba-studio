@@ -2,36 +2,34 @@
 
 ## Rama actual
 
-Worktree `.worktrees/feat-admin-academy-unregistered-guardians`, rama `feat/admin-academy-unregistered-guardians` (desde `develop`).
+Worktree principal: `C:\Users\ricar\OneDrive\Desktop\mba-studio`, rama `feat/admin-academy-tuition` (desde `develop`).
 
 ## Qué se hizo esta sesión
 
-Sesión de desarrollo de Academia (Clientes sin cuenta / Tutores de mostrador):
+Sesión de desarrollo de Academia (Colegiaturas):
 
-1. **Sub-proyecto 18a cerrado y mergeado**:
-   - PR [#10](https://github.com/Riqiperes/mba-studio/pull/10) mergeado a `develop`.
+1. **Sub-proyecto 18b cerrado y mergeado**:
+   - PR #11 mergeado a `develop`.
 
-2. **Sub-proyecto 18b implementado y verificado (Academia — Clientes sin cuenta / Tutores de mostrador)**:
+2. **Sub-proyecto 18c implementado y verificado (Academia — Colegiaturas)**:
    - Spec y plan redactados y aprobados por el usuario.
-   - Task 1 (migración `013_dependents_unregistered_guardians.sql`: `guardian_id` nullable, columnas `guardian_name` y `guardian_phone`, check constraint de integridad) — commit `477ff62`.
-   - Task 2 (actualización de tipos y servicios en `dependents` y `academyEnrollmentsService`) — commit `9518ad3`.
-   - Task 3 (modal `EnrollStudentModal` con pestañas para clientes registrados y tutores de mostrador) — commit `2ec183b`.
-   - Task 4 (gestión de alumnos de mostrador en `/students`, tabla formateada con teléfono y edición en `DependentFormModal` con `getErrorMessage`) — commit `e476b8f`.
-   - Task 5 (verificación E2E, actualización de `docs/CURRENT_STATE.md`) — commit `294e32e`.
+   - Task 1 (migración `014_academy_tuition.sql`: tablas `academy_tuition_periods` y `academy_payments` con RLS staff-scoped) — commit `d6148b3`.
+   - Task 2 (tipos `TuitionPeriod`/`AcademyPayment` y servicio `academyTuitionService.ts`) — commit `2f1a0d8`.
+   - Task 3 (componentes UI `TuitionStatusBadge` y `MarkPaymentModal` con Zod, `noValidate`, Escape) — commit `81508d4`.
+   - Task 4 (integración en `AcademyGroupDetailPage`: columna Colegiatura + botón "Marcar pago"; nueva página `AcademyOverduePage` con filtro por grupo y acción "Marcar pagado"; navegación en `HomePage` y `AdminLayout`) — commits `b0b2a37`, `c8df4b5`.
+   - Task 5 (verificación E2E, actualización de `docs/CURRENT_STATE.md`) — commit `703e9ed`.
    - Todos los checks (`npm run typecheck`, `npm run lint`, `npm run build`) limpios en `apps/admin` y `apps/web`.
-   - Rama subida a GitHub y Pull Request [#11](https://github.com/Riqiperes/mba-studio/pull/11) abierto hacia `develop`.
+   - Rama subida a GitHub y Pull Request abierto hacia `develop`.
 
 ## Estado del repo
 
 ```
-Worktree principal: C:\Users\ricar\OneDrive\Desktop\mba-studio (rama develop, al dia con origin)
-Worktree activo: C:\Users\ricar\OneDrive\Desktop\mba-studio\.worktrees\feat-admin-academy-unregistered-guardians
-  rama: feat/admin-academy-unregistered-guardians (pusheada a origin, PR #11 abierto)
-  working tree: limpio
+Worktree principal: C:\Users\ricar\OneDrive\Desktop\mba-studio (rama feat/admin-academy-tuition, al dia con origin)
+Working tree: limpio
 ```
 
 ## Siguiente paso sugerido
 
-1. Mergear PR #11 (`feat/admin-academy-unregistered-guardians` -> `develop`) en GitHub.
-2. Actualizar `develop` en el repo principal (`git pull origin develop`) y limpiar el worktree.
-3. Iniciar el siguiente sub-proyecto de Academia: **18c. Academia — Colegiaturas** (`docs/roadmap.md` punto 18c) para el registro de estados de pago (`PAGADO`/`NO_PAGADO`) y alertas de atraso.
+1. Mergear PR de `feat/admin-academy-tuition` -> `develop` en GitHub.
+2. Actualizar `develop` en el repo principal (`git pull origin develop`) y limpiar la rama.
+3. Iniciar el siguiente sub-proyecto de Academia: **18d. Academia — Asistencia** (`docs/roadmap.md` punto 18d) para registro de asistencia por sesión de grupo.
