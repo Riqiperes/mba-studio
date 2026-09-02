@@ -3,11 +3,25 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-09-01 (Reservaciones + Lista de espera + Créditos en `apps_web` — migración `015_web_bookings_rls.sql`
-para RLS customer-scoped en `bookings`, `customer_credits_ledger`, `waitlist`; catálogo de paquetes, calendario semanal
-con botones contextuales Reservar/Lista de espera/Cancelar según cupo y créditos, página `/my-bookings` con mis
-reservaciones y waitlist, perfil editable, navegación inferior mobile-first, badge de créditos `💎 N`; consume
-RPCs existentes `book_class`/`cancel_booking`/`joinWaitlist`/`leaveWaitlist`; verificado typecheck/lint/build en ambas apps). Sesion previa: Academia
+Ultima actualizacion: 2026-09-02 (Acceso público web + 8 specs nuevas + migración 016 consolidada):
+- **Web pública**: Rutas `/`, `/packages`, `/packages/:id`, `/classes`, `/classes/:id` accesibles sin login.
+  Login/registro solo para `/my-bookings`, `/profile`. `redirectTo` en todo el flujo auth.
+  Navegación inferior mobile-first con redirección a login si no hay sesión.
+- **8 specs nuevas documentadas** en `docs/superpowers/specs/`:
+  1. Cancelación 12h + reset mensual créditos (RPC `cancel_booking` con ventana 12h, `reset_monthly_credits` día 1).
+  2. Waitlist solo recordatorio manual (sin cola FIFO, tabla `waitlist_notifications`, botón "Enviar recordatorio" en admin).
+  3. Colegiaturas día 10 fijo (corte global, `day_of_month=10`, overdue = `period_end < hoy`).
+  4. Descuentos referido (`discount_percent` 0-100 en `profiles`, solo academia/ballet, auditoría `discount_applied`).
+  4. Campos médicos alumnos (`medical_conditions`, `age`, `notes` en `dependents`, alerta ⚠️ + modal en listas).
+  5. Rol `INSTRUCTOR_ADMIN` (ver solo sus clases/alumnos, navegación condicional, `/instructor/my-classes`, filtro por instructor).
+  6. Grupos academia edad + cupo (`age_min`, `age_max`, `max_capacity` default 15/max 15, validación en inscripción).
+  7. Acceso público web (eliminado login gate en catálogo, login solo para transacciones).
+  8. Migración 016 consolidada (`016_comprehensive_features.sql`): RLS, campos, roles, RPCs, policies instructor_admin.
+- **Migración 016** (`016_comprehensive_features.sql`): RLS customer-scoped, campos nuevos (`discount_percent`, `medical_conditions`, `age`, `notes`, `age_min`, `age_max`, `max_capacity`, `instructor_id`), rol `INSTRUCTOR_ADMIN`, tabla `waitlist_notifications`, RPCs actualizados (`cancel_booking` ventana 12h, `reset_monthly_credits`, eliminación `promote_from_waitlist`), policies RLS `INSTRUCTOR_ADMIN`.
+- **Documentación actualizada**: `roadmap.md` (nueva numeración 19-26), `business-rules.md` (reglas completas), `preguntas-para-negocio.md` (decisiones + preguntas pendientes), `roadmap.md`, `CLAUDE.md` (nota acceso público), `README.md` (nota acceso público).
+- **Plan maestro**: `docs/superpowers/plans/2026-09-02-comprehensive-implementation.md` (11 fases ordenadas).
+- **Docs actualizados**: `roadmap.md`, `business-rules.md`, `preguntas-para-negocio.md`, `CLAUDE.md`, `README.md`, `CURRENT_STATE.md`, `HANDOFF.md`, specs, plan maestro, migración 016.
+- Verificado typecheck/lint/build en `apps/web` y `apps/admin`. Sesion previa: Academia
 — Clientes sin cuenta / tutores de mostrador en `apps_admin` —migracion nueva 013 para hacer `guardian_id` nullable y agregar
 `guardian_name` y `guardian_phone` en `dependents` con check constraint de
 integridad—: soporte para registrar e inscribir alumnos de tutores que pagan
