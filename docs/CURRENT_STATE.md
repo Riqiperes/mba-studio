@@ -3,13 +3,11 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-08-31 (Academia — Colegiaturas en `apps_admin` —migracion nueva 014 para tablas
-`academy_tuition_periods` y `academy_payments` con RLS staff-scoped—: configuración de periodo de cobro por grupo
-(día fijo del mes o aniversario de inscripción), monto en centavos; registro manual de pagos (`PAGADO`/`NO_PAGADO`)
-con método (EFECTIVO/TRANSFERENCIA/OTRO), fecha, referencia opcional; columna "Colegiatura" en detalle de grupo
-con badge de estado del periodo actual y botón "Marcar pago"; vista de atrasados `/academy/overdue` con tabla
-filtrada por grupo, días de atraso, y acción "Marcar pagado"; navegación en AdminLayout y botón en HomePage;
-verificado con typecheck, lint y build en ambas apps). Sesion previa: Academia
+Ultima actualizacion: 2026-09-01 (Reservaciones + Lista de espera + Créditos en `apps_web` — migración `015_web_bookings_rls.sql`
+para RLS customer-scoped en `bookings`, `customer_credits_ledger`, `waitlist`; catálogo de paquetes, calendario semanal
+con botones contextuales Reservar/Lista de espera/Cancelar según cupo y créditos, página `/my-bookings` con mis
+reservaciones y waitlist, perfil editable, navegación inferior mobile-first, badge de créditos `💎 N`; consume
+RPCs existentes `book_class`/`cancel_booking`/`joinWaitlist`/`leaveWaitlist`; verificado typecheck/lint/build en ambas apps). Sesion previa: Academia
 — Clientes sin cuenta / tutores de mostrador en `apps_admin` —migracion nueva 013 para hacer `guardian_id` nullable y agregar
 `guardian_name` y `guardian_phone` en `dependents` con check constraint de
 integridad—: soporte para registrar e inscribir alumnos de tutores que pagan
@@ -423,6 +421,22 @@ WhatsApp, White-label activo, Testing, Deployment (Cloudflare Pages).
 Nada en `apps/web` excepto Google OAuth + email/password login. Ningun
 otro negocio (Studio packages, bookings, Academia) implementado todavia.
 
+## Funcionalidades implementadas en `apps/web` (Cliente)
+
+- **Landing Page** (`/`): información de la academia desde tabla `business` (logo, nombre, descripción, dirección, teléfono, WhatsApp), accesos rápidos a Paquetes y Horarios.
+- **Paquetes** (`/packages`): catálogo de paquetes activos con precio, créditos y vigencia; detalle en `/packages/:id` con botón "Consultar por WhatsApp" y placeholder "Comprar (próximamente)".
+- **Horarios** (`/classes`): calendario semanal navegable (selector de semana + botón "Hoy"), tarjetas de clase con horario, instructor, cupo; botones contextuales según estado:
+  - Cupo + créditos → "Reservar" (consume 1 crédito vía RPC `book_class`)
+  - Cupo + 0 créditos → "Sin créditos" (disabled)
+  - Sin cupo + no en waitlist → "Unirse a lista de espera" (INSERT en `waitlist` con RLS own)
+  - Sin cupo + en waitlist → badge posición + "Salir" (DELETE own)
+  - Ya reservado → badge "Reservado" + "Cancelar" (RPC `cancel_booking`, devuelve crédito)
+- **Mi horario** (`/my-bookings`): lista de reservaciones activas con botón cancelar, lista de espera con posición FIFO y botón salir, badge de créditos (`💎 N`).
+- **Perfil** (`/profile`): ver/editar nombre y teléfono, muestra email, rol, fecha de registro, botón cerrar sesión.
+- **Navegación inferior fija** (mobile-first): Inicio, Paquetes, Horarios, Usuario.
+- **Auth**: Google OAuth + email/password, `RequireAuth` con carga de perfil, `signOut` en contexto.
+- **Créditos**: balance visible en nav y páginas, se actualiza tras reservar/cancelar.
+
 ## Integraciones configuradas
 
 - **Supabase**: proyecto (`MBA-STUDIO`, ref `eazyblybekyygimqpjjw`, region
@@ -534,6 +548,10 @@ versionadas en `supabase/migrations/`:
   por grupo: día fijo del mes o aniversario de inscripción, monto en centavos) y `academy_payments`
   (registro de pago por inscripción y periodo: estado `PAGADO`/`NO_PAGADO`, método, fecha, referencia).
   RLS staff-scoped en ambas tablas.
+- `015_web_bookings_rls.sql` — policies RLS customer-scoped para `bookings` (`bookings_own_select`),
+  `customer_credits_ledger` (`credits_ledger_own_select`) y `waitlist` (`waitlist_own_manage`),
+  permitiendo al cliente leer/escribir solo sus propios datos; las 4 funciones RPC existentes
+  (`book_class`, `cancel_booking`, `promote_from_waitlist`, `grant_credits`) se consumen desde web.
 
 Decision pendiente de validar con uso real: `studio_classes` e
 `instructors` son de lectura publica (catalogo/marketing) por decision
@@ -559,13 +577,20 @@ El sub-proyecto `Academia — Colegiaturas` (rama `feat/admin-academy-tuition`)
 esta completo y verificado por codigo (typecheck/lint/build sin errores en
 ambas apps) y por revision de diseno/calidad, pendiente de merge via Pull Request.
 
+**Implementado en `apps_web` (Cliente):**
+- Reservaciones, lista de espera y créditos (rama `feat/web-bookings-credits`):
+  migración `015_web_bookings_rls.sql` (RLS customer-scoped), catálogo paquetes,
+  calendario semanal con botones contextuales (Reservar / Lista de espera / Cancelar),
+  página `/my-bookings` (mis reservaciones + waitlist), perfil editable,
+  navegación inferior mobile-first, badge de créditos. Verificado typecheck/lint/build.
+
 **Proximo sub-proyecto acordado despues de Colegiaturas:**
 Ninguno — la Academia está completa (Grupos, Inscripciones, Clientes sin cuenta, Colegiaturas).
 El sub-proyecto `Academia — Asistencia` (punto 18d del roadmap original) fue descartado
 por orden de la directora. No se implementará ninguna funcionalidad de asistencia.
 
 Orden completo restante del roadmap (feature-driven):
-Pagos (Stripe) → Dashboard/Notificaciones/Settings.
+Pagos (Stripe Checkout + Webhook) → Dashboard/Notificaciones/Settings.
 
 Para despues del roadmap feature (vueltas de pulido/integration/testing):
 - Recuperacion de contrasena y reenvio de verificacion de email en `apps_web`.

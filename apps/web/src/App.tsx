@@ -9,6 +9,7 @@ import { PackageDetailPage } from "@/features/packages/components/PackageDetailP
 import { ClassesCalendarPage } from "@/features/studio/components/ClassesCalendarPage";
 import { ClassDetailPage } from "@/features/studio/components/ClassDetailPage";
 import { UserProfilePage } from "@/features/auth/components/UserProfilePage";
+import { MyBookingsPage } from "@/pages/MyBookingsPage";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/packages/:id" element={<PackageDetailPage />} />
             <Route path="/classes" element={<ClassesCalendarPage />} />
             <Route path="/classes/:id" element={<ClassDetailPage />} />
+            <Route path="/my-bookings" element={<MyBookingsPage />} />
             <Route path="/profile" element={<UserProfilePage />} />
           </Route>
         </Routes>
