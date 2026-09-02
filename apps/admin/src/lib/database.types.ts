@@ -114,28 +114,37 @@ export type Database = {
       academy_groups: {
         Row: {
           active: boolean
+          age_max: number | null
+          age_min: number | null
           business_id: string
           created_at: string
           id: string
           instructor_id: string | null
+          max_capacity: number
           name: string
           updated_at: string
         }
         Insert: {
           active?: boolean
+          age_max?: number | null
+          age_min?: number | null
           business_id: string
           created_at?: string
           id?: string
           instructor_id?: string | null
+          max_capacity?: number
           name: string
           updated_at?: string
         }
         Update: {
           active?: boolean
+          age_max?: number | null
+          age_min?: number | null
           business_id?: string
           created_at?: string
           id?: string
           instructor_id?: string | null
+          max_capacity?: number
           name?: string
           updated_at?: string
         }
@@ -158,45 +167,48 @@ export type Database = {
       }
       academy_payments: {
         Row: {
-          id: string
-          business_id: string
-          enrollment_id: string
-          period_start: string
-          period_end: string
-          status: string
           amount_cents: number
+          business_id: string
+          created_at: string
+          discount_applied: number
+          enrollment_id: string
+          id: string
           paid_at: string | null
           payment_method: string | null
+          period_end: string
+          period_start: string
           reference: string | null
-          created_at: string
+          status: string
           updated_at: string
         }
         Insert: {
-          id?: string
-          business_id: string
-          enrollment_id: string
-          period_start: string
-          period_end: string
-          status?: string
           amount_cents: number
+          business_id: string
+          created_at?: string
+          discount_applied?: number
+          enrollment_id: string
+          id?: string
           paid_at?: string | null
           payment_method?: string | null
+          period_end: string
+          period_start: string
           reference?: string | null
-          created_at?: string
+          status?: string
           updated_at?: string
         }
         Update: {
-          id?: string
-          business_id?: string
-          enrollment_id?: string
-          period_start?: string
-          period_end?: string
-          status?: string
           amount_cents?: number
+          business_id?: string
+          created_at?: string
+          discount_applied?: number
+          enrollment_id?: string
+          id?: string
           paid_at?: string | null
           payment_method?: string | null
+          period_end?: string
+          period_start?: string
           reference?: string | null
-          created_at?: string
+          status?: string
           updated_at?: string
         }
         Relationships: [
@@ -218,33 +230,33 @@ export type Database = {
       }
       academy_tuition_periods: {
         Row: {
-          id: string
-          business_id: string
-          group_id: string
-          day_of_month: number | null
-          amount_cents: number
           active: boolean
+          amount_cents: number
+          business_id: string
           created_at: string
+          day_of_month: number | null
+          group_id: string
+          id: string
           updated_at: string
         }
         Insert: {
-          id?: string
-          business_id: string
-          group_id: string
-          day_of_month?: number | null
-          amount_cents: number
           active?: boolean
+          amount_cents: number
+          business_id: string
           created_at?: string
+          day_of_month?: number | null
+          group_id: string
+          id?: string
           updated_at?: string
         }
         Update: {
-          id?: string
-          business_id?: string
-          group_id?: string
-          day_of_month?: number | null
-          amount_cents?: number
           active?: boolean
+          amount_cents?: number
+          business_id?: string
           created_at?: string
+          day_of_month?: number | null
+          group_id?: string
+          id?: string
           updated_at?: string
         }
         Relationships: [
@@ -285,28 +297,34 @@ export type Database = {
       bookings: {
         Row: {
           business_id: string
+          cancelled_at: string | null
           class_id: string
           created_at: string
           customer_id: string
           id: string
+          refunded: boolean
           status: string
           updated_at: string
         }
         Insert: {
           business_id: string
+          cancelled_at?: string | null
           class_id: string
           created_at?: string
           customer_id: string
           id?: string
+          refunded?: boolean
           status?: string
           updated_at?: string
         }
         Update: {
           business_id?: string
+          cancelled_at?: string | null
           class_id?: string
           created_at?: string
           customer_id?: string
           id?: string
+          refunded?: boolean
           status?: string
           updated_at?: string
         }
@@ -437,6 +455,7 @@ export type Database = {
       dependents: {
         Row: {
           active: boolean
+          age: number | null
           birth_date: string | null
           business_id: string
           created_at: string
@@ -445,10 +464,13 @@ export type Database = {
           guardian_name: string | null
           guardian_phone: string | null
           id: string
+          medical_conditions: string | null
+          notes: string | null
           updated_at: string
         }
         Insert: {
           active?: boolean
+          age?: number | null
           birth_date?: string | null
           business_id: string
           created_at?: string
@@ -457,10 +479,13 @@ export type Database = {
           guardian_name?: string | null
           guardian_phone?: string | null
           id?: string
+          medical_conditions?: string | null
+          notes?: string | null
           updated_at?: string
         }
         Update: {
           active?: boolean
+          age?: number | null
           birth_date?: string | null
           business_id?: string
           created_at?: string
@@ -469,6 +494,8 @@ export type Database = {
           guardian_name?: string | null
           guardian_phone?: string | null
           id?: string
+          medical_conditions?: string | null
+          notes?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -583,8 +610,10 @@ export type Database = {
         Row: {
           business_id: string
           created_at: string
+          discount_percent: number
           full_name: string | null
           id: string
+          instructor_id: string | null
           phone: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
@@ -592,8 +621,10 @@ export type Database = {
         Insert: {
           business_id: string
           created_at?: string
+          discount_percent?: number
           full_name?: string | null
           id: string
+          instructor_id?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
@@ -601,8 +632,10 @@ export type Database = {
         Update: {
           business_id?: string
           created_at?: string
+          discount_percent?: number
           full_name?: string | null
           id?: string
+          instructor_id?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
@@ -613,6 +646,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "business"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_instructor_id_fkey"
+            columns: ["instructor_id"]
+            isOneToOne: false
+            referencedRelation: "instructors"
             referencedColumns: ["id"]
           },
         ]
@@ -717,6 +757,81 @@ export type Database = {
           },
         ]
       }
+      waitlist_notifications: {
+        Row: {
+          business_id: string
+          channel: string
+          class_id: string
+          customer_id: string
+          error_message: string | null
+          id: string
+          sent_at: string
+          sent_by: string | null
+          status: string
+          waitlist_id: string
+        }
+        Insert: {
+          business_id: string
+          channel: string
+          class_id: string
+          customer_id: string
+          error_message?: string | null
+          id?: string
+          sent_at?: string
+          sent_by?: string | null
+          status?: string
+          waitlist_id: string
+        }
+        Update: {
+          business_id?: string
+          channel?: string
+          class_id?: string
+          customer_id?: string
+          error_message?: string | null
+          id?: string
+          sent_at?: string
+          sent_by?: string | null
+          status?: string
+          waitlist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_notifications_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_notifications_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "studio_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_notifications_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_notifications_sent_by_fkey"
+            columns: ["sent_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_notifications_waitlist_id_fkey"
+            columns: ["waitlist_id"]
+            isOneToOne: false
+            referencedRelation: "waitlist"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -726,10 +841,12 @@ export type Database = {
         Args: { p_class_id: string; p_customer_id: string }
         Returns: {
           business_id: string
+          cancelled_at: string | null
           class_id: string
           created_at: string
           customer_id: string
           id: string
+          refunded: boolean
           status: string
           updated_at: string
         }
@@ -754,10 +871,12 @@ export type Database = {
         Args: { p_waitlist_id: string }
         Returns: {
           business_id: string
+          cancelled_at: string | null
           class_id: string
           created_at: string
           customer_id: string
           id: string
+          refunded: boolean
           status: string
           updated_at: string
         }
@@ -768,10 +887,16 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      reset_monthly_credits: { Args: never; Returns: undefined }
     }
     Enums: {
       studio_class_status: "SCHEDULED" | "CANCELLED" | "COMPLETED"
-      user_role: "CUSTOMER" | "STAFF" | "BUSINESS_ADMIN" | "SUPER_ADMIN"
+      user_role:
+        | "CUSTOMER"
+        | "STAFF"
+        | "BUSINESS_ADMIN"
+        | "SUPER_ADMIN"
+        | "INSTRUCTOR_ADMIN"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -787,12 +912,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -816,11 +941,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -841,11 +966,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -866,11 +991,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -883,11 +1008,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -895,12 +1020,3 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
-
-export const Constants = {
-  public: {
-    Enums: {
-      studio_class_status: ["SCHEDULED", "CANCELLED", "COMPLETED"],
-      user_role: ["CUSTOMER", "STAFF", "BUSINESS_ADMIN", "SUPER_ADMIN"],
-    },
-  },
-} as const

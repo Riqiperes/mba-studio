@@ -43,7 +43,7 @@ Working tree: limpio
 
 ## Siguiente paso sugerido
 
-1. **Aplicar migración 016 en Supabase dev** + regenerar tipos TypeScript en ambas apps
+1. ~~Aplicar migraciones 013-018 en Supabase dev + regenerar tipos TypeScript en ambas apps~~ — hecho (ver firma de Claude abajo)
 2. **Implementar política de cancelación 12h + reset mensual** en RPC `cancel_booking` + frontend (web + admin)
 3. **Implementar botón "Enviar recordatorio" waitlist** en admin (`ClassBookingsPage`)
 4. **Actualizar lógica colegiaturas a día 10** en `academyTuitionService` + frontend admin
@@ -82,3 +82,92 @@ Working tree: limpio
 - Rol `INSTRUCTOR_ADMIN` = ver solo sus clases/alumnos, sin gestión global
 - Grupos academia: edad min/max + cupo máx 15 (recomendado 12)
 - Web 100% pública (precios, horarios, paquetes), login solo para transacciones
+
+### Claude Code (Sonnet 5) — 2026-09-02
+
+**Qué hice:** Auditoría de seguridad/correctitud pedida por el usuario sobre
+todo lo de esta sesión (docs, specs, migraciones 006-016, servicios), no
+implementación — hasta que el usuario pidió corregir lo encontrado y
+actualizar los docs. Encontré y corregí 6 problemas, todos verificados
+leyendo el SQL/código real, no asumidos:
+
+1. `cancel_booking` en `016_comprehensive_features.sql` se había reescrito
+   sin ningún chequeo de dueño/rol/tenant — cualquier cliente autenticado
+   podía cancelar la reservación de otro (IDOR). Corregido en el mismo
+   archivo (no aplicado a Supabase todavía): ahora permite al dueño de la
+   reservación (`customer_id = auth.uid()`) o a staff/admin del mismo
+   negocio, replicando el patrón de `book_class`/`grant_credits` en `011`.
+2. `reset_monthly_credits()` (nueva en `016`) no tenía el
+   `revoke execute ... from public/anon/authenticated` que sí tienen las
+   demás RPCs del proyecto — cualquier cliente podía ponerse en 0 los
+   créditos de todo el negocio. Agregado el revoke.
+3. `promote_from_waitlist` se eliminaba en `016` pero `apps/admin` la sigue
+   llamando (botón "Promover" en waitlist) — hubiera roto ese botón en
+   producción apenas se aplicara la migración, porque la UI de "solo
+   recordatorio" todavía no existe. Dejé de eliminarla; documenté por qué
+   en el propio SQL.
+4. `book_class` (`011_bookings.sql`, **ya aplicada** a Supabase) exige rol
+   STAFF/BUSINESS_ADMIN/SUPER_ADMIN — bloquea la auto-reserva de un cliente
+   real desde `apps/web` (la feature "client-side bookings, waitlist &
+   credits" de esta misma sesión, parece que nunca se probó con una cuenta
+   `CUSTOMER` real end-to-end). Como `011` ya está aplicada no la edité:
+   el fix vive en `017_fix_book_class_customer_self_service.sql`, migración
+   nueva.
+5. `academy_groups.max_capacity`/`age_min`/`age_max` (columnas nuevas de
+   `016`) no se validaban en ningún lado del backend — iban a depender
+   solo de la validación de UI, contra la regla explícita de
+   `business-rules.md`. Agregué un trigger
+   (`enforce_academy_enrollment_capacity_and_age`) dentro de `016`.
+6. `getErrorMessage.ts` no manejaba el código Postgres `23505` (unique
+   violation) — el usuario veía el texto crudo del constraint SQL en vez de
+   un mensaje entendible (ej. inscripción duplicada en Academia). Agregado
+   el mapeo.
+
+También actualicé `docs/security.md` (checklist para toda RPC
+`security definer` nueva/modificada + estado real de RLS/RPCs) y
+`docs/development.md` (proceso a seguir antes/después de tocar código,
+aplica a cualquier agente de IA que retome este proyecto) — ambos estaban
+desactualizados desde la etapa de scaffolding inicial.
+
+**Por qué:** El usuario pidió específicamente auditar seguridad y
+correctitud antes de implementar nada, y luego pidió corregir lo
+encontrado + dejar documentado "el camino que debería tener el proyecto"
+para que otras IAs trabajen con el mismo rigor: leer docs primero, pero
+verificar cada afirmación contra el código/SQL real antes de confiar en
+ella (los 6 hallazgos de arriba se encontraron así, no resumiendo docs);
+nunca editar una migración ya aplicada a Supabase (por eso `017` es
+archivo nuevo y `016` se editó directo); y actualizar la documentación
+viva en el mismo cambio que corrige el código, no después.
+
+**Actualización — mismo día, segunda mitad de la sesión:** el usuario pidió
+ejecutar lo de Supabase. Al revisar `list_migrations` encontré que
+`013`/`014`/`015` tampoco estaban aplicadas (solo hasta `012`), pese a que
+`CURRENT_STATE.md` describía esas features como completas — drift real
+entre docs y BD real, no solo `016`. Apliqué en orden `013`, `014`, `015`,
+`016` (corregida) y `017` a Supabase dev (project `MBA-STUDIO`,
+`eazyblybekyygimqpjjw`). El enum `INSTRUCTOR_ADMIN` tuvo que aplicarse en
+una migración aparte antes del resto de `016` (Postgres no permite usar un
+valor de enum nuevo en la misma transacción que lo crea, error `55P04`) —
+quedó documentado como tal en el propio `016_comprehensive_features.sql`.
+Corrí `get_advisors` (security) después: sin hallazgos nuevos salvo que mi
+propio trigger `enforce_academy_enrollment_capacity_and_age` había quedado
+con `EXECUTE` abierto a `anon`/`authenticated` (Postgres lo otorga por
+defecto a toda función nueva) — no es invocable de verdad como RPC porque
+es una función de trigger, pero lo cerré igual con
+`018_revoke_academy_enrollment_trigger_execute.sql` para no dejar el
+advisor en warning. Regeneré `database.types.ts` en ambas apps con
+`generate_typescript_types` (incluye ya `academy_tuition_periods`,
+`academy_payments`, `discount_percent`, `medical_conditions`, `age`,
+`instructor_id`, enum `INSTRUCTOR_ADMIN`, etc.). Eso rompió el typecheck de
+ambas apps porque `packages/shared/src/types/role.ts` (`UserRole`) nunca se
+había actualizado con `INSTRUCTOR_ADMIN` pese a que la migración `016` ya
+agregaba ese rol al enum de la BD — otro caso de drift código/BD, corregido
+agregando el valor al tipo compartido. `npm run typecheck && npm run lint
+&& npm run build` pasan limpio en ambas apps después de todo esto.
+
+**Pendiente para la próxima sesión:** todo lo de BD/tipos de esta sesión ya
+está aplicado y verificado. Sigue pendiente construir la UI real de las 8
+specs del 2026-09-02 (ver "Siguiente paso sugerido" arriba) — las columnas
+y RPCs ya existen en Supabase, pero ningún frontend las usa todavía
+(`discount_percent`, `medical_conditions`, rol `INSTRUCTOR_ADMIN` en UI,
+botón "Enviar recordatorio" de waitlist, etc.).

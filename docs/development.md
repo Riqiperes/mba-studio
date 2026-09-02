@@ -72,7 +72,54 @@ Ver `CLAUDE.md` para las reglas de nombres de archivos, arquitectura
 Feature First, capas (component -> hook -> service -> Supabase), y reglas
 de TypeScript estricto.
 
+## Camino a seguir en cada sesion (para cualquier agente de IA, no solo humanos)
+
+Esto aplica igual si quien trabaja es Claude Code, otra IA, o una persona:
+el proceso no cambia por quien lo ejecuta.
+
+**Antes de tocar codigo:**
+
+1. Leer `CLAUDE.md`, `docs/HANDOFF.md` y `docs/CURRENT_STATE.md` completos.
+   Si la tarea toca una feature especifica, leer tambien su spec/plan en
+   `docs/superpowers/specs/` y `docs/superpowers/plans/`.
+2. No confiar en lo que dicen los docs a ciegas: cruzar cada afirmacion
+   relevante contra el codigo/SQL real antes de asumir que algo esta
+   implementado, aplicado, o funciona como se describe. Los docs se
+   desactualizan; el codigo es la fuente de verdad. Esto encontro dos bugs
+   reales de autorizacion en RPCs (ver `docs/security.md`) que ningun
+   review de tarea individual habia detectado — se encontraron releyendo el
+   SQL con el patron de la funcion hermana en mente, no leyendo el resumen
+   del doc.
+3. Para cambios de base de datos: revisar el patron ya establecido en
+   migraciones existentes (RLS, revokes, chequeos de rol/tenant en RPCs
+   `security definer` — ver checklist en `docs/security.md`) antes de
+   escribir una funcion nueva o modificar una existente. Una funcion nueva
+   que "se ve parecida" a una vieja pero omite un chequeo es la forma mas
+   comun en que este proyecto ha introducido vulnerabilidades reales.
+
+**Al tocar migraciones:**
+
+4. Antes de editar un archivo en `supabase/migrations/`, confirmar si ya
+   esta aplicada a Supabase (buscar su numero en `docs/CURRENT_STATE.md`,
+   seccion "Migraciones existentes"). Si ya esta aplicada: nunca editarla,
+   crear una migracion nueva con el numero siguiente. Si todavia no esta
+   aplicada (documentada como "pendiente"/"no aplicada"): esta bien
+   editarla directamente en vez de acumular migraciones que corrigen a
+   otras migraciones que nunca llegaron a producción.
+
+**Despues de un cambio importante:**
+
+5. Correr `npm run typecheck`, `npm run lint` y `npm run build` (o los
+   equivalentes por app) y confirmar que pasan antes de decir que algo esta
+   terminado.
+6. Actualizar `docs/CURRENT_STATE.md` (y `docs/HANDOFF.md` si aplica) en el
+   mismo cambio, no despues — reflejando el estado real, incluyendo bugs
+   encontrados y corregidos, no solo features nuevas.
+7. No declarar nada "listo" solo porque compila: si el cambio es
+   verificable en la app (UI, flujo de usuario), probarlo corriendo la app,
+   no solo con tipos/lint/build.
+
 ## Estado actual
 
-Scaffolding inicial completo, sin features de negocio implementadas
-todavia. Ver `docs/CURRENT_STATE.md`.
+Ver `docs/CURRENT_STATE.md` para el estado real y detallado del proyecto
+(features implementadas, migraciones aplicadas, deuda tecnica conocida).

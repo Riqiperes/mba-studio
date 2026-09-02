@@ -155,6 +155,59 @@ comment on column public.academy_groups.age_min is 'Edad minima para inscribirse
 comment on column public.academy_groups.age_max is 'Edad maxima para inscribirse (opcional)';
 comment on column public.academy_groups.max_capacity is 'Cupo maximo de alumnos (max 15, recomendado 12)';
 
+-- Enforcement server-side de cupo y edad. academy_enrollments no tiene RPC
+-- propia (012_academy_groups.sql: "sin funciones RPC... sin cupo maximo
+-- todavia", ya no aplica ahora que existe max_capacity/age_min/age_max) y
+-- se escribe via insert directo desde apps/admin (academyEnrollmentsService
+-- .enrollStudent), asi que sin este trigger el limite de cupo/edad solo
+-- viviria en la validacion de UI -- CLAUDE.md/business-rules.md exigen que
+-- las reglas de negocio nunca dependan solo del frontend.
+create or replace function public.enforce_academy_enrollment_capacity_and_age()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_group public.academy_groups;
+  v_active_count integer;
+  v_age integer;
+begin
+  if new.status is distinct from 'ACTIVA' then
+    return new;
+  end if;
+
+  select * into v_group from public.academy_groups where id = new.group_id;
+  if not found then
+    raise exception 'Grupo no encontrado';
+  end if;
+
+  select count(*) into v_active_count
+  from public.academy_enrollments
+  where group_id = new.group_id and status = 'ACTIVA' and id is distinct from new.id;
+
+  if v_active_count >= v_group.max_capacity then
+    raise exception 'El grupo ya alcanzo su cupo maximo (% alumnos)', v_group.max_capacity;
+  end if;
+
+  select age into v_age from public.dependents where id = new.dependent_id;
+
+  if v_group.age_min is not null and v_age is not null and v_age < v_group.age_min then
+    raise exception 'El alumno no cumple la edad minima del grupo (% anos)', v_group.age_min;
+  end if;
+  if v_group.age_max is not null and v_age is not null and v_age > v_group.age_max then
+    raise exception 'El alumno supera la edad maxima del grupo (% anos)', v_group.age_max;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists academy_enrollments_enforce_capacity_and_age on public.academy_enrollments;
+create trigger academy_enrollments_enforce_capacity_and_age
+  before insert or update on public.academy_enrollments
+  for each row execute function public.enforce_academy_enrollment_capacity_and_age();
+
 -- ============================================================
 -- 8. RLS PARA INSTRUCTOR_ADMIN
 -- ============================================================
@@ -244,20 +297,43 @@ create policy "academy_enrollments_instructor_own_select"
 -- ============================================================
 
 -- 1. cancel_booking actualizado con ventana 12h
+-- Llamado tanto por apps/web (cliente cancela su propia reservacion) como
+-- por apps/admin (staff cancela cualquier reservacion de su negocio). Por
+-- eso el chequeo de autorizacion tiene dos caminos: dueno de la fila
+-- (customer_id = auth.uid()) O staff/admin del mismo tenant. La version
+-- previa de esta funcion (dentro de este mismo archivo, nunca aplicada a
+-- produccion) no verificaba ninguno de los dos, permitiendo a cualquier
+-- usuario autenticado cancelar la reservacion de otro cliente.
 create or replace function public.cancel_booking(p_booking_id uuid)
 returns void
 language plpgsql security definer set search_path = public
 as $$
 declare
+  v_actor_role public.user_role;
   v_booking public.bookings;
   v_class public.studio_classes;
   v_cutoff timestamptz;
   v_refund boolean;
 begin
+  v_actor_role := public.current_user_role();
+
   select * into v_booking from public.bookings where id = p_booking_id for update;
   if not found then
     raise exception 'Reservacion no encontrada';
   end if;
+
+  if v_booking.customer_id is distinct from auth.uid()
+     and (v_actor_role is null
+          or v_actor_role not in ('STAFF', 'BUSINESS_ADMIN', 'SUPER_ADMIN')) then
+    raise exception 'No autorizado';
+  end if;
+
+  if v_booking.customer_id is distinct from auth.uid()
+     and v_actor_role is distinct from 'SUPER_ADMIN'
+     and v_booking.business_id is distinct from public.current_user_business_id() then
+    raise exception 'No autorizado';
+  end if;
+
   if v_booking.status = 'CANCELLED' then
     raise exception 'La reservacion ya estaba cancelada';
   end if;
@@ -288,6 +364,7 @@ end;
 $$;
 
 grant execute on function public.cancel_booking(uuid) to authenticated;
+revoke execute on function public.cancel_booking(uuid) from public, anon;
 
 -- 2. reset_monthly_credits (para pg_cron dia 1 de cada mes)
 create or replace function public.reset_monthly_credits()
@@ -310,12 +387,28 @@ begin
 end;
 $$;
 
+-- Sin este revoke, cualquier usuario autenticado (o anonimo, ya que Postgres
+-- otorga EXECUTE a PUBLIC por defecto al crear una funcion y Supabase ademas
+-- otorga a anon/authenticated via ALTER DEFAULT PRIVILEGES) podria invocar
+-- reset_monthly_credits() por su cuenta y poner en 0 el balance de creditos
+-- de todos los clientes del negocio -- mismo patron de riesgo ya documentado
+-- en 011_bookings.sql. No se otorga a ningun rol de cliente: solo se invoca
+-- via pg_cron (que corre como el rol que agenda el cron job, tipicamente
+-- postgres, el cual no depende de estos grants).
+revoke execute on function public.reset_monthly_credits() from public, anon, authenticated;
+
 -- Nota: programar via pg_cron:
 -- select cron.schedule('monthly-credit-reset', '0 0 1 * *', 'select public.reset_monthly_credits();');
 
--- 3. book_class (ya existe, no cambios) - solo documentacion
--- 4. promote_from_waitlist -> ELIMINAR (no se usa mas)
-drop function if exists public.promote_from_waitlist(uuid);
+-- 3. book_class (ya existe, no cambios en 016) - ver 017_fix_book_class_
+--    customer_self_service.sql para el fix de auto-reserva de clientes.
+-- 4. promote_from_waitlist: NO se elimina todavia. apps/admin sigue
+--    llamando a esta RPC (features/bookings/services/bookingsService.ts,
+--    boton "Promover" en la UI de waitlist). La UI de "solo recordatorio"
+--    (insertar en waitlist_notifications + boton "Enviar recordatorio")
+--    todavia no esta construida -- ver docs/roadmap.md. Eliminar esta
+--    funcion antes de ese swap de frontend rompe el boton "Promover" en
+--    produccion con un error "function does not exist".
 
 -- 5. grant_credits (ya existe, no cambios)
 -- 6. waitlist: insert/delete directo (ya funciona con RLS own_manage)

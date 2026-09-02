@@ -221,6 +221,46 @@ WhatsApp, White-label activo, Testing, Deployment (Cloudflare Pages).
   Los 4 modales preexistentes con `mapSaveError` comparten la misma raiz
   del bug pero quedan sin corregir por ahora — ver "Deuda tecnica
   conocida" en `docs/roadmap.md`.
+- **[Resuelto]** Auditoria de seguridad/correctitud sobre la migracion
+  `016_comprehensive_features.sql` (todavia no aplicada) encontro el mismo
+  patron de bug que ya habia pasado una vez en `011` (ver hallazgo
+  "[Resuelto]" arriba): `cancel_booking` se reescribio sin ningun chequeo
+  de dueno/rol/tenant (cualquier cliente autenticado podia cancelar la
+  reservacion de otro), y la nueva `reset_monthly_credits()` se creo sin el
+  `revoke execute ... from public/anon/authenticated` que las demas RPCs
+  del proyecto si tienen (cualquier cliente autenticado podia poner en 0
+  los creditos de todos). Ademas `promote_from_waitlist` se eliminaba en
+  `016` pero `apps/admin` la sigue llamando (boton "Promover" en waitlist),
+  lo que hubiera roto ese boton en produccion. Los 3 se corrigieron
+  directamente en `016_comprehensive_features.sql` (todavia no aplicada a
+  Supabase, por eso se edito el archivo en vez de crear una migracion
+  nueva) antes de aplicarla. De paso se encontro que `book_class`
+  (`011_bookings.sql`, ya aplicada) exige rol STAFF/BUSINESS_ADMIN/
+  SUPER_ADMIN — bloquea la auto-reserva de un cliente real desde
+  `apps/web` (feature "client-side bookings, waitlist & credits",
+  aparentemente nunca probada con una cuenta `CUSTOMER` real). Como `011`
+  ya esta aplicada no se edito: el fix vive en
+  `017_fix_book_class_customer_self_service.sql` (permite `p_customer_id =
+  auth.uid()` ademas del camino staff/admin existente). Tambien se agrego
+  un trigger (`enforce_academy_enrollment_capacity_and_age`, dentro de
+  `016`) que hacia falta: `academy_groups.max_capacity`/`age_min`/
+  `age_max` (columnas nuevas de `016`) no se validaban en ningun lado del
+  backend, solo iban a quedar como validacion de UI. Y se corrigio
+  `getErrorMessage.ts` para mapear el codigo Postgres `23505` (unique
+  violation) a un mensaje generico en vez de mostrar el texto crudo del
+  constraint (afectaba, entre otros, la inscripcion duplicada en Academia).
+  Al ejecutar la aplicacion real a Supabase se encontro ademas que `013`,
+  `014` y `015` tampoco estaban aplicadas (solo hasta `012`), pese a que
+  este documento las describia como completas -- se aplicaron junto con
+  `016`/`017`. Tambien salio un `018_revoke_academy_enrollment_trigger_
+  execute.sql` (el trigger nuevo de `016` quedo con EXECUTE abierto a
+  anon/authenticated por el default de Postgres, cerrado tras revisar
+  `get_advisors`) y un fix de `packages/shared/src/types/role.ts`
+  (`UserRole` no tenia `INSTRUCTOR_ADMIN` pese a que el enum de BD ya lo
+  incluia desde `016`, typecheck lo detecto al regenerar tipos). **Todo
+  esto ya esta aplicado a Supabase dev y verificado** (typecheck/lint/build
+  limpios en ambas apps) -- ver `docs/security.md` para el checklist que
+  evita que el patron de bug original se repita.
 
 ## Recent Decisions
 
@@ -454,11 +494,12 @@ otro negocio (Studio packages, bookings, Academia) implementado todavia.
 ## Integraciones configuradas
 
 - **Supabase**: proyecto (`MBA-STUDIO`, ref `eazyblybekyygimqpjjw`, region
-  `us-east-1`) con 12 tablas (`business`, `profiles`, `instructors`,
+  `us-east-1`) con 16 tablas (`business`, `profiles`, `instructors`,
   `studio_classes`, `packages`, `admin_allowed_emails`, `dependents`,
-  `bookings`, `waitlist`, `customer_credits_ledger`, `academy_tuition_periods`,
-  `academy_payments`) y RLS
-  (ver "Migraciones existentes"). Se usa
+  `bookings`, `waitlist`, `customer_credits_ledger`, `academy_groups`,
+  `academy_group_schedules`, `academy_enrollments`, `academy_tuition_periods`,
+  `academy_payments`, `waitlist_notifications`) y RLS, migraciones `001`-`018`
+  aplicadas (ver "Migraciones existentes"). Se usa
   como backend compartido de desarrollo/staging para todo el equipo (local
   y previews de Cloudflare Pages) — ver `docs/deployment.md`. `apps/web/.env`
   y `apps/admin/.env` ya apuntan a este proyecto para desarrollo local.
@@ -566,6 +607,24 @@ versionadas en `supabase/migrations/`:
   `customer_credits_ledger` (`credits_ledger_own_select`) y `waitlist` (`waitlist_own_manage`),
   permitiendo al cliente leer/escribir solo sus propios datos; las 4 funciones RPC existentes
   (`book_class`, `cancel_booking`, `promote_from_waitlist`, `grant_credits`) se consumen desde web.
+- `016_comprehensive_features.sql` — cancelacion 12h + reset mensual de creditos (`bookings.cancelled_at`/
+  `refunded`, `cancel_booking` reescrita con ventana de 12h), tabla `waitlist_notifications` (waitlist
+  solo-recordatorio), `profiles.discount_percent` + `academy_payments.discount_applied` (descuentos por
+  referido), `dependents.medical_conditions`/`age`/`notes`, rol `INSTRUCTOR_ADMIN` + `profiles.instructor_id`
+  + RLS de solo-lectura para ese rol en 5 tablas, `academy_groups.age_min`/`age_max`/`max_capacity` + trigger
+  `enforce_academy_enrollment_capacity_and_age` (cupo/edad enforced server-side, no solo en UI), y
+  `reset_monthly_credits()` (para pg_cron). El enum `INSTRUCTOR_ADMIN` se aplico en una migracion aparte
+  (`016_add_instructor_admin_enum_value`, no versionada como archivo propio) porque Postgres no permite usar
+  un valor de enum nuevo en la misma transaccion que lo crea (error `55P04`). Escrita originalmente por otra
+  IA con 3 regresiones de seguridad (ver "Known Issues" arriba: `cancel_booking` sin chequeo de dueno/rol,
+  `reset_monthly_credits` sin revoke de ejecucion, `promote_from_waitlist` eliminada pese a seguir en uso) —
+  las 3 corregidas por Claude antes de aplicar.
+- `017_fix_book_class_customer_self_service.sql` — `book_class` (`011`, ya aplicada) exigia rol
+  `STAFF`/`BUSINESS_ADMIN`/`SUPER_ADMIN`, bloqueando la auto-reserva de un cliente real desde `apps/web`.
+  Permite ahora tambien `p_customer_id = auth.uid()` sin importar el rol del actor.
+- `018_revoke_academy_enrollment_trigger_execute.sql` — revoca `EXECUTE` de `public`/`anon`/`authenticated`
+  sobre la funcion de trigger `enforce_academy_enrollment_capacity_and_age` (Postgres la otorga por defecto
+  a toda funcion nueva; el advisor de seguridad de Supabase la marco tras aplicar `016`).
 
 Decision pendiente de validar con uso real: `studio_classes` e
 `instructors` son de lectura publica (catalogo/marketing) por decision
