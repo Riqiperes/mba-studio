@@ -27,7 +27,7 @@ function mapAuthError(err: unknown): string {
   return "Ocurrio un error. Intenta de nuevo.";
 }
 
-export function EmailPasswordForm({ mode }: { mode: Mode }) {
+export function EmailPasswordForm({ mode, redirectTo }: { mode: Mode; redirectTo?: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -59,14 +59,12 @@ export function EmailPasswordForm({ mode }: { mode: Mode }) {
     setIsLoading(true);
     try {
       if (mode === "register") {
-        const { needsEmailConfirmation } = await signUpWithEmail(email, password, fullName);
+        const { needsEmailConfirmation } = await signUpWithEmail(email, password, fullName, redirectTo);
         if (needsEmailConfirmation) {
           setSuccessMessage(
             "Cuenta creada. Revisa tu correo para confirmarla antes de iniciar sesion.",
           );
         }
-        // Si no hace falta confirmar, AuthProvider recoge la sesion solo
-        // (misma suscripcion que ya usa el login con Google) y redirige.
       } else {
         await signInWithEmail(email, password);
       }

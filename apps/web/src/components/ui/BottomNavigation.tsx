@@ -23,10 +23,16 @@ export function BottomNavigation() {
         {NAV_ITEMS.map((item) => {
           const isActive = location.pathname === item.to ||
             (item.to !== "/" && location.pathname.startsWith(item.to));
+          
+          // Si no hay sesión y es el perfil, redirigir a login con redirectTo
+          const href = !session && item.to === "/profile"
+            ? `/login?redirectTo=${encodeURIComponent(item.to)}`
+            : item.to;
+          
           return (
             <Link
               key={item.to}
-              to={item.to}
+              to={href}
               className={`flex flex-col items-center gap-1 py-3 px-2 text-xs transition-colors ${
                 isActive
                   ? "text-brand-primary"

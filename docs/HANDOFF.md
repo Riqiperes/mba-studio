@@ -1,36 +1,55 @@
-# Handoff — 2026-08-31
+# Handoff — 2026-09-01
 
 ## Rama actual
 
-Worktree principal: `C:\Users\ricar\OneDrive\Desktop\mba-studio`, rama `feat/admin-academy-tuition` (desde `develop`).
+Worktree principal: `C:\Users\ricar\OneDrive\Desktop\mba-studio`, rama `develop` (al día con origin).
 
 ## Qué se hizo esta sesión
 
-Sesión de desarrollo de Academia (Colegiaturas):
+Implementación completa de **Reservaciones + Lista de espera + Créditos en `apps_web` (Cliente)**:
 
-1. **Sub-proyecto 18b cerrado y mergeado**:
-   - PR #11 mergeado a `develop`.
+1. **Migración `015_web_bookings_rls.sql`**: Policies RLS customer-scoped para:
+   - `bookings` (`bookings_own_select`) — el cliente lee solo sus reservaciones
+   - `customer_credits_ledger` (`credits_ledger_own_select`) — el cliente lee solo sus movimientos
+   - `waitlist` (`waitlist_own_manage`) — el cliente inserta/borra solo sus entradas
 
-2. **Sub-proyecto 18c implementado y verificado (Academia — Colegiaturas)**:
-   - Spec y plan redactados y aprobados por el usuario.
-   - Task 1 (migración `014_academy_tuition.sql`: tablas `academy_tuition_periods` y `academy_payments` con RLS staff-scoped) — commit `d6148b3`.
-   - Task 2 (tipos `TuitionPeriod`/`AcademyPayment` y servicio `academyTuitionService.ts`) — commit `2f1a0d8`.
-   - Task 3 (componentes UI `TuitionStatusBadge` y `MarkPaymentModal` con Zod, `noValidate`, Escape) — commit `81508d4`.
-   - Task 4 (integración en `AcademyGroupDetailPage`: columna Colegiatura + botón "Marcar pago"; nueva página `AcademyOverduePage` con filtro por grupo y acción "Marcar pagado"; navegación en `HomePage` y `AdminLayout`) — commits `b0b2a37`, `c8df4b5`.
-   - Task 5 (verificación E2E, actualización de `docs/CURRENT_STATE.md`) — commit `703e9ed`.
-   - Todos los checks (`npm run typecheck`, `npm run lint`, `npm run build`) limpios en `apps/admin` y `apps/web`.
-   - Rama subida a GitHub y Pull Request abierto hacia `develop`.
+2. **Catálogo de paquetes** (`/packages`, `/packages/:id`): lista de paquetes activos con precio, créditos, vigencia; detalle con botón "Consultar por WhatsApp" + placeholder "Comprar (próximamente)".
+
+3. **Calendario de clases** (`/classes`): 
+   - Selector de semana (← →) + botón "Hoy"
+   - Tarjetas con botones contextuales según estado:
+     - Cupo + créditos → "Reservar" (RPC `book_class`, consume 1 crédito)
+     - Cupo + 0 créditos → "Sin créditos" (disabled)
+     - Sin cupo + no en waitlist → "Unirse a lista de espera" (INSERT `waitlist` RLS own)
+     - Sin cupo + en waitlist → badge posición + "Salir" (DELETE own)
+     - Ya reservado → "Reservado" + "Cancelar" (RPC `cancel_booking`, devuelve crédito)
+
+4. **Mi horario** (`/my-bookings`): lista de reservaciones activas con botón cancelar, lista de espera con posición FIFO y botón salir, badge de créditos (`💎 N`).
+
+5. **Perfil** (`/profile`): ver/editar nombre y teléfono, muestra email, rol, fecha de registro, botón cerrar sesión.
+
+6. **Navegación inferior fija** (mobile-first): Inicio (🏠), Paquetes (📦), Horarios (📅), Usuario (👤).
+
+7. **Servicios y hooks**: consumen las 4 RPCs existentes (`book_class`, `cancel_booking`, `promote_from_waitlist`, `grant_credits`) — el cliente solo usa las dos primeras + INSERT/DELETE directo en `waitlist`.
 
 ## Estado del repo
 
 ```
-Worktree principal: C:\Users\ricar\OneDrive\Desktop\mba-studio (rama feat/admin-academy-tuition, al dia con origin)
+Worktree principal: C:\Users\ricar\OneDrive\Desktop\mba-studio (rama develop, al dia con origin)
 Working tree: limpio
 ```
 
 ## Siguiente paso sugerido
 
-1. Mergear PR de `feat/admin-academy-tuition` -> `develop` en GitHub.
-2. Actualizar `develop` en el repo principal (`git pull origin develop`) y limpiar la rama.
-3. **Academia completada** — no hay más sub-proyectos de Academia. El punto 18d (Asistencia) fue descartado por orden de la directora.
-4. Siguiente etapa del roadmap: **Pagos (Stripe)** → Dashboard/Notificaciones/Settings.
+1. **Pagos (Stripe)**: Checkout + Webhook + idempotencia para compra de paquetes y otorgamiento automático de créditos.
+2. Dashboard/Notificaciones/Settings.
+3. Configurar Cloudflare Pages (`apps_web`, `apps_admin`).
+
+---
+
+## Firma de participación
+
+### IA (opencode/nemotron-3-ultra-free) — 2026-09-01
+**Qué hice:** Implementé el sub-proyecto completo de Reservaciones + Lista de espera + Créditos en `apps_web` (lado cliente), siguiendo el spec `docs/superpowers/specs/2026-09-01-web-bookings-design.md` y el plan `docs/superpowers/plans/2026-09-01-web-bookings.md`. Incluye migración RLS customer-scoped, catálogo de paquetes, calendario semanal con botones contextuales, página "Mi horario", perfil editable, navegación inferior mobile-first, y badge de créditos. Todo verificado con typecheck, lint y build en ambas apps.
+
+**Por qué:** El cliente necesitaba la funcionalidad de autoservicio para que los usuarios finales puedan reservar sus propias clases, ver su balance de créditos y unirse a listas de espera, usando la infraestructura RPC ya existente en admin.

@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { signInWithGoogle } from "../services/authService";
 
-export function GoogleSignInButton() {
+type Props = {
+  redirectTo?: string;
+};
+
+export function GoogleSignInButton({ redirectTo }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -9,9 +13,7 @@ export function GoogleSignInButton() {
     setError(null);
     setIsLoading(true);
     try {
-      // Si tiene exito, el navegador redirige a Google — este componente
-      // se desmonta y no hace falta volver isLoading a false.
-      await signInWithGoogle();
+      await signInWithGoogle(redirectTo);
     } catch (err) {
       setIsLoading(false);
       setError("No se pudo iniciar el login con Google. Intenta de nuevo.");

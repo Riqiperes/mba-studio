@@ -6,78 +6,50 @@ uso real. Cuando se responda una, documentar el valor acordado en
 `docs/business-rules.md` (y quitarla de aquí) en el mismo cambio que se
 implemente.
 
-## Bloquean una regla de negocio real (urgente resolver)
+## Decisiones ya tomadas (implementadas)
 
-1. **Ventana de cancelación de reservación.** Hoy: cancelar siempre
-   devuelve el crédito, sin importar qué tan cerca esté la clase.
-   Pregunta: ¿hasta cuántas horas antes de la clase se puede cancelar y
-   aun así recuperar el crédito? ¿O prefieren que sea siempre sin límite?
+1. **Ventana de cancelación de reservación (Studio):** **12 horas antes** de la clase para recuperar credito. Despues de esa ventana o no-show: se cobra el credito. Creditos expiran mensualmente (reset dia 1).
 
-2. **Ventana de confirmación en lista de espera.** Hoy: cuando se libera
-   un cupo, el staff mueve manualmente a la siguiente persona de la lista
-   a la reservación — no hay ventana de tiempo automática (necesitaría
-   notificaciones funcionando, ver punto 10). Pregunta: cuando se
-   automatice, ¿cuánto tiempo debe tener esa persona para confirmar antes
-   de pasarle al que sigue en la fila?
+2. **Lista de espera (Studio):** **Solo recordatorio manual**. Boton "Enviar notificacion" en admin cuando hay cupo. Sin cola FIFO automatizada, sin prioridad. El cliente reserva manualmente si hay cupo.
 
-3. **Registro de pagos en efectivo/transferencia.** Hoy: el staff puede
-   otorgar créditos manualmente desde el panel, guardando solo una nota
-   libre. Pregunta: cuando alguien paga en efectivo o transferencia en el
-   estudio (no con tarjeta por Stripe), ¿necesitan guardar un
-   folio/referencia de ese pago, o con la nota libre basta?
+3. **Registro de pagos en efectivo/transferencia:** Nota libre basta por ahora. Folio/referencia opcional.
 
-4. **Créditos por clase.** Hoy: toda clase consume exactamente 1 crédito.
-   Pregunta: ¿existe o van a existir clases especiales (talleres, clases
-   dobles) que cuesten más de 1 crédito?
+4. **Creditos por clase:** **1 credito fijo** por clase. Sin clases multi-credito por ahora.
 
-5. **Vigencia de paquetes.** Hoy: el paquete tiene un campo "vigencia en
-   días" pero los créditos sobrantes nunca expiran automáticamente al
-   vencer. Pregunta: cuando un paquete vence, ¿los créditos que sobraron
-   se pierden solos, o lo manejan caso por caso con cada cliente?
+5. **Vigencia de paquetes / expiracion de creditos:** **Reset mensual automatico** (dia 1). Creditos no usados no se acumulan mes a mes.
 
-## Decisiones ya tomadas, vale la pena confirmar con uso real
+6. **Quien reserva las clases:** **Cliente reserva su propia clase** desde la web (`apps/web`). Staff puede reservar/cancelar desde admin.
 
-6. **Quién reserva las clases.** Hoy: solo el staff reserva/cancela desde
-   el panel, a nombre del cliente (por teléfono o en el mostrador). El
-   cliente todavía no puede reservar su propia clase desde la app.
-   Pregunta: ¿así es como reciben reservaciones hoy en la práctica, o los
-   clientes ya esperan poder reservar ellos mismos?
+7. **Catalogo publico:** **Si, abierto al publico** sin login (precios, paquetes, calendario, horarios). Login solo para reservar/ver perfil.
 
-7. **Catálogo público.** Hoy: cualquier persona sin cuenta puede ver la
-   lista de instructores y clases (pensado como catálogo/marketing).
-   Pregunta: ¿de verdad quieren ese catálogo abierto al público, o
-   debería requerir una cuenta?
+8. **Email del cliente en admin:** No visible por ahora. Solo nombre y telefono.
 
-8. **Email del cliente no visible en el panel de admin.** Hoy: el
-   directorio de clientes solo muestra nombre y teléfono. Pregunta: ¿el
-   staff necesita buscar o ver el email del cliente en el día a día?
+9. **Alumno con cuenta propia:** No por ahora. Titular gestiona todo.
 
-9. **Un alumno (hijo) nunca tiene su propia cuenta.** Hoy: el titular de
-   la cuenta es siempre quien paga y gestiona; el alumno (ej. un hijo
-   inscrito en Ballet) no puede iniciar sesión por su cuenta. Pregunta:
-   ¿algún alumno necesitaría acceso propio en algún momento (por ejemplo
-   al cumplir 18 años, o para ver su propio horario)?
+10. **Proveedor de notificaciones:** Pendiente (WhatsApp/email mock por ahora).
 
-10. **Proveedor real de notificaciones.** Hoy: WhatsApp/email corren con
-    un proveedor de prueba (mock), nada se envía de verdad todavía.
-    Pregunta: ¿qué canal usan hoy para avisar a clientes (WhatsApp,
-    email, SMS) y con qué proveedor quieren operar en producción (Meta
-    WhatsApp API, Twilio, UltraMsg, etc.)?
+11. **Fechas de cobro de colegiatura (Academia):** **Primeros 10 dias del mes** (dia 10 corte). Fecha fija global, no aniversario.
 
-11. **Fechas de cobro de colegiatura (Academia).** Hoy: se va a capturar
-    la fecha de inscripción de cada alumno a un grupo, pero todavía no
-    existe la lógica de cobro/vencimiento (eso es un sub-proyecto
-    aparte). Pregunta: ¿las colegiaturas se cobran el mismo día del mes
-    en que se inscribió cada alumno, o hay una fecha de corte fija para
-    todos (ej. día 5 de cada mes) sin importar cuándo se inscribieron?
+12. **Cupo maximo por grupo de Academia:** **Max 15** (recomendado 12). Configurable por grupo.
 
-12. **Cupo máximo por grupo de Academia.** Hoy: los grupos de Academia
-    (Ballet, etc.) no van a tener límite de cupo por ahora, a diferencia
-    de las clases del Studio. Pregunta: ¿algún grupo real tiene un
-    límite de alumnos por espacio/seguridad, o realmente no aplica?
+13. **Informacion adicional por grupo de Academia:** **Edad minima/maxima** (campos `age_min`, `age_max`). Sin salon/ubicación ni cuota especifica por grupo por ahora.
 
-13. **Información adicional por grupo de Academia.** Hoy: un grupo solo
-    va a tener nombre, instructor (opcional) y horario(s) semanales.
-    Pregunta: ¿necesitan capturar algo más por grupo — nivel, edad
-    mínima/máxima, salón/ubicación, cuota mensual específica de ese
-    grupo?
+## Nuevas decisiones por validar
+
+14. **Descuentos por referido (Academia):** Campo `discount_percent` en perfil de cliente. Aplicable solo a ballet. ¿Qué rango de porcentaje permitido? (ej. 0-50%)
+
+15. **Campos medicos de cliente:** Condiciones (embarazo, hernia, etc.), edad, notas. ¿Obligatorio o solo opcional? ¿Visible para instructor en lista de alumnos?
+
+16. **Rol INSTRUCTOR_ADMIN:** Permisos exactos — ver solo sus clases y alumnos. No acceso a paquetes, creditos globales, clientes de otros instructores, configuracion. ¿Algo mas restringir?
+
+17. **Cuenta de instructor obligatoria:** Recomendada pero no obligatoria. ¿Como manejar instructores sin cuenta Auth en "Mis clases" y filtros?
+
+18. **Proveedor WhatsApp/Email definitivo:** Para notificaciones reales (recordatorio lista de espera, alerta colegiatura, etc.)
+
+19. **Reset mensual de creditos:** Dia 1 de cada mes. ¿Que pasa con creditos comprados dia 28? ¿Se pierden dia 1 siguiente o duran mes completo? (Definicion: creditos comprados duran hasta fin del mes calendario actual, reset dia 1 siguiente).
+
+## Pendientes de Stripe/Pagos
+
+20. Stripe Checkout + Webhook para compra de paquetes.
+21. Idempotencia de webhooks.
+22. Historial de pagos (cliente y admin).

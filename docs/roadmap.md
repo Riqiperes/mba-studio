@@ -28,8 +28,8 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
     18a. Grupos + Inscripciones — CRUD de grupos (nombre, instructor
          opcional, horario semanal con varios dias/horas), inscribir/dar
          de baja Alumnos existentes (`dependents`) a un grupo. El cliente
-         debe tener cuenta ya creada (flujo de Clientes existente); sin
-         cupo maximo por grupo todavia.
+         debe tener cuenta ya creada (flujo de Clientes existente).
+         **Cupo maximo por grupo: 15 (recomendado 12), grupos por edad.**
     18b. Clientes sin cuenta ("clientes de mostrador") — permite inscribir
          a un Alumno cuyo tutor no quiere/no tiene cuenta (paga en
          efectivo, nunca inicia sesion). Requiere relajar
@@ -38,32 +38,47 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
          WhatsApp). Afecta tambien al Studio, no solo a Academia -- ver
          `docs/preguntas-para-negocio.md` item 3 (registro de pagos en
          efectivo).
-    18c. Colegiaturas — estado simple `PAGADO`/`NO_PAGADO` por periodo de
-         inscripcion (sin Stripe todavia), que el staff marca manualmente
-         al cobrar en efectivo/transferencia; alertas de pago atrasado
+    18c. Colegiaturas — **pago en primeros 10 dias del mes**, estado
+         `PAGADO`/`NO_PAGADO` por periodo de inscripcion (sin Stripe
+         todavia), que el staff marca manualmente al cobrar en
+         efectivo/transferencia; alertas de pago atrasado
          (ver `docs/business-rules.md`).
+    18d. Descuentos por referido — campo de descuento personalizado
+         en perfil de cliente (admin), aplicable a clases de ballet.
 
-> **Nota:** El sub-proyecto 18d (Asistencia — registro de asistencia por
+> **Nota:** El sub-proyecto 18e (Asistencia — registro de asistencia por
 > sesión de grupo) fue descartado por orden de la directora. No se
 > implementará ninguna funcionalidad de asistencia en la Academia.
-19. Notifications — generacion de eventos de notificacion (email primero).
-20. WhatsApp — proveedor real (Meta/Twilio/UltraMsg) detras de la
+
+19. **Politicas de cancelacion y creditos (Studio):**
+    - Ventana de 12 horas antes de la clase para cancelar y recuperar credito.
+    - Cancelacion despues de la ventana o no-show: se cobra el credito.
+    - Creditos expiran mensualmente (reset el dia 1 de cada mes).
+20. **Lista de espera (Studio):** boton "Enviar notificacion" (recordatorio
+    manual cuando hay cupo), **sin cola de prioridad** — solo recordatorio.
+21. Notifications — generacion de eventos de notificacion (email primero).
+22. WhatsApp — proveedor real (Meta/Twilio/UltraMsg) detras de la
     abstraccion ya preparada.
-21. White-label configuration — tabla `business` consumida por la UI (ver
+23. White-label configuration — tabla `business` consumida por la UI (ver
     `docs/white-label.md`).
-22. Testing — tests de las reglas criticas listadas en `docs/testing.md`.
-23. Deployment — Cloudflare Pages + Supabase produccion (ver
+24. **Campos personalizados de cliente:** condiciones medicas (embarazo,
+    hernia, etc.), edad, notas — visibles en admin y detalle de clase.
+25. **Instructores como admin limitado:** rol `INSTRUCTOR_ADMIN` (no
+    SUPER_ADMIN) — vista "Mis clases" con sus alumnos, filtro por
+    instructor en admin. Cuenta recomendada pero no obligatoria.
+26. **Acceso publico web:** toda la informacion visible sin login
+    (precios, paquetes, calendario, horarios). Login solo en perfil.
+27. Testing — tests de las reglas criticas listadas en `docs/testing.md`.
+28. Deployment — Cloudflare Pages + Supabase produccion (ver
     `docs/deployment.md`).
-24. Documentation — mantener `docs/` y `CLAUDE.md` al dia con lo
+29. Documentation — mantener `docs/` y `CLAUDE.md` al dia con lo
     implementado.
-25. Recovery verification — validar que `docs/PROJECT_RECOVERY.md` funciona
+30. Recovery verification — validar que `docs/PROJECT_RECOVERY.md` funciona
     de verdad clonando en un entorno limpio.
 
 ## Decisiones pendientes (no implementar hasta decidir con el negocio)
 
-- Ventana exacta de cancelacion de reservaciones (devuelve credito o no).
-- Ventana de confirmacion al liberarse un cupo en lista de espera.
-- Dias de gracia antes de marcar una colegiatura como "pago atrasado".
+- Ventana de confirmacion al liberarse un cupo en lista de espera (solo recordatorio manual).
 - Proveedor de WhatsApp definitivo (Meta / Twilio / UltraMsg) para
   produccion.
 - Proveedor de email definitivo.

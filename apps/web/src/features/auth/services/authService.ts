@@ -2,10 +2,10 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import type { Profile } from "../types/profile";
 
-export async function signInWithGoogle(): Promise<void> {
+export async function signInWithGoogle(redirectTo?: string): Promise<void> {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: window.location.origin },
+    options: { redirectTo: redirectTo || window.location.origin },
   });
 
   if (error) throw error;
@@ -20,11 +20,19 @@ export async function signUpWithEmail(
   email: string,
   password: string,
   fullName: string,
+  redirectTo?: string,
 ): Promise<{ needsEmailConfirmation: boolean }> {
+  const options: { data: { full_name: string }; emailRedirectTo?: string } = {
+    data: { full_name: fullName },
+  };
+  if (redirectTo) {
+    options.emailRedirectTo = redirectTo;
+  }
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: fullName } },
+    options,
   });
 
   if (error) throw error;

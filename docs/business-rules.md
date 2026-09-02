@@ -16,8 +16,8 @@ Cancelacion valida -> Credito devuelto
 - Reservar una clase consume 1 credito (o el valor que defina el paquete/clase).
 - Cancelar una reservacion segun las reglas de cancelacion (ver abajo)
   devuelve el credito consumido.
-- Los creditos pueden expirar segun la vigencia del paquete (a definir el
-  valor exacto por paquete en `packages.expires_at` o similar).
+- **Los creditos expiran mensualmente: reset automatico el dia 1 de cada mes
+  (creditos no usados no se acumulan).**
 
 ## Reservaciones
 
@@ -31,21 +31,23 @@ Un usuario puede reservar una clase solo si:
 Si no hay cupo, el usuario puede unirse a la lista de espera en vez de
 reservar.
 
-## Cancelacion de reservaciones
+## Cancelacion de reservaciones (Studio)
 
-- Reglas exactas de ventana de cancelacion (ej. "hasta N horas antes de la
-  clase") quedan pendientes de definir con el negocio real; hasta entonces,
-  documentar aqui el valor acordado antes de implementarlo.
-- Una cancelacion fuera de la ventana permitida puede no devolver el
-  credito (a definir).
+- **Ventana de 12 horas antes del inicio de la clase** para cancelar y
+  recuperar el credito.
+- Cancelacion dentro de las 12 horas previas a la clase, o no-show:
+  **se cobra el credito** (no se devuelve).
+- La cancelacion la puede hacer el cliente (web) o el staff (admin).
 
-## Lista de espera
+## Lista de espera (Studio)
 
-- Orden determinista tipo FIFO (`created_at` de la entrada en waitlist).
-- Si se libera un cupo (cancelacion de otro usuario), el siguiente en la
-  lista es notificado (ver `docs/notifications.md`) y tiene una ventana de
-  tiempo para confirmar antes de pasar al siguiente (valor de la ventana a
-  definir).
+- **Sin cola de prioridad FIFO automatizada**. La lista de espera es solo
+  informativa.
+- Cuando la clase tiene cupo disponible, el staff (admin) ve un boton
+  **"Enviar notificacion"** que envia un recordatorio manual (WhatsApp/email)
+  a los clientes en lista de espera.
+- El recordatorio **no reserva automaticamente** ni da prioridad; el cliente
+  debe entrar a la web y reservar manualmente si hay cupo.
 
 ## Capacidad de clase
 
@@ -60,11 +62,51 @@ Colegiatura vencida sin pago -> Alerta de pago atrasado
 Falta de pago sostenida / solicitud del alumno -> Baja
 ```
 
-- Toda inscripcion tiene una fecha limite de pago por periodo.
-- Pasada la fecha limite sin pago registrado, se genera una alerta de pago
-  atrasado (ver `docs/notifications.md`).
-- Una baja cambia el estado de la inscripcion y detiene las alertas futuras
-  de esa inscripcion.
+- Toda inscripcion genera una colegiatura mensual.
+- **Fecha limite de pago: dia 10 de cada mes** (primeros 10 dias del mes).
+- Pasado el dia 10 sin pago registrado, se genera alerta de pago atrasado.
+- Una baja cambia el estado de la inscripcion y detiene las alertas futuras.
+
+## Descuentos por referido (Academia - Ballet)
+
+- El admin puede asignar un **descuento personalizado (%)** en el perfil
+  del cliente (campo `discount_percent`).
+- Aplicable solo a clases de ballet/grupos de academia.
+- Se aplica al calcular la colegiatura mensual.
+
+## Campos personalizados de cliente (Studio + Academia)
+
+- **Condiciones medicas** (texto libre): embarazo, hernia, lesiones, etc.
+- **Edad** (numero, opcional).
+- **Notas adicionales** (texto libre).
+- Visibles en: admin (detalle de cliente), detalle de clase/reservacion,
+  lista de alumnos de instructor.
+
+## Instructores como admin limitado
+
+- Nuevo rol: `INSTRUCTOR_ADMIN` (distinto de `STAFF`, `BUSINESS_ADMIN`,
+  `SUPER_ADMIN`).
+- Permisos: ver sus clases asignadas ("Mis clases"), ver alumnos de sus
+  clases, **no** puede gestionar paquetes, clientes globales, creditos,
+  ni configuracion global.
+- Cuenta de instructor **recomendada** pero no obligatoria (puede no
+  tener cuenta Auth y seguir asignado a clases).
+- En admin: filtro por instructor para ver sus clientes/clases.
+
+## Academia — Grupos
+
+- **Grupos por edad**: campo `age_min` / `age_max` (opcional).
+- **Capacidad maxima**: 15 alumnos (recomendado 12). Campo `max_capacity`
+  en `academy_groups` (default 15).
+- Sin cupo maximo hardcoded en otras areas; configurable por grupo.
+
+## Acceso publico (apps/web)
+
+- **Toda la informacion visible sin login**: precios, paquetes, catalogo,
+  calendario de clases, horarios, info de la academia.
+- Login/registro solo necesario para: reservar clases, ver "Mi horario",
+  editar perfil, ver creditos.
+- Landing page (`/`) es publica; boton "Iniciar sesion" en navegacion.
 
 ## Pagos (ver tambien docs/payments.md)
 
@@ -75,7 +117,6 @@ Falta de pago sostenida / solicitud del alumno -> Baja
 
 ## Notas
 
-Los valores numericos exactos (ventana de cancelacion, ventana de
-confirmacion de waitlist, dias de gracia antes de "pago atrasado") no estan
-definidos todavia porque dependen de decisiones del negocio real. Cuando se
-definan, actualizar este documento en el mismo cambio que se implementen.
+Los valores numericos exactos (ventana de cancelacion 12h, reset mensual
+dia 1, pago colegiatura dia 10, capacidad max 15) estan definidos aqui
+y deben implementarse en el mismo cambio que se agreguen.
