@@ -1,11 +1,13 @@
 import { usePackages } from "@/features/packages/hooks/usePackages";
 import { PackageCard } from "@/features/packages/components/PackageCard";
+import { BackButton } from "@/components/ui/BackButton";
 
 export function PackagesCatalogPage() {
   const { packages, loading, error } = usePackages();
 
   return (
     <div id="packages-catalog-page" className="mx-auto max-w-5xl p-6">
+      <BackButton />
       <header className="mb-8">
         <h1 className="text-2xl font-semibold text-brand-primary">Nuestros paquetes</h1>
         <p className="mt-1 text-gray-600">

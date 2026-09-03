@@ -9,6 +9,7 @@ import type { ClassBookingState } from "@/features/studio/components/ClassesCale
 import { bookClass, cancelBooking, joinWaitlist, leaveWaitlist } from "@/features/bookings/services/bookingsService";
 import type { BookingWithClass } from "@/features/bookings/types/Booking";
 import type { WaitlistEntryWithClass } from "@/features/bookings/types/WaitlistEntry";
+import { BackButton } from "@/components/ui/BackButton";
 
 function getWeekStart(date: Date): Date {
   const d = new Date(date);
@@ -127,6 +128,7 @@ export function ClassesCalendarPage() {
 
   return (
     <div id="classes-calendar-page" className="mx-auto max-w-5xl px-4 py-4 pb-24">
+      <BackButton />
       <header className="mb-4">
         <h1 className="text-xl font-semibold text-brand-primary">Horario de clases</h1>
         <p className="mt-1 text-sm text-gray-600">

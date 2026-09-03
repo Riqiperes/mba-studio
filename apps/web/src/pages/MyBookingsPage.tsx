@@ -7,6 +7,7 @@ import { BookingCard } from "@/features/bookings/components/BookingCard";
 import { WaitlistCard } from "@/features/bookings/components/WaitlistCard";
 import { CreditsBadge } from "@/features/credits/components/CreditsBadge";
 import { Card, CardContent } from "@/components/ui/Card";
+import { BackButton } from "@/components/ui/BackButton";
 
 export function MyBookingsPage() {
   const { bookings, waitlist, loading, error, reload } = useMyBookings();
@@ -48,6 +49,7 @@ export function MyBookingsPage() {
 
   return (
     <div id="my-bookings-page" className="mx-auto max-w-xl px-4 py-6 space-y-8 pb-24">
+      <BackButton />
       <header className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-brand-primary">Mi horario</h1>
         <CreditsBadge balance={balance} loading={creditsLoading} />

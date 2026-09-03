@@ -4,6 +4,7 @@ import { AcademyGroupFormModal } from "@/features/academy/components/AcademyGrou
 import { useAcademyGroups } from "@/features/academy/hooks/useAcademyGroups";
 import type { AcademyGroupWithDetails, GroupInput } from "@/features/academy/types/AcademyGroup";
 import { useInstructors } from "@/features/instructors/hooks/useInstructors";
+import { BackButton } from "@/components/ui/BackButton";
 
 const DAY_ABBREVIATIONS = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
 
@@ -40,6 +41,7 @@ export function AcademyGroupsPage() {
 
   return (
     <div id="academy-groups-page" className="mx-auto max-w-4xl p-6">
+      <BackButton />
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-brand-primary">Academia</h1>
         <button

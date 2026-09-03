@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { listActivePackages } from "@/features/packages/services/packagesService";
 import type { PackageCatalogItem } from "@/features/packages/types/Package";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { BackButton } from "@/components/ui/BackButton";
 
 export function PackageDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -54,23 +55,16 @@ export function PackageDetailPage() {
   if (error || !pkg) {
     return (
       <div className="mx-auto max-w-md px-4 py-12 text-center">
+        <BackButton />
         <h2 className="mb-2 text-xl font-semibold text-gray-900">No encontrado</h2>
         <p className="text-gray-500">{error ?? "El paquete no existe"}</p>
-        <Link to="/packages" className="mt-4 inline-block text-brand-primary hover:underline">
-          ← Volver a paquetes
-        </Link>
       </div>
     );
   }
 
   return (
     <div id="package-detail-page" className="mx-auto max-w-md px-4 py-6 space-y-6 pb-24">
-      <Link
-        to="/packages"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
-      >
-        ← Paquetes
-      </Link>
+      <BackButton />
 
       <Card>
         <CardContent className="space-y-6 p-6">

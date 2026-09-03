@@ -44,32 +44,57 @@ export function LandingPage() {
   const phoneUrl = business?.phone ? formatPhoneLink(business.phone) : "";
 
   return (
-    <div id="landing-page" className="space-y-6 px-4 pt-4 pb-24">
-      {business?.logoUrl && (
-        <div className="flex justify-center pt-4">
-          <img
-            src={business.logoUrl}
-            alt={business.name}
-            className="h-16 w-auto rounded-lg"
-          />
-        </div>
-      )}
-
-      <section className="text-center space-y-3">
-        <h1 className="text-2xl font-bold text-gray-900">{business?.name ?? "MBA MID"}</h1>
-        {business?.description && (
-          <p className="text-gray-600 max-w-md mx-auto">{business.description}</p>
+    <div id="landing-page" className="mx-auto flex max-w-md flex-col gap-6 px-4 pt-4 pb-24">
+      {/* 1. Logo */}
+      <section id="landing-logo-section">
+        {business?.logoUrl ? (
+          <div className="flex justify-center pt-4">
+            <img
+              src={business.logoUrl}
+              alt={business.name}
+              className="h-16 w-auto rounded-lg"
+            />
+          </div>
+        ) : (
+          <div className="flex h-24 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 text-sm text-gray-400">
+            Aquí irá logo
+          </div>
         )}
       </section>
 
+      {/* 2. Información del negocio */}
+      <section id="landing-info-section" className="text-center space-y-3">
+        {business?.name || business?.description ? (
+          <>
+            <h1 className="text-2xl font-bold text-gray-900">{business?.name ?? "MBA MID"}</h1>
+            {business?.description && (
+              <p className="text-gray-600">{business.description}</p>
+            )}
+          </>
+        ) : (
+          <div className="flex h-20 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 text-sm text-gray-400">
+            Aquí irá información
+          </div>
+        )}
+      </section>
+
+      {/* 3. Mapa de Google (pendiente integrar) */}
+      <section id="landing-map-section">
+        <div className="flex h-40 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 text-sm text-gray-400">
+          Mapa de Google
+        </div>
+      </section>
+
+      {/* 4. Dirección */}
       {business?.address && (
-        <section className="rounded-lg bg-white p-4 shadow-sm">
+        <section id="landing-address-section" className="rounded-lg bg-white p-4 shadow-sm">
           <h2 className="mb-3 text-lg font-semibold text-gray-900">📍 Ubicación</h2>
           <address className="text-gray-600 not-italic">{business.address}</address>
         </section>
       )}
 
-      <section className="grid gap-3 sm:grid-cols-2">
+      {/* 5. Teléfono / WhatsApp */}
+      <section id="landing-contact-section" className="grid gap-3 sm:grid-cols-2">
         {business?.phone && (
           <a
             href={phoneUrl}
@@ -92,7 +117,8 @@ export function LandingPage() {
         )}
       </section>
 
-      <section className="space-y-3 pt-2">
+      {/* 6. Accesos rápidos */}
+      <section id="landing-quick-access-section" className="space-y-3">
         <h2 className="text-lg font-semibold text-gray-900">Accesos rápidos</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <Link to="/packages">

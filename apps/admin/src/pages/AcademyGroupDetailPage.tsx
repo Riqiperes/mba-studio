@@ -9,6 +9,7 @@ import { useAcademyTuitionPeriod } from '@/features/academy/hooks/useAcademyTuit
 import { useCustomers } from '@/features/customers/hooks/useCustomers';
 import { calculatePeriodsForEnrollment, formatPeriodLabel } from '@/features/academy/utils/calculatePeriod';
 import { getErrorMessage } from '@/utils/getErrorMessage';
+import { BackButton } from '@/components/ui/BackButton';
 
 const DAY_ABBREVIATIONS = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
 
@@ -57,14 +58,16 @@ export function AcademyGroupDetailPage() {
 
   if (groupsError || !group) {
     return (
-      <div className="mx-auto max-w-3xl p-6 text-sm text-red-600">
-        {groupsError ?? 'Grupo no encontrado.'}
+      <div className="mx-auto max-w-3xl p-6 text-sm">
+        <BackButton />
+        <p className="text-red-600">{groupsError ?? 'Grupo no encontrado.'}</p>
       </div>
     );
   }
 
   return (
     <div id="academy-group-detail-page" className="mx-auto max-w-3xl p-6">
+      <BackButton />
       <h1 className="mb-1 text-xl font-semibold text-brand-primary">{group.name}</h1>
       <p className="mb-4 text-sm text-gray-500">
         {group.instructorName ?? 'Sin instructor'}

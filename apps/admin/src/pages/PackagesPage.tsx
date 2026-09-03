@@ -3,6 +3,7 @@ import { PackageFormModal } from "@/features/packages/components/PackageFormModa
 import { PackagesTable } from "@/features/packages/components/PackagesTable";
 import { usePackages } from "@/features/packages/hooks/usePackages";
 import type { Package } from "@/features/packages/types/Package";
+import { BackButton } from "@/components/ui/BackButton";
 
 export function PackagesPage() {
   const { packages, loading, error, create, update, setActive } = usePackages();
@@ -49,6 +50,7 @@ export function PackagesPage() {
 
   return (
     <div id="packages-page" className="mx-auto max-w-3xl p-6">
+      <BackButton />
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-brand-primary">Paquetes</h1>
         <button

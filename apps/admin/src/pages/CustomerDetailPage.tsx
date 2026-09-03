@@ -7,6 +7,7 @@ import { useCustomer } from "@/features/customers/hooks/useCustomers";
 import type { Dependent } from "@/features/dependents/types/Dependent";
 import { GrantCreditsModal } from "@/features/credits/components/GrantCreditsModal";
 import { useCustomerCredits } from "@/features/credits/hooks/useCustomerCredits";
+import { BackButton } from "@/components/ui/BackButton";
 
 export function CustomerDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -96,11 +97,17 @@ export function CustomerDetailPage() {
 
   if (loading) return <div className="mx-auto max-w-3xl p-6 text-sm text-gray-500">Cargando...</div>;
   if (error || !customer) {
-    return <div className="mx-auto max-w-3xl p-6 text-sm text-red-600">{error ?? "Cliente no encontrado."}</div>;
+    return (
+      <div className="mx-auto max-w-3xl p-6 text-sm">
+        <BackButton />
+        <p className="text-red-600">{error ?? "Cliente no encontrado."}</p>
+      </div>
+    );
   }
 
   return (
     <div id="customer-detail-page" className="mx-auto max-w-3xl p-6">
+      <BackButton />
       <h1 className="mb-4 text-xl font-semibold text-brand-primary">
         {customer.fullName ?? "Cliente"}
       </h1>

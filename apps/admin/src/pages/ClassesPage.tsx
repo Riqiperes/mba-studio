@@ -5,6 +5,7 @@ import { ClassesTable } from "@/features/classes/components/ClassesTable";
 import { useClasses } from "@/features/classes/hooks/useClasses";
 import type { ClassFilters, StudioClass } from "@/features/classes/types/StudioClass";
 import { useInstructors } from "@/features/instructors/hooks/useInstructors";
+import { BackButton } from "@/components/ui/BackButton";
 
 export function ClassesPage() {
   const [filters, setFilters] = useState<ClassFilters>({});
@@ -53,6 +54,7 @@ export function ClassesPage() {
 
   return (
     <div id="classes-page" className="mx-auto max-w-4xl p-6">
+      <BackButton />
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-brand-primary">Clases</h1>
         <button

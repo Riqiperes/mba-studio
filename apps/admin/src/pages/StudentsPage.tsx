@@ -13,6 +13,7 @@ import {
 } from "@/features/dependents/services/dependentsService";
 import type { Dependent } from "@/features/dependents/types/Dependent";
 import { getErrorMessage } from "@/utils/getErrorMessage";
+import { BackButton } from "@/components/ui/BackButton";
 
 export function StudentsPage() {
   const { profile } = useAuth();
@@ -67,6 +68,7 @@ export function StudentsPage() {
 
   return (
     <div id="students-page" className="mx-auto max-w-3xl p-6">
+      <BackButton />
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-brand-primary">Alumnos</h1>
         <button

@@ -5,6 +5,7 @@ import { useClassBookings } from "@/features/bookings/hooks/useClassBookings";
 import { useClasses } from "@/features/classes/hooks/useClasses";
 import { useCustomers } from "@/features/customers/hooks/useCustomers";
 import { getErrorMessage } from "@/utils/getErrorMessage";
+import { BackButton } from "@/components/ui/BackButton";
 
 export function ClassBookingsPage() {
   const { id } = useParams<{ id: string }>();
@@ -65,14 +66,16 @@ export function ClassBookingsPage() {
 
   if (classesError || !studioClass) {
     return (
-      <div className="mx-auto max-w-3xl p-6 text-sm text-red-600">
-        {classesError ?? "Clase no encontrada."}
+      <div className="mx-auto max-w-3xl p-6 text-sm">
+        <BackButton />
+        <p className="text-red-600">{classesError ?? "Clase no encontrada."}</p>
       </div>
     );
   }
 
   return (
     <div id="class-bookings-page" className="mx-auto max-w-3xl p-6">
+      <BackButton />
       <h1 className="mb-1 text-xl font-semibold text-brand-primary">{studioClass.title}</h1>
       <p className="mb-4 text-sm text-gray-500">
         Cupo: {bookings.length}/{studioClass.maxCapacity}

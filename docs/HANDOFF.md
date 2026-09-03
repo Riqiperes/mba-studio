@@ -51,9 +51,9 @@ Working tree: limpio
 6. **Agregar campos médicos** en `DependentFormModal` + alerta visual en listas de clase
 7. **Implementar rol INSTRUCTOR_ADMIN** + navegación condicional + página "Mis clases" + filtro por instructor
 8. **Actualizar grupos academia** con campos edad/cupo + validaciones en inscripción
-9. **Botón de regreso (←) en casi todas las páginas + rediseño vertical de LandingPage** — diseño aprobado por el usuario el 2026-09-02, todavía sin implementar (el usuario pidió solo dejarlo documentado). Detalle completo abajo.
+9. ~~Botón de regreso (←) en casi todas las páginas + rediseño vertical de LandingPage~~ — hecho (implementado el mismo día, typecheck/lint/build limpios en ambas apps). Detalle abajo.
 
-### Diseño aprobado — Botón de regreso (←) + rediseño LandingPage
+### Implementado — Botón de regreso (←) + rediseño LandingPage
 
 **Contexto:** el usuario pidió un botón "←" para regresar en casi toda la
 app, y de paso rediseñar `LandingPage` (web) a un layout mas vertical con
@@ -118,10 +118,17 @@ existente (`apps/web/src/components/ui/BottomNavigation.tsx`, montado en
 6. **Accesos rápidos** — igual que ahora (tarjetas a Paquetes y
    Horarios), sin cambios de comportamiento.
 
-**Nota para quien retome esto:** no se toco ningun archivo de codigo para
-este punto 9 — es un diseño aprobado en chat, pendiente de implementar.
-Seguir el flujo normal (TDD donde aplique, typecheck/lint/build después,
-actualizar este `HANDOFF.md`/`CURRENT_STATE.md` en el mismo cambio).
+**Estado final:** implementado tal cual el diseño de arriba. Creados
+`apps/web/src/components/ui/BackButton.tsx` y
+`apps/admin/src/components/ui/BackButton.tsx`; agregado a las 6 páginas de
+`apps/web` y las 10 de `apps/admin` listadas en el punto 2 (incluyendo sus
+estados de error/carga con early return, donde los tenían); `LandingPage`
+reordenada a las 6 secciones verticales del punto 3, con `id` en cada
+`<section>` para que sea fácil de ubicar/tocar después. `PackageDetailPage`
+y `ClassDetailPage` tenían enlaces "← Volver a..." preexistentes que
+apuntaban a su lista (no a home) — se reemplazaron por `BackButton` para
+que el comportamiento sea consistente con el resto. `npm run typecheck &&
+npm run lint && npm run build` pasan limpio en ambas apps.
 
 ## Firma de participación
 

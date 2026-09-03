@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { listUpcomingClasses } from "@/features/studio/services/studioClassesService";
 import type { StudioClassWithInstructor } from "@/features/studio/types/StudioClass";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { BackButton } from "@/components/ui/BackButton";
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("es-MX", {
@@ -74,11 +75,9 @@ export function ClassDetailPage() {
   if (error || !cls) {
     return (
       <div className="mx-auto max-w-md px-4 py-12 text-center">
+        <BackButton />
         <h2 className="mb-2 text-xl font-semibold text-gray-900">No encontrada</h2>
         <p className="text-gray-500">{error ?? "La clase no existe"}</p>
-        <Link to="/classes" className="mt-4 inline-block text-brand-primary hover:underline">
-          ← Volver a horarios
-        </Link>
       </div>
     );
   }
@@ -91,12 +90,7 @@ export function ClassDetailPage() {
 
   return (
     <div id="class-detail-page" className="mx-auto max-w-md px-4 py-6 space-y-6 pb-24">
-      <Link
-        to="/classes"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
-      >
-        ← Horarios
-      </Link>
+      <BackButton />
 
       <Card>
         <CardContent className="space-y-6 p-6">

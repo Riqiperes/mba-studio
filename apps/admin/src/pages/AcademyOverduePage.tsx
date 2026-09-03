@@ -5,6 +5,7 @@ import { getOverduePayments } from '@/features/academy/services/academyTuitionSe
 import { getErrorMessage } from '@/utils/getErrorMessage';
 import { supabase } from '@/lib/supabaseClient';
 import type { OverduePayment } from '@/features/academy/types/AcademyPayment';
+import { BackButton } from '@/components/ui/BackButton';
 
 export function AcademyOverduePage() {
   const { groups } = useAcademyGroups();
@@ -57,11 +58,17 @@ export function AcademyOverduePage() {
   }
 
   if (loading) {
-    return <div className="mx-auto max-w-6xl p-6 text-sm text-gray-500">Cargando...</div>;
+    return (
+      <div className="mx-auto max-w-6xl p-6 text-sm text-gray-500">
+        <BackButton />
+        Cargando...
+      </div>
+    );
   }
 
   return (
     <div id="academy-overdue-page" className="mx-auto max-w-6xl p-6">
+      <BackButton />
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-brand-primary">Colegiaturas atrasadas</h1>
         <div className="flex items-center gap-4">

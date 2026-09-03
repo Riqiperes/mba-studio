@@ -4,6 +4,7 @@ import { updateProfile } from "@/features/auth/services/authService";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { SignOutButton } from "@/features/auth/components/SignOutButton";
+import { BackButton } from "@/components/ui/BackButton";
 
 export function UserProfilePage() {
   const { profile, session } = useAuth();
@@ -42,6 +43,7 @@ export function UserProfilePage() {
 
   return (
     <div id="user-profile-page" className="mx-auto max-w-md px-4 py-6 space-y-6 pb-24">
+      <BackButton />
       <header className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-brand-primary">Mi perfil</h1>
         <SignOutButton />

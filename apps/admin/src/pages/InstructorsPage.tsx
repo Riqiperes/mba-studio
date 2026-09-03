@@ -3,6 +3,7 @@ import { InstructorFormModal } from "@/features/instructors/components/Instructo
 import { InstructorsTable } from "@/features/instructors/components/InstructorsTable";
 import { useInstructors } from "@/features/instructors/hooks/useInstructors";
 import type { Instructor } from "@/features/instructors/types/Instructor";
+import { BackButton } from "@/components/ui/BackButton";
 
 export function InstructorsPage() {
   const { instructors, loading, error, create, update, setActive } = useInstructors();
@@ -43,6 +44,7 @@ export function InstructorsPage() {
 
   return (
     <div id="instructors-page" className="mx-auto max-w-3xl p-6">
+      <BackButton />
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-brand-primary">Instructores</h1>
         <button

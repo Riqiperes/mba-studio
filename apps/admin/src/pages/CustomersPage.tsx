@@ -1,11 +1,13 @@
 import { CustomersTable } from "@/features/customers/components/CustomersTable";
 import { useCustomers } from "@/features/customers/hooks/useCustomers";
+import { BackButton } from "@/components/ui/BackButton";
 
 export function CustomersPage() {
   const { customers, loading, error } = useCustomers();
 
   return (
     <div id="customers-page" className="mx-auto max-w-3xl p-6">
+      <BackButton />
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-brand-primary">Clientes</h1>
       </div>
