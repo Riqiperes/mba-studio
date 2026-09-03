@@ -22,7 +22,11 @@ export function InstructorsTable({ instructors, onEdit, onToggleActive }: Props)
       </thead>
       <tbody>
         {instructors.map((instructor) => (
-          <tr key={instructor.id} className="border-b border-gray-100">
+          <tr
+            key={instructor.id}
+            onClick={() => onEdit(instructor)}
+            className="cursor-pointer border-b border-gray-100 hover:bg-gray-50"
+          >
             <td className="py-2">{instructor.fullName}</td>
             <td className="py-2">
               <span
@@ -38,14 +42,10 @@ export function InstructorsTable({ instructors, onEdit, onToggleActive }: Props)
             <td className="py-2">
               <button
                 type="button"
-                onClick={() => onEdit(instructor)}
-                className="mr-3 text-brand-primary hover:underline"
-              >
-                Editar
-              </button>
-              <button
-                type="button"
-                onClick={() => onToggleActive(instructor)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onToggleActive(instructor);
+                }}
                 className="text-gray-600 hover:underline"
               >
                 {instructor.active ? "Desactivar" : "Activar"}

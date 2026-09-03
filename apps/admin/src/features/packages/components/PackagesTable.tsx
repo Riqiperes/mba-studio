@@ -27,7 +27,11 @@ export function PackagesTable({ packages, onEdit, onToggleActive }: Props) {
       </thead>
       <tbody>
         {packages.map((pkg) => (
-          <tr key={pkg.id} className="border-b border-gray-100">
+          <tr
+            key={pkg.id}
+            onClick={() => onEdit(pkg)}
+            className="cursor-pointer border-b border-gray-100 hover:bg-gray-50"
+          >
             <td className="py-2">{pkg.name}</td>
             <td className="py-2">{pkg.credits}</td>
             <td className="py-2">{priceFormatter.format(pkg.priceCents / 100)}</td>
@@ -46,14 +50,10 @@ export function PackagesTable({ packages, onEdit, onToggleActive }: Props) {
             <td className="py-2">
               <button
                 type="button"
-                onClick={() => onEdit(pkg)}
-                className="mr-3 text-brand-primary hover:underline"
-              >
-                Editar
-              </button>
-              <button
-                type="button"
-                onClick={() => onToggleActive(pkg)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onToggleActive(pkg);
+                }}
                 className="text-gray-600 hover:underline"
               >
                 {pkg.active ? "Desactivar" : "Activar"}

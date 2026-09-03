@@ -16,6 +16,8 @@ import { AcademyGroupDetailPage } from "@/pages/AcademyGroupDetailPage";
 import { AcademyOverduePage } from "@/pages/AcademyOverduePage";
 import { UsersPage } from "@/pages/UsersPage";
 import { InstructorMyClassesPage } from "@/pages/InstructorMyClassesPage";
+import { EstudioHubPage } from "@/pages/EstudioHubPage";
+import { AcademiaHubPage } from "@/pages/AcademiaHubPage";
 
 function App() {
   return (
@@ -29,6 +31,26 @@ function App() {
               <RequireAuth>
                 <AdminLayout>
                   <HomePage />
+                </AdminLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/estudio"
+            element={
+              <RequireAuth>
+                <AdminLayout>
+                  <EstudioHubPage />
+                </AdminLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/academia"
+            element={
+              <RequireAuth>
+                <AdminLayout>
+                  <AcademiaHubPage />
                 </AdminLayout>
               </RequireAuth>
             }

@@ -2,6 +2,8 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import type { Profile } from "../types/profile";
 
+const PROFILE_COLUMNS = "id, business_id, role, full_name, phone, medical_conditions, created_at, updated_at";
+
 export async function signInWithGoogle(redirectTo?: string): Promise<void> {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -51,7 +53,7 @@ export async function signInWithEmail(
 export async function getProfile(userId: string): Promise<Profile> {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, business_id, role, full_name, phone, created_at, updated_at")
+    .select(PROFILE_COLUMNS)
     .eq("id", userId)
     .single();
 
@@ -63,6 +65,7 @@ export async function getProfile(userId: string): Promise<Profile> {
     role: data.role,
     fullName: data.full_name,
     phone: data.phone,
+    medicalConditions: data.medical_conditions,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
   };
@@ -70,17 +73,25 @@ export async function getProfile(userId: string): Promise<Profile> {
 
 export async function updateProfile(
   userId: string,
-  input: { fullName: string | null; phone: string | null },
+  input: { fullName: string | null; phone: string | null; medicalConditions?: string | null },
 ): Promise<Profile> {
+  const updateData: {
+    full_name: string | null;
+    phone: string | null;
+    medical_conditions?: string | null;
+    updated_at: string;
+  } = {
+    full_name: input.fullName,
+    phone: input.phone,
+    updated_at: new Date().toISOString(),
+  };
+  if (input.medicalConditions !== undefined) updateData.medical_conditions = input.medicalConditions;
+
   const { data, error } = await supabase
     .from("profiles")
-    .update({
-      full_name: input.fullName,
-      phone: input.phone,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updateData)
     .eq("id", userId)
-    .select("id, business_id, role, full_name, phone, created_at, updated_at")
+    .select(PROFILE_COLUMNS)
     .single();
 
   if (error) throw error;
@@ -91,6 +102,7 @@ export async function updateProfile(
     role: data.role,
     fullName: data.full_name,
     phone: data.phone,
+    medicalConditions: data.medical_conditions,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
   };

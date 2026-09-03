@@ -60,6 +60,47 @@ Working tree: limpio
 - **Auto-inscripción por edad** (pedido explícito, "auto-inscribe de verdad"): trigger nuevo `academy_groups_auto_enroll_by_age` (`022`) — al crear/editar un grupo con `age_min`/`age_max`, inscribe automáticamente a los alumnos activos cuya edad (calculada de `birth_date`) caiga en el rango, hasta el cupo máximo, sin confirmación manual.
 - **Modales cierran con click fuera**: los 9 modales de `apps/admin` (`PackageFormModal`, `ClassFormModal`, `InstructorFormModal`, `DependentFormModal`, `GrantCreditsModal`, `BookCustomerModal`, `AcademyGroupFormModal`, `EnrollStudentModal`, `MarkPaymentModal`) ahora cierran al hacer click en el fondo oscuro (`onClick={onClose}` en el overlay + `stopPropagation` en el contenido).
 - **`database.types.ts`** (ambas apps) actualizado a mano otra vez por el mismo bloqueo del token-optimizer de esta sesión con `generate_typescript_types` — recomendado regenerar en sesión limpia para confirmar.
+
+### Correccion sobre el rediseño (mismo día, el usuario dijo "aun no veo esos cambios")
+
+El nav de dropdowns hover de arriba **no era lo que el usuario pedía** —
+quería literalmente 2 botones grandes tipo tarjeta (como ya existían en
+`HomePage.tsx`), no links de texto en la barra superior. Corregido:
+
+- **`HomePage.tsx`** ahora son solo 2 tarjetas grandes: "Estudio" y
+  "Academia" (antes era una grilla de 7 links).
+- **`EstudioHubPage.tsx`** nueva (`/estudio`): 4 tarjetas grandes — Clases,
+  Instructores, Paquetes, Clientes.
+- **`AcademiaHubPage.tsx`** nueva (`/academia`): 2 tarjetas grandes — Ver
+  horarios (`/academy/groups`), Ver alumnos (`/students`) + un link chico
+  aparte a Colegiaturas atrasadas (no es tarjeta, sigue existiendo la
+  página, solo no es uno de los botones grandes que pidió).
+- **`AdminLayout.tsx`** vuelve a ser minimo: "Inicio" + "Usuarios" (solo
+  BUSINESS_ADMIN/SUPER_ADMIN) + cerrar sesión. Sin dropdowns.
+- **Click en toda la fila** agregado en `InstructorsTable`, `ClassesTable`,
+  `PackagesTable`, `CustomersTable` (pedido explícito: "para ver clases
+  para ver instructores paquetes, clientes todo"). Instructores/Paquetes
+  abren su modal de edición al hacer click en la fila (el botón
+  Desactivar/Activar sigue en la fila con `stopPropagation`); Clases y
+  Clientes navegan a su página de detalle.
+- **Bug critico encontrado y corregido**: `022` eliminó `dependents.age`,
+  pero el trigger `enforce_academy_enrollment_capacity_and_age` (`016`)
+  todavía hacía `select age from dependents` — cualquier inscripción nueva
+  tronaba con `column "age" does not exist`. Corregido en `023` para
+  calcular la edad de `birth_date` en el momento, igual que el trigger de
+  auto-inscripción.
+- **Cliente puede poner su propia condición médica**: `apps/web`,
+  `UserProfilePage` — nuevo campo "Condiciones médicas" que el cliente
+  edita el mismo (RLS ya lo permitía, `profiles_update_own_or_staff` +
+  el trigger de `007` no tocan estas columnas). `notes` sigue siendo
+  solo-staff (no se expone en web).
+
+**Nota importante para el usuario**: estos cambios viven en el código,
+no hay deploy todavía (Cloudflare Pages sigue pendiente). Para verlos hay
+que correr `npm run dev:admin`/`npm run dev:web` local y abrir el
+navegador — si ya tenías el dev server corriendo, hace falta refrescar
+después de cada sesión de cambios.
+
 9. ~~Rol INSTRUCTOR_ADMIN~~ — hecho, con brainstorming previo (ver conversación). Alcance final, más grande que lo original porque el usuario pidió resolver de una vez la gestión general de roles:
    - **Página `/users` nueva** (`BUSINESS_ADMIN`/`SUPER_ADMIN` solamente): lista TODAS las cuentas registradas del negocio (email incluido — vive en `auth.users`, no en `profiles`) vía RPC nueva `list_business_profiles()` (`021`, `security definer`, gated a BUSINESS_ADMIN/SUPER_ADMIN), y permite cambiar el rol de cualquiera (`CUSTOMER`/`STAFF`/`BUSINESS_ADMIN`/`INSTRUCTOR_ADMIN`/`SUPER_ADMIN`) + vincular `instructor_id` cuando el rol es `INSTRUCTOR_ADMIN`. El update de rol es un `.update()` directo sobre `profiles` — ya protegido por RLS + el trigger `prevent_profile_privilege_escalation` (007): un `BUSINESS_ADMIN` no puede otorgar `SUPER_ADMIN` (el trigger lo revierte en silencio), por eso la UI ni siquiera ofrece esa opción salvo que el actor ya sea `SUPER_ADMIN`.
    - **`RequireAuth` (admin)** generalizado: acepta `allowedRoles` por ruta (default = roles de staff, sin `INSTRUCTOR_ADMIN`). Un `INSTRUCTOR_ADMIN` que cae en una ruta de staff (nav o URL directa) se redirige a `/instructor/my-classes` en vez de "Sin acceso".

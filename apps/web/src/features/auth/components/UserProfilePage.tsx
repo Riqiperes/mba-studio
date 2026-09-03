@@ -10,6 +10,7 @@ export function UserProfilePage() {
   const { profile, session } = useAuth();
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [medicalConditions, setMedicalConditions] = useState("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -17,6 +18,7 @@ export function UserProfilePage() {
     if (profile) {
       setFullName(profile.fullName ?? "");
       setPhone(profile.phone ?? "");
+      setMedicalConditions(profile.medicalConditions ?? "");
     }
   }, [profile]);
 
@@ -31,6 +33,7 @@ export function UserProfilePage() {
       await updateProfile(session.user.id, {
         fullName: fullName.trim() || null,
         phone: phone.trim() || null,
+        medicalConditions: medicalConditions.trim() || null,
       });
       setMessage({ type: "success", text: "Perfil actualizado correctamente" });
     } catch (err) {
@@ -88,6 +91,20 @@ export function UserProfilePage() {
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
                 autoComplete="tel"
                 placeholder="+52 999 123 4567"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label htmlFor="profile-medical-conditions" className="block text-sm font-medium text-gray-700">
+                Condiciones médicas (opcional)
+              </label>
+              <textarea
+                id="profile-medical-conditions"
+                rows={3}
+                value={medicalConditions}
+                onChange={(e) => setMedicalConditions(e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                placeholder="Embarazo, hernia, lesiones, etc. Nos ayuda a cuidarte mejor en clase."
               />
             </div>
 

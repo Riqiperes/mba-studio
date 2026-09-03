@@ -11,6 +11,7 @@ export type Profile = {
   role: UserRole;
   fullName: string | null;
   phone: string | null;
+  medicalConditions: string | null;
   createdAt: string;
   updatedAt: string;
 };

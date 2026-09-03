@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import type { Instructor } from "@/features/instructors/types/Instructor";
 import type { StudioClass } from "../types/StudioClass";
 
@@ -10,6 +10,8 @@ type Props = {
 };
 
 export function ClassesTable({ classes, instructors, onEdit, onCancel }: Props) {
+  const navigate = useNavigate();
+
   if (classes.length === 0) {
     return <p className="text-sm text-gray-500">No hay clases con estos filtros.</p>;
   }
@@ -32,7 +34,11 @@ export function ClassesTable({ classes, instructors, onEdit, onCancel }: Props) 
       </thead>
       <tbody>
         {classes.map((studioClass) => (
-          <tr key={studioClass.id} className="border-b border-gray-100">
+          <tr
+            key={studioClass.id}
+            onClick={() => navigate(`/classes/${studioClass.id}`)}
+            className="cursor-pointer border-b border-gray-100 hover:bg-gray-50"
+          >
             <td className="py-2">{studioClass.title}</td>
             <td className="py-2">{instructorName(studioClass.instructorId)}</td>
             <td className="py-2">
@@ -42,12 +48,12 @@ export function ClassesTable({ classes, instructors, onEdit, onCancel }: Props) 
             <td className="py-2">{studioClass.maxCapacity}</td>
             <td className="py-2">{studioClass.status}</td>
             <td className="py-2">
-              <Link to={`/classes/${studioClass.id}`} className="mr-3 text-brand-primary hover:underline">
-                Ver reservaciones
-              </Link>
               <button
                 type="button"
-                onClick={() => onEdit(studioClass)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onEdit(studioClass);
+                }}
                 className="mr-3 text-brand-primary hover:underline"
               >
                 Editar
@@ -55,7 +61,10 @@ export function ClassesTable({ classes, instructors, onEdit, onCancel }: Props) 
               {studioClass.status === "SCHEDULED" && (
                 <button
                   type="button"
-                  onClick={() => onCancel(studioClass)}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onCancel(studioClass);
+                  }}
                   className="text-red-600 hover:underline"
                 >
                   Cancelar

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import type { Customer } from "../types/Customer";
 
 type Props = {
@@ -6,6 +6,8 @@ type Props = {
 };
 
 export function CustomersTable({ customers }: Props) {
+  const navigate = useNavigate();
+
   if (customers.length === 0) {
     return <p className="text-sm text-gray-500">Todavia no hay clientes.</p>;
   }
@@ -16,19 +18,17 @@ export function CustomersTable({ customers }: Props) {
         <tr className="border-b border-gray-200 text-left text-gray-500">
           <th className="py-2">Nombre</th>
           <th className="py-2">Telefono</th>
-          <th className="py-2">Acciones</th>
         </tr>
       </thead>
       <tbody>
         {customers.map((customer) => (
-          <tr key={customer.id} className="border-b border-gray-100">
+          <tr
+            key={customer.id}
+            onClick={() => navigate(`/customers/${customer.id}`)}
+            className="cursor-pointer border-b border-gray-100 hover:bg-gray-50"
+          >
             <td className="py-2">{customer.fullName ?? "-"}</td>
             <td className="py-2">{customer.phone ?? "-"}</td>
-            <td className="py-2">
-              <Link to={`/customers/${customer.id}`} className="text-brand-primary hover:underline">
-                Ver
-              </Link>
-            </td>
           </tr>
         ))}
       </tbody>
