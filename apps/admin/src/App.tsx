@@ -14,6 +14,8 @@ import { ClassBookingsPage } from "@/pages/ClassBookingsPage";
 import { AcademyGroupsPage } from "@/pages/AcademyGroupsPage";
 import { AcademyGroupDetailPage } from "@/pages/AcademyGroupDetailPage";
 import { AcademyOverduePage } from "@/pages/AcademyOverduePage";
+import { UsersPage } from "@/pages/UsersPage";
+import { InstructorMyClassesPage } from "@/pages/InstructorMyClassesPage";
 
 function App() {
   return (
@@ -127,6 +129,26 @@ function App() {
               <RequireAuth>
                 <AdminLayout>
                   <AcademyGroupDetailPage />
+                </AdminLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <RequireAuth allowedRoles={["BUSINESS_ADMIN", "SUPER_ADMIN"]}>
+                <AdminLayout>
+                  <UsersPage />
+                </AdminLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/instructor/my-classes"
+            element={
+              <RequireAuth allowedRoles={["INSTRUCTOR_ADMIN", "STAFF", "BUSINESS_ADMIN", "SUPER_ADMIN"]}>
+                <AdminLayout>
+                  <InstructorMyClassesPage />
                 </AdminLayout>
               </RequireAuth>
             }

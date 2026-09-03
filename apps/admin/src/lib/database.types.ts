@@ -859,6 +859,19 @@ export type Database = {
       }
       cancel_booking: { Args: { p_booking_id: string }; Returns: undefined }
       current_user_business_id: { Args: never; Returns: string }
+      list_business_profiles: {
+        Args: never
+        Returns: {
+          id: string
+          email: string
+          full_name: string | null
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          instructor_id: string | null
+          discount_percent: number
+          created_at: string
+        }[]
+      }
       current_user_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]

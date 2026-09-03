@@ -11,6 +11,7 @@ export type Profile = {
   role: UserRole;
   fullName: string | null;
   phone: string | null;
+  instructorId: string | null;
   createdAt: string;
   updatedAt: string;
 };

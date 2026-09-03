@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { SignOutButton } from "@/features/auth/components/SignOutButton";
 
-const NAV_ITEMS = [
+const STAFF_NAV_ITEMS = [
   { to: "/", label: "Inicio" },
   { to: "/instructors", label: "Instructores" },
   { to: "/classes", label: "Clases" },
@@ -13,12 +14,23 @@ const NAV_ITEMS = [
   { to: "/academy/overdue", label: "Colegiaturas" },
 ];
 
+const ADMIN_ONLY_NAV_ITEMS = [{ to: "/users", label: "Usuarios" }];
+
+const INSTRUCTOR_NAV_ITEMS = [{ to: "/instructor/my-classes", label: "Mis clases" }];
+
 export function AdminLayout({ children }: { children: ReactNode }) {
+  const { profile } = useAuth();
+  const isInstructor = profile?.role === "INSTRUCTOR_ADMIN";
+  const isBusinessAdmin = profile?.role === "BUSINESS_ADMIN" || profile?.role === "SUPER_ADMIN";
+  const navItems = isInstructor
+    ? INSTRUCTOR_NAV_ITEMS
+    : [...STAFF_NAV_ITEMS, ...(isBusinessAdmin ? ADMIN_ONLY_NAV_ITEMS : [])];
+
   return (
     <div id="admin-layout" className="min-h-screen bg-gray-50">
       <nav className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-3">
         <div className="flex gap-4">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

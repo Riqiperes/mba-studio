@@ -625,6 +625,21 @@ versionadas en `supabase/migrations/`:
 - `018_revoke_academy_enrollment_trigger_execute.sql` — revoca `EXECUTE` de `public`/`anon`/`authenticated`
   sobre la funcion de trigger `enforce_academy_enrollment_capacity_and_age` (Postgres la otorga por defecto
   a toda funcion nueva; el advisor de seguridad de Supabase la marco tras aplicar `016`).
+- `019_schedule_monthly_credit_reset.sql` — agenda `reset_monthly_credits()` via `pg_cron`
+  (`monthly-credit-reset`, dia 1 de cada mes).
+- `020_academy_tuition_periods_unique_group.sql` — constraint unique en `academy_tuition_periods.group_id`
+  (faltaba, el `.upsert(..., {onConflict:'group_id'})` de `academyTuitionService` hubiera fallado siempre).
+- `021_users_admin_and_instructor_rls.sql` — RPC `list_business_profiles()` (security definer, gated a
+  `BUSINESS_ADMIN`/`SUPER_ADMIN`, expone `auth.users.email` junto con `profiles`) y policy
+  `academy_groups_instructor_own_select` (faltaba, `016` solo cubrio `academy_enrollments`).
+
+**Rol INSTRUCTOR_ADMIN + gestion de usuarios (`apps/admin`)**: pagina `/users`
+(solo `BUSINESS_ADMIN`/`SUPER_ADMIN`) para ver todas las cuentas registradas
+y cambiarles el rol / vincular `instructor_id`; pagina `/instructor/my-classes`
+(solo lectura: sus clases de Studio + sus grupos de Academia con alerta
+medica); `RequireAuth` generalizado con `allowedRoles` por ruta; nav de
+`AdminLayout` condicional por rol. Ver detalle completo y decisiones en
+`docs/HANDOFF.md` punto 9.
 
 Decision pendiente de validar con uso real: `studio_classes` e
 `instructors` son de lectura publica (catalogo/marketing) por decision

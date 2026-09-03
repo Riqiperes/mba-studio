@@ -19,7 +19,7 @@ export async function signOut(): Promise<void> {
 export async function getProfile(userId: string): Promise<Profile> {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, business_id, role, full_name, phone, created_at, updated_at")
+    .select("id, business_id, role, full_name, phone, instructor_id, created_at, updated_at")
     .eq("id", userId)
     .single();
 
@@ -31,6 +31,7 @@ export async function getProfile(userId: string): Promise<Profile> {
     role: data.role,
     fullName: data.full_name,
     phone: data.phone,
+    instructorId: data.instructor_id,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
   };
