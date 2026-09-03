@@ -15,9 +15,6 @@ export type Dependent = {
   guardianPhone: string | null;
   fullName: string;
   birthDate: string | null;
-  age: number | null;
-  medicalConditions: string | null;
-  notes: string | null;
   active: boolean;
   createdAt: string;
   updatedAt: string;

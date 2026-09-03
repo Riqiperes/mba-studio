@@ -19,6 +19,8 @@ export function CustomerDetailPage() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [discountPercent, setDiscountPercent] = useState("0");
+  const [medicalConditions, setMedicalConditions] = useState("");
+  const [notes, setNotes] = useState("");
   const [editError, setEditError] = useState<string | null>(null);
   const [isSavingCustomer, setIsSavingCustomer] = useState(false);
 
@@ -38,6 +40,8 @@ export function CustomerDetailPage() {
     setFullName(customer.fullName ?? "");
     setPhone(customer.phone ?? "");
     setDiscountPercent(String(customer.discountPercent));
+    setMedicalConditions(customer.medicalConditions ?? "");
+    setNotes(customer.notes ?? "");
   }, [customer]);
 
   async function handleSaveCustomer(event: FormEvent<HTMLFormElement>) {
@@ -57,7 +61,13 @@ export function CustomerDetailPage() {
 
     setIsSavingCustomer(true);
     try {
-      await update({ fullName, phone: phone || null, discountPercent: discount });
+      await update({
+        fullName,
+        phone: phone || null,
+        discountPercent: discount,
+        medicalConditions: medicalConditions.trim() || null,
+        notes: notes.trim() || null,
+      });
     } catch (err) {
       setEditError("No se pudo actualizar el cliente. Intenta de nuevo.");
       console.error("[customers] update fallo", err);
@@ -81,17 +91,11 @@ export function CustomerDetailPage() {
       await updateDependent(editingDependent.id, {
         fullName: input.fullName,
         birthDate: input.birthDate ?? null,
-        age: input.age ?? null,
-        medicalConditions: input.medicalConditions ?? null,
-        notes: input.notes ?? null,
       });
     } else {
       await create({
         fullName: input.fullName,
         birthDate: input.birthDate ?? null,
-        age: input.age ?? null,
-        medicalConditions: input.medicalConditions ?? null,
-        notes: input.notes ?? null,
       });
     }
   }
@@ -165,6 +169,31 @@ export function CustomerDetailPage() {
             className="w-24 rounded-md border border-gray-300 px-3 py-2 text-sm"
           />
         </div>
+        <div className="flex w-full flex-col gap-1">
+          <label htmlFor="customer-medical-conditions-input" className="text-xs text-gray-500">
+            Condiciones medicas (opcional)
+          </label>
+          <textarea
+            id="customer-medical-conditions-input"
+            rows={2}
+            placeholder="Embarazo, hernia, lesiones, etc."
+            value={medicalConditions}
+            onChange={(event) => setMedicalConditions(event.target.value)}
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          />
+        </div>
+        <div className="flex w-full flex-col gap-1">
+          <label htmlFor="customer-notes-input" className="text-xs text-gray-500">
+            Notas adicionales (opcional)
+          </label>
+          <textarea
+            id="customer-notes-input"
+            rows={2}
+            value={notes}
+            onChange={(event) => setNotes(event.target.value)}
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          />
+        </div>
         <button
           type="submit"
           disabled={isSavingCustomer}
@@ -225,6 +254,9 @@ export function CustomerDetailPage() {
         showGuardianFields={false}
         onClose={() => setModalOpen(false)}
         onSubmit={handleDependentSubmit}
+        onToggleActive={
+          editingDependent ? () => handleToggleDependentActive(editingDependent) : undefined
+        }
       />
     </div>
   );

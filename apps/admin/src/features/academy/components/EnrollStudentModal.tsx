@@ -196,8 +196,11 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4">
-      <div className="flex w-full max-w-md flex-col gap-3 rounded-lg bg-white p-6">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div
+        className="flex w-full max-w-md flex-col gap-3 rounded-lg bg-white p-6"
+        onClick={(event) => event.stopPropagation()}
+      >
         <h2 className="text-lg font-semibold text-brand-primary">Inscribir alumno</h2>
 
         {/* Pestañas de modo */}

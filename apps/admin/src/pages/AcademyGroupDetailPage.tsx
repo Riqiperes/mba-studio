@@ -120,18 +120,7 @@ export function AcademyGroupDetailPage() {
 
                 return (
                   <tr key={enrollment.id} className="border-b border-gray-100">
-                    <td className="py-2">
-                      {enrollment.studentName}
-                      {enrollment.medicalConditions && (
-                        <span
-                          title={enrollment.medicalConditions}
-                          className="ml-1"
-                          aria-label="Condicion medica"
-                        >
-                          ⚠️
-                        </span>
-                      )}
-                    </td>
+                    <td className="py-2">{enrollment.studentName}</td>
                     <td className="py-2">{enrollment.guardianName ?? '-'}</td>
                     <td className="py-2">{enrollment.enrollmentDate}</td>
                     <td className="py-2">
@@ -184,25 +173,15 @@ export function AcademyGroupDetailPage() {
         onSubmit={handleEnroll}
       />
 
-      <MarkPaymentModal
-        enrollmentId={selectedEnrollmentId ?? ''}
-        onClose={() => setSelectedEnrollmentId(null)}
-        onSuccess={handlePaymentSuccess}
-        basePriceCents={tuitionPeriod?.amountCents}
-        discountPercent={enrollments.find((e) => e.id === selectedEnrollmentId)?.guardianDiscountPercent}
-        initialPeriods={tuitionPeriod && selectedEnrollmentId
-          ? calculatePeriodsForEnrollment(
-              tuitionPeriod,
-              enrollments.find((e) => e.id === selectedEnrollmentId)?.enrollmentDate ?? '',
-              12,
-            ).map((p) => ({
-              value: `${p.periodStart}|${p.periodEnd}`,
-              label: p.label,
-              periodStart: p.periodStart,
-              periodEnd: p.periodEnd,
-            }))
-          : []}
-      />
+      {selectedEnrollmentId && (
+        <MarkPaymentModal
+          enrollmentId={selectedEnrollmentId}
+          onClose={() => setSelectedEnrollmentId(null)}
+          onSuccess={handlePaymentSuccess}
+          basePriceCents={tuitionPeriod?.amountCents}
+          discountPercent={enrollments.find((e) => e.id === selectedEnrollmentId)?.guardianDiscountPercent}
+        />
+      )}
     </div>
   );
 }

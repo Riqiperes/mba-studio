@@ -455,7 +455,6 @@ export type Database = {
       dependents: {
         Row: {
           active: boolean
-          age: number | null
           birth_date: string | null
           business_id: string
           created_at: string
@@ -464,13 +463,10 @@ export type Database = {
           guardian_name: string | null
           guardian_phone: string | null
           id: string
-          medical_conditions: string | null
-          notes: string | null
           updated_at: string
         }
         Insert: {
           active?: boolean
-          age?: number | null
           birth_date?: string | null
           business_id: string
           created_at?: string
@@ -479,13 +475,10 @@ export type Database = {
           guardian_name?: string | null
           guardian_phone?: string | null
           id?: string
-          medical_conditions?: string | null
-          notes?: string | null
           updated_at?: string
         }
         Update: {
           active?: boolean
-          age?: number | null
           birth_date?: string | null
           business_id?: string
           created_at?: string
@@ -494,8 +487,6 @@ export type Database = {
           guardian_name?: string | null
           guardian_phone?: string | null
           id?: string
-          medical_conditions?: string | null
-          notes?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -614,6 +605,8 @@ export type Database = {
           full_name: string | null
           id: string
           instructor_id: string | null
+          medical_conditions: string | null
+          notes: string | null
           phone: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
@@ -625,6 +618,8 @@ export type Database = {
           full_name?: string | null
           id: string
           instructor_id?: string | null
+          medical_conditions?: string | null
+          notes?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
@@ -636,6 +631,8 @@ export type Database = {
           full_name?: string | null
           id?: string
           instructor_id?: string | null
+          medical_conditions?: string | null
+          notes?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string

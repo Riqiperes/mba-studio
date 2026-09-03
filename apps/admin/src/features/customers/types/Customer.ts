@@ -10,6 +10,8 @@ export type Customer = {
   phone: string | null;
   /** Descuento por referido (0-100), aplicable solo a colegiaturas de Academia/Ballet. */
   discountPercent: number;
+  medicalConditions: string | null;
+  notes: string | null;
   createdAt: string;
   updatedAt: string;
 };

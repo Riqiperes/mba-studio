@@ -7,13 +7,7 @@ import {
 } from "../services/dependentsService";
 import type { Dependent } from "../types/Dependent";
 
-type DependentInput = {
-  fullName: string;
-  birthDate?: string | null;
-  age?: number | null;
-  medicalConditions?: string | null;
-  notes?: string | null;
-};
+type DependentInput = { fullName: string; birthDate?: string | null };
 
 export function useDependentsByGuardian(guardianId: string, businessId: string) {
   const [dependents, setDependents] = useState<Dependent[]>([]);
@@ -43,9 +37,6 @@ export function useDependentsByGuardian(guardianId: string, businessId: string) 
       guardianId,
       fullName: input.fullName,
       birthDate: input.birthDate ?? null,
-      age: input.age ?? null,
-      medicalConditions: input.medicalConditions ?? null,
-      notes: input.notes ?? null,
     });
     await reload();
   }

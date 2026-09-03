@@ -152,6 +152,34 @@ export async function upsertPayment(enrollmentId: string, input: PaymentInput): 
   return toPayment(data as PaymentRow);
 }
 
+type EnrollmentPaymentStatusRow = {
+  dependent_id: string;
+  academy_payments: { status: string; period_start: string; period_end: string }[];
+};
+
+// Para cada alumno con inscripcion ACTIVA, dice si su colegiatura del mes
+// en curso ya esta PAGADO -- usado para el tinte verde en la lista de
+// alumnos. Si no hay fila de pago para el periodo actual (nadie la creo
+// todavia via "Marcar pago"), se trata como no pagado.
+export async function listCurrentMonthPaymentStatus(): Promise<Map<string, boolean>> {
+  const today = new Date().toISOString().slice(0, 10);
+  const { data, error } = await supabase
+    .from('academy_enrollments')
+    .select('dependent_id, academy_payments(status, period_start, period_end)')
+    .eq('status', 'ACTIVA');
+  if (error) throw error;
+
+  const map = new Map<string, boolean>();
+  for (const row of data as unknown as EnrollmentPaymentStatusRow[]) {
+    const current = row.academy_payments.find(
+      (p) => p.period_start <= today && p.period_end >= today,
+    );
+    const paidNow = current?.status === 'PAGADO';
+    map.set(row.dependent_id, paidNow || (map.get(row.dependent_id) ?? false));
+  }
+  return map;
+}
+
 export async function getOverduePayments(businessId: string, groupId?: string): Promise<OverduePayment[]> {
   const today = new Date().toISOString().split('T')[0] as string;
   let query = supabase

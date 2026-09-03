@@ -49,7 +49,13 @@ export function useCustomer(id: string) {
     reload();
   }, [reload]);
 
-  async function update(input: { fullName?: string; phone?: string | null; discountPercent?: number }) {
+  async function update(input: {
+    fullName?: string;
+    phone?: string | null;
+    discountPercent?: number;
+    medicalConditions?: string | null;
+    notes?: string | null;
+  }) {
     setCustomer(await updateCustomer(id, input));
   }
 

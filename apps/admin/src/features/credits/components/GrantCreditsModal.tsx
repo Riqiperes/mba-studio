@@ -70,10 +70,11 @@ export function GrantCreditsModal({ open, onClose, onSubmit }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <form
         id="grant-credits-modal"
         onSubmit={handleSubmit}
+        onClick={(event) => event.stopPropagation()}
         noValidate
         className="flex w-full max-w-sm flex-col gap-3 rounded-lg bg-white p-6"
       >

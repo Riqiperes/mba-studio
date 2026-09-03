@@ -138,25 +138,15 @@ export function AcademyOverduePage() {
         </div>
       )}
 
-      <MarkPaymentModal
-        enrollmentId={selectedPayment?.enrollmentId ?? ''}
-        onClose={() => {
-          setSelectedPayment(null);
-        }}
-        onSuccess={handlePaymentSuccess}
-        basePriceCents={selectedPayment?.amountCents}
-        discountPercent={selectedPayment?.enrollment.dependent.guardianDiscountPercent ?? undefined}
-        initialPeriods={selectedPayment
-          ? [
-              {
-                value: `${selectedPayment.periodStart}|${selectedPayment.periodEnd}`,
-                label: formatPeriod(selectedPayment.periodStart, selectedPayment.periodEnd),
-                periodStart: selectedPayment.periodStart,
-                periodEnd: selectedPayment.periodEnd,
-              },
-            ]
-          : []}
-      />
+      {selectedPayment && (
+        <MarkPaymentModal
+          enrollmentId={selectedPayment.enrollmentId}
+          onClose={() => setSelectedPayment(null)}
+          onSuccess={handlePaymentSuccess}
+          basePriceCents={selectedPayment.amountCents}
+          discountPercent={selectedPayment.enrollment.dependent.guardianDiscountPercent ?? undefined}
+        />
+      )}
     </div>
   );
 }

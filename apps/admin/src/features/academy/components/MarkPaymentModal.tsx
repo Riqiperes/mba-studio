@@ -2,18 +2,10 @@ import { useState, useEffect, type FormEvent } from 'react';
 import { z } from 'zod';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 
-interface PeriodOption {
-  value: string;
-  label: string;
-  periodStart: string;
-  periodEnd: string;
-}
-
 interface Props {
   enrollmentId: string;
   onClose: () => void;
   onSuccess: () => void;
-  initialPeriods: PeriodOption[];
   /** Precio base de la colegiatura del grupo (antes de descuento), en centavos. */
   basePriceCents?: number | undefined;
   /** Descuento por referido del tutor (0-100). */
@@ -22,7 +14,7 @@ interface Props {
 
 const paymentSchema = z
   .object({
-    period: z.string().min(1, 'Selecciona un periodo'),
+    month: z.string().min(1, 'Selecciona un mes'),
     status: z.enum(['PAGADO', 'NO_PAGADO']),
     amountCents: z.coerce.number().positive('El monto debe ser mayor a 0').optional(),
     paymentMethod: z.enum(['EFECTIVO', 'TRANSFERENCIA', 'OTRO']).optional(),
@@ -44,26 +36,24 @@ const paymentSchema = z
 
 type PaymentFormData = z.infer<typeof paymentSchema>;
 
-function formatPeriodLabel(start: string, end: string): string {
-  const startDate = new Date(start + 'T00:00:00');
-  const endDate = new Date(end + 'T00:00:00');
-  return `${startDate.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })} - ${endDate.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })}`;
+// Colegiatura vence el dia 10 de cada mes (business-rules.md, corte
+// global fijo). El periodo de un mes elegido en el selector va del 10 al
+// ultimo dia de ese mismo mes.
+function periodForMonth(yearMonth: string): { periodStart: string; periodEnd: string } {
+  const [year, month] = yearMonth.split('-').map(Number) as [number, number];
+  const periodStart = `${yearMonth}-10`;
+  const lastDay = new Date(year, month, 0).getDate();
+  const periodEnd = `${yearMonth}-${String(lastDay).padStart(2, '0')}`;
+  return { periodStart, periodEnd };
 }
 
 function formatPesos(cents: number): string {
   return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cents / 100);
 }
 
-export function MarkPaymentModal({
-  enrollmentId,
-  onClose,
-  onSuccess,
-  initialPeriods,
-  basePriceCents,
-  discountPercent,
-}: Props) {
+export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCents, discountPercent }: Props) {
   const [formData, setFormData] = useState<PaymentFormData>({
-    period: initialPeriods[0]?.value ?? '',
+    month: new Date().toISOString().slice(0, 7),
     status: 'PAGADO',
     amountCents: undefined,
     paymentMethod: undefined,
@@ -73,12 +63,6 @@ export function MarkPaymentModal({
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-
-  useEffect(() => {
-    if (!formData.period && initialPeriods.length > 0) {
-      setFormData((prev) => ({ ...prev, period: initialPeriods[0]!.value }));
-    }
-  }, [initialPeriods, formData.period]);
 
   const discountedCents =
     basePriceCents != null
@@ -142,16 +126,14 @@ export function MarkPaymentModal({
 
     setIsSaving(true);
     try {
-      const period = initialPeriods.find((p) => p.value === formData.period);
-      if (!period) throw new Error('Periodo no encontrado');
-
+      const { periodStart, periodEnd } = periodForMonth(result.data.month);
       const { upsertPayment } = await import('../services/academyTuitionService');
 
       // El input de "Monto" esta en pesos (ver label); amount_cents en BD
       // es en centavos -- convertir aqui, no antes.
       await upsertPayment(enrollmentId, {
-        periodStart: period.periodStart,
-        periodEnd: period.periodEnd,
+        periodStart,
+        periodEnd,
         status: formData.status,
         amountCents: Math.round((formData.amountCents ?? 0) * 100),
         discountApplied: formData.status === 'PAGADO' ? discountPercent ?? 0 : 0,
@@ -170,11 +152,12 @@ export function MarkPaymentModal({
     }
   }
 
-  const selectedPeriod = initialPeriods.find((p) => p.value === formData.period);
-
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4">
-      <div className="flex w-full max-w-md flex-col gap-4 rounded-lg bg-white p-6">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div
+        className="flex w-full max-w-md flex-col gap-4 rounded-lg bg-white p-6"
+        onClick={(event) => event.stopPropagation()}
+      >
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-brand-primary">Marcar pago de colegiatura</h2>
           <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600">
@@ -192,25 +175,20 @@ export function MarkPaymentModal({
           )}
 
           <div className="mb-4">
-            <label htmlFor="period" className="block text-xs text-gray-500 mb-1">
-              Periodo *
+            <label htmlFor="month" className="block text-xs text-gray-500 mb-1">
+              Mes *
             </label>
-            <select
-              id="period"
-              value={formData.period}
-              onChange={(e) => handleChange('period', e.target.value)}
+            <input
+              id="month"
+              type="month"
+              value={formData.month}
+              onChange={(e) => handleChange('month', e.target.value)}
               className={`w-full rounded-md border px-3 py-2 text-sm ${
-                fieldErrors.period ? 'border-red-500' : 'border-gray-300'
+                fieldErrors.month ? 'border-red-500' : 'border-gray-300'
               } focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent`}
-            >
-              <option value="">Selecciona un periodo</option>
-              {initialPeriods.map((p) => (
-                <option key={p.value} value={p.value}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
-            {fieldErrors.period && <p className="mt-1 text-xs text-red-600">{fieldErrors.period}</p>}
+            />
+            <p className="mt-1 text-xs text-gray-500">Cualquier mes, incluye meses pasados.</p>
+            {fieldErrors.month && <p className="mt-1 text-xs text-red-600">{fieldErrors.month}</p>}
           </div>
 
           <div className="mb-4">
@@ -339,12 +317,6 @@ export function MarkPaymentModal({
             </button>
           </div>
         </form>
-
-        {selectedPeriod && (
-          <p className="text-xs text-gray-500 text-center">
-            Periodo: {formatPeriodLabel(selectedPeriod.periodStart, selectedPeriod.periodEnd)}
-          </p>
-        )}
       </div>
     </div>
   );

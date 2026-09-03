@@ -19,5 +19,4 @@ export type AcademyEnrollmentWithStudent = AcademyEnrollment & {
   guardianName: string | null;
   /** Descuento por referido del tutor (0 si no tiene cuenta o no tiene descuento). */
   guardianDiscountPercent: number;
-  medicalConditions: string | null;
 };

@@ -102,14 +102,7 @@ export function InstructorMyClassesPage() {
             <p className="font-medium text-gray-900">{group.name}</p>
             <ul className="text-sm text-gray-700">
               {(enrollmentsByGroup[group.id] ?? []).map((enrollment) => (
-                <li key={enrollment.id}>
-                  {enrollment.studentName}
-                  {enrollment.medicalConditions && (
-                    <span title={enrollment.medicalConditions} className="ml-1" aria-label="Condicion medica">
-                      ⚠️
-                    </span>
-                  )}
-                </li>
+                <li key={enrollment.id}>{enrollment.studentName}</li>
               ))}
               {(enrollmentsByGroup[group.id] ?? []).length === 0 && (
                 <li className="text-gray-400">Sin alumnos inscritos</li>

@@ -15,9 +15,6 @@ const schema = z.object({
     }),
   guardianName: z.string().optional(),
   guardianPhone: z.string().optional(),
-  age: z.string(),
-  medicalConditions: z.string().optional(),
-  notes: z.string().optional(),
 });
 
 export type DependentFormInput = {
@@ -25,9 +22,6 @@ export type DependentFormInput = {
   birthDate?: string | null;
   guardianName?: string | null;
   guardianPhone?: string | null;
-  age?: number | null;
-  medicalConditions?: string | null;
-  notes?: string | null;
 };
 
 type Props = {
@@ -36,6 +30,8 @@ type Props = {
   showGuardianFields?: boolean;
   onClose: () => void;
   onSubmit: (input: DependentFormInput) => Promise<void>;
+  /** Solo se muestra al editar (`initialValue` presente). */
+  onToggleActive?: (() => Promise<void>) | undefined;
 };
 
 export function DependentFormModal({
@@ -44,17 +40,16 @@ export function DependentFormModal({
   showGuardianFields = false,
   onClose,
   onSubmit,
+  onToggleActive,
 }: Props) {
   const [fullName, setFullName] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [guardianName, setGuardianName] = useState("");
   const [guardianPhone, setGuardianPhone] = useState("");
-  const [age, setAge] = useState("");
-  const [medicalConditions, setMedicalConditions] = useState("");
-  const [notes, setNotes] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isTogglingActive, setIsTogglingActive] = useState(false);
 
   const shouldShowGuardian = showGuardianFields || Boolean(initialValue && !initialValue.guardianId);
 
@@ -64,9 +59,6 @@ export function DependentFormModal({
     setBirthDate(initialValue?.birthDate ?? "");
     setGuardianName(initialValue?.guardianName ?? "");
     setGuardianPhone(initialValue?.guardianPhone ?? "");
-    setAge(initialValue?.age != null ? String(initialValue.age) : "");
-    setMedicalConditions(initialValue?.medicalConditions ?? "");
-    setNotes(initialValue?.notes ?? "");
     setFieldErrors({});
     setFormError(null);
   }, [open, initialValue]);
@@ -86,15 +78,7 @@ export function DependentFormModal({
     event.preventDefault();
     setFormError(null);
 
-    const result = schema.safeParse({
-      fullName,
-      birthDate,
-      guardianName,
-      guardianPhone,
-      age,
-      medicalConditions,
-      notes,
-    });
+    const result = schema.safeParse({ fullName, birthDate, guardianName, guardianPhone });
     if (!result.success) {
       const errors: Record<string, string> = {};
       for (const issue of result.error.issues) {
@@ -117,9 +101,6 @@ export function DependentFormModal({
         birthDate: result.data.birthDate ? result.data.birthDate : null,
         guardianName: shouldShowGuardian ? (guardianName.trim() || null) : null,
         guardianPhone: shouldShowGuardian ? (guardianPhone.trim() || null) : null,
-        age: result.data.age === "" ? null : Number(result.data.age),
-        medicalConditions: result.data.medicalConditions?.trim() || null,
-        notes: result.data.notes?.trim() || null,
       });
       onClose();
     } catch (err) {
@@ -130,11 +111,29 @@ export function DependentFormModal({
     }
   }
 
+  async function handleToggleActive() {
+    if (!onToggleActive) return;
+    setIsTogglingActive(true);
+    try {
+      await onToggleActive();
+      onClose();
+    } catch (err) {
+      setFormError(getErrorMessage(err, "No se pudo actualizar el alumno."));
+      console.error("[dependents] toggle active fallo", err);
+    } finally {
+      setIsTogglingActive(false);
+    }
+  }
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4">
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black/40 p-4"
+      onClick={onClose}
+    >
       <form
         id="dependent-form-modal"
         onSubmit={handleSubmit}
+        onClick={(event) => event.stopPropagation()}
         noValidate
         className="flex w-full max-w-sm flex-col gap-3 rounded-lg bg-white p-6"
       >
@@ -208,59 +207,31 @@ export function DependentFormModal({
           )}
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label htmlFor="dependent-age-input" className="text-xs text-gray-500">
-            Edad (opcional)
-          </label>
-          <input
-            id="dependent-age-input"
-            type="number"
-            min={0}
-            max={120}
-            value={age}
-            onChange={(event) => setAge(event.target.value)}
-            className="w-24 rounded-md border border-gray-300 px-3 py-2 text-sm"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label htmlFor="dependent-medical-conditions-input" className="text-xs text-gray-500">
-            Condiciones medicas (opcional)
-          </label>
-          <textarea
-            id="dependent-medical-conditions-input"
-            rows={2}
-            placeholder="Embarazo, hernia, lesiones, etc."
-            value={medicalConditions}
-            onChange={(event) => setMedicalConditions(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label htmlFor="dependent-notes-input" className="text-xs text-gray-500">
-            Notas adicionales (opcional)
-          </label>
-          <textarea
-            id="dependent-notes-input"
-            rows={2}
-            value={notes}
-            onChange={(event) => setNotes(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-          />
-        </div>
-
-        <div className="flex justify-end gap-2 pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600">
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-          >
-            {isSaving ? "Guardando..." : "Guardar"}
-          </button>
+        <div className="flex items-center justify-between gap-2 pt-2">
+          {onToggleActive ? (
+            <button
+              type="button"
+              onClick={handleToggleActive}
+              disabled={isTogglingActive}
+              className="text-xs text-gray-500 hover:underline disabled:opacity-50"
+            >
+              {initialValue?.active ? "Desactivar" : "Activar"}
+            </button>
+          ) : (
+            <span />
+          )}
+          <div className="flex gap-2">
+            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600">
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+            >
+              {isSaving ? "Guardando..." : "Guardar"}
+            </button>
+          </div>
         </div>
 
         {formError && <p className="text-sm text-red-600">{formError}</p>}
@@ -268,4 +239,3 @@ export function DependentFormModal({
     </div>
   );
 }
-
