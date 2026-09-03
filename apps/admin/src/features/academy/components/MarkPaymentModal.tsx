@@ -14,13 +14,17 @@ interface Props {
   onClose: () => void;
   onSuccess: () => void;
   initialPeriods: PeriodOption[];
+  /** Precio base de la colegiatura del grupo (antes de descuento), en centavos. */
+  basePriceCents?: number | undefined;
+  /** Descuento por referido del tutor (0-100). */
+  discountPercent?: number | undefined;
 }
 
 const paymentSchema = z
   .object({
     period: z.string().min(1, 'Selecciona un periodo'),
     status: z.enum(['PAGADO', 'NO_PAGADO']),
-    amountCents: z.coerce.number().int().positive('El monto debe ser mayor a 0').optional(),
+    amountCents: z.coerce.number().positive('El monto debe ser mayor a 0').optional(),
     paymentMethod: z.enum(['EFECTIVO', 'TRANSFERENCIA', 'OTRO']).optional(),
     paidAt: z.string().optional(),
     reference: z.string().optional(),
@@ -46,7 +50,18 @@ function formatPeriodLabel(start: string, end: string): string {
   return `${startDate.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })} - ${endDate.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })}`;
 }
 
-export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, initialPeriods }: Props) {
+function formatPesos(cents: number): string {
+  return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cents / 100);
+}
+
+export function MarkPaymentModal({
+  enrollmentId,
+  onClose,
+  onSuccess,
+  initialPeriods,
+  basePriceCents,
+  discountPercent,
+}: Props) {
   const [formData, setFormData] = useState<PaymentFormData>({
     period: initialPeriods[0]?.value ?? '',
     status: 'PAGADO',
@@ -64,6 +79,17 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, initialPeri
       setFormData((prev) => ({ ...prev, period: initialPeriods[0]!.value }));
     }
   }, [initialPeriods, formData.period]);
+
+  const discountedCents =
+    basePriceCents != null
+      ? Math.round(basePriceCents * (1 - (discountPercent ?? 0) / 100))
+      : null;
+
+  useEffect(() => {
+    if (formData.status === 'PAGADO' && discountedCents != null && formData.amountCents === undefined) {
+      setFormData((prev) => ({ ...prev, amountCents: discountedCents / 100 }));
+    }
+  }, [formData.status, formData.amountCents, discountedCents]);
 
   useEffect(() => {
     if (formData.status === 'NO_PAGADO') {
@@ -121,11 +147,14 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, initialPeri
 
       const { upsertPayment } = await import('../services/academyTuitionService');
 
+      // El input de "Monto" esta en pesos (ver label); amount_cents en BD
+      // es en centavos -- convertir aqui, no antes.
       await upsertPayment(enrollmentId, {
         periodStart: period.periodStart,
         periodEnd: period.periodEnd,
         status: formData.status,
-        amountCents: formData.amountCents ?? 0,
+        amountCents: Math.round((formData.amountCents ?? 0) * 100),
+        discountApplied: formData.status === 'PAGADO' ? discountPercent ?? 0 : 0,
         paidAt: formData.status === 'PAGADO' ? formData.paidAt ?? null : null,
         paymentMethod: formData.status === 'PAGADO' ? formData.paymentMethod ?? null : null,
         reference: formData.reference ?? null,
@@ -220,16 +249,24 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, initialPeri
                 <input
                   id="amountCents"
                   type="number"
-                  min="1"
-                  step="1"
+                  min="0.01"
+                  step="0.01"
                   value={formData.amountCents ?? ''}
-                  onChange={(e) => handleChange('amountCents', e.target.value ? parseInt(e.target.value, 10) : undefined)}
+                  onChange={(e) => handleChange('amountCents', e.target.value ? parseFloat(e.target.value) : undefined)}
                   placeholder="Ej: 1500"
                   className={`w-full rounded-md border px-3 py-2 text-sm ${
                     fieldErrors.amountCents ? 'border-red-500' : 'border-gray-300'
                   } focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent`}
                 />
                 {fieldErrors.amountCents && <p className="mt-1 text-xs text-red-600">{fieldErrors.amountCents}</p>}
+                {basePriceCents != null && discountedCents != null && (
+                  <p className="mt-1 text-xs text-gray-500">
+                    Colegiatura base: {formatPesos(basePriceCents)}
+                    {(discountPercent ?? 0) > 0 && (
+                      <> · Descuento {discountPercent}% → {formatPesos(discountedCents)}</>
+                    )}
+                  </p>
+                )}
               </div>
 
               <div className="mb-4">

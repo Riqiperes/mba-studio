@@ -144,6 +144,8 @@ export function AcademyOverduePage() {
           setSelectedPayment(null);
         }}
         onSuccess={handlePaymentSuccess}
+        basePriceCents={selectedPayment?.amountCents}
+        discountPercent={selectedPayment?.enrollment.dependent.guardianDiscountPercent ?? undefined}
         initialPeriods={selectedPayment
           ? [
               {

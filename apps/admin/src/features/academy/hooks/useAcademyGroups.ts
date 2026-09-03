@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { createGroup, listGroups, updateGroup } from "../services/academyGroupsService";
-import type { AcademyGroupWithDetails, GroupInput } from "../types/AcademyGroup";
+import type { AcademyGroup, AcademyGroupWithDetails, GroupInput } from "../types/AcademyGroup";
 
 export function useAcademyGroups() {
   const { profile } = useAuth();
@@ -26,16 +26,18 @@ export function useAcademyGroups() {
     reload();
   }, [reload]);
 
-  async function create(input: GroupInput) {
+  async function create(input: GroupInput): Promise<AcademyGroup> {
     if (!profile) throw new Error("Falta el perfil del usuario actual.");
-    await createGroup(profile.businessId, input);
+    const group = await createGroup(profile.businessId, input);
     await reload();
+    return group;
   }
 
-  async function update(id: string, input: GroupInput) {
+  async function update(id: string, input: GroupInput): Promise<AcademyGroup> {
     if (!profile) throw new Error("Falta el perfil del usuario actual.");
-    await updateGroup(id, profile.businessId, input);
+    const group = await updateGroup(id, profile.businessId, input);
     await reload();
+    return group;
   }
 
   return { groups, loading, error, reload, create, update };

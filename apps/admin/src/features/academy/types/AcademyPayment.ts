@@ -9,6 +9,7 @@ export type AcademyPayment = {
   periodEnd: string;
   status: PaymentStatus;
   amountCents: number;
+  discountApplied: number;
   paidAt: string | null;
   paymentMethod: PaymentMethod | null;
   reference: string | null;
@@ -25,6 +26,7 @@ export type AcademyPaymentWithEnrollment = AcademyPayment & {
       fullName: string;
       guardianName: string | null;
       guardianPhone: string | null;
+      guardianDiscountPercent: number | null;
     };
     group: {
       name: string;
@@ -37,6 +39,7 @@ export type PaymentInput = {
   periodEnd: string;
   status: PaymentStatus;
   amountCents: number;
+  discountApplied?: number;
   paidAt?: string | null;
   paymentMethod?: PaymentMethod | null;
   reference?: string | null;

@@ -6,7 +6,8 @@ import type {
   GroupInput,
 } from "../types/AcademyGroup";
 
-const GROUP_COLUMNS = "id, business_id, name, instructor_id, active, created_at, updated_at";
+const GROUP_COLUMNS =
+  "id, business_id, name, instructor_id, active, age_min, age_max, max_capacity, created_at, updated_at";
 const SCHEDULE_COLUMNS = "id, day_of_week, start_time, end_time";
 
 type GroupRow = {
@@ -15,6 +16,9 @@ type GroupRow = {
   name: string;
   instructor_id: string | null;
   active: boolean;
+  age_min: number | null;
+  age_max: number | null;
+  max_capacity: number;
   created_at: string;
   updated_at: string;
 };
@@ -33,6 +37,9 @@ function toGroup(row: GroupRow): AcademyGroup {
     name: row.name,
     instructorId: row.instructor_id,
     active: row.active,
+    ageMin: row.age_min,
+    ageMax: row.age_max,
+    maxCapacity: row.max_capacity,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -87,6 +94,9 @@ export async function createGroup(businessId: string, input: GroupInput): Promis
       business_id: businessId,
       name: input.name,
       instructor_id: input.instructorId ?? null,
+      age_min: input.ageMin ?? null,
+      age_max: input.ageMax ?? null,
+      max_capacity: input.maxCapacity,
     })
     .select(GROUP_COLUMNS)
     .single();
@@ -119,6 +129,9 @@ export async function updateGroup(
     .update({
       name: input.name,
       instructor_id: input.instructorId ?? null,
+      age_min: input.ageMin ?? null,
+      age_max: input.ageMax ?? null,
+      max_capacity: input.maxCapacity,
     })
     .eq("id", id)
     .select(GROUP_COLUMNS)

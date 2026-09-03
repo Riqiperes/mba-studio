@@ -18,6 +18,7 @@ export function CustomerDetailPage() {
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [discountPercent, setDiscountPercent] = useState("0");
   const [editError, setEditError] = useState<string | null>(null);
   const [isSavingCustomer, setIsSavingCustomer] = useState(false);
 
@@ -36,6 +37,7 @@ export function CustomerDetailPage() {
     if (!customer) return;
     setFullName(customer.fullName ?? "");
     setPhone(customer.phone ?? "");
+    setDiscountPercent(String(customer.discountPercent));
   }, [customer]);
 
   async function handleSaveCustomer(event: FormEvent<HTMLFormElement>) {
@@ -47,9 +49,15 @@ export function CustomerDetailPage() {
       return;
     }
 
+    const discount = Number(discountPercent);
+    if (!Number.isInteger(discount) || discount < 0 || discount > 100) {
+      setEditError("El descuento debe ser un numero entero entre 0 y 100");
+      return;
+    }
+
     setIsSavingCustomer(true);
     try {
-      await update({ fullName, phone: phone || null });
+      await update({ fullName, phone: phone || null, discountPercent: discount });
     } catch (err) {
       setEditError("No se pudo actualizar el cliente. Intenta de nuevo.");
       console.error("[customers] update fallo", err);
@@ -73,11 +81,17 @@ export function CustomerDetailPage() {
       await updateDependent(editingDependent.id, {
         fullName: input.fullName,
         birthDate: input.birthDate ?? null,
+        age: input.age ?? null,
+        medicalConditions: input.medicalConditions ?? null,
+        notes: input.notes ?? null,
       });
     } else {
       await create({
         fullName: input.fullName,
         birthDate: input.birthDate ?? null,
+        age: input.age ?? null,
+        medicalConditions: input.medicalConditions ?? null,
+        notes: input.notes ?? null,
       });
     }
   }
@@ -135,6 +149,20 @@ export function CustomerDetailPage() {
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
             className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="customer-discount-input" className="text-xs text-gray-500">
+            Descuento referido (%)
+          </label>
+          <input
+            id="customer-discount-input"
+            type="number"
+            min={0}
+            max={100}
+            value={discountPercent}
+            onChange={(event) => setDiscountPercent(event.target.value)}
+            className="w-24 rounded-md border border-gray-300 px-3 py-2 text-sm"
           />
         </div>
         <button

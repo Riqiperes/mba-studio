@@ -15,6 +15,9 @@ const schema = z.object({
     }),
   guardianName: z.string().optional(),
   guardianPhone: z.string().optional(),
+  age: z.string(),
+  medicalConditions: z.string().optional(),
+  notes: z.string().optional(),
 });
 
 export type DependentFormInput = {
@@ -22,6 +25,9 @@ export type DependentFormInput = {
   birthDate?: string | null;
   guardianName?: string | null;
   guardianPhone?: string | null;
+  age?: number | null;
+  medicalConditions?: string | null;
+  notes?: string | null;
 };
 
 type Props = {
@@ -43,6 +49,9 @@ export function DependentFormModal({
   const [birthDate, setBirthDate] = useState("");
   const [guardianName, setGuardianName] = useState("");
   const [guardianPhone, setGuardianPhone] = useState("");
+  const [age, setAge] = useState("");
+  const [medicalConditions, setMedicalConditions] = useState("");
+  const [notes, setNotes] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -55,6 +64,9 @@ export function DependentFormModal({
     setBirthDate(initialValue?.birthDate ?? "");
     setGuardianName(initialValue?.guardianName ?? "");
     setGuardianPhone(initialValue?.guardianPhone ?? "");
+    setAge(initialValue?.age != null ? String(initialValue.age) : "");
+    setMedicalConditions(initialValue?.medicalConditions ?? "");
+    setNotes(initialValue?.notes ?? "");
     setFieldErrors({});
     setFormError(null);
   }, [open, initialValue]);
@@ -74,7 +86,15 @@ export function DependentFormModal({
     event.preventDefault();
     setFormError(null);
 
-    const result = schema.safeParse({ fullName, birthDate, guardianName, guardianPhone });
+    const result = schema.safeParse({
+      fullName,
+      birthDate,
+      guardianName,
+      guardianPhone,
+      age,
+      medicalConditions,
+      notes,
+    });
     if (!result.success) {
       const errors: Record<string, string> = {};
       for (const issue of result.error.issues) {
@@ -97,6 +117,9 @@ export function DependentFormModal({
         birthDate: result.data.birthDate ? result.data.birthDate : null,
         guardianName: shouldShowGuardian ? (guardianName.trim() || null) : null,
         guardianPhone: shouldShowGuardian ? (guardianPhone.trim() || null) : null,
+        age: result.data.age === "" ? null : Number(result.data.age),
+        medicalConditions: result.data.medicalConditions?.trim() || null,
+        notes: result.data.notes?.trim() || null,
       });
       onClose();
     } catch (err) {
@@ -183,6 +206,48 @@ export function DependentFormModal({
           {fieldErrors.birthDate && (
             <p className="text-xs text-red-600">{fieldErrors.birthDate}</p>
           )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="dependent-age-input" className="text-xs text-gray-500">
+            Edad (opcional)
+          </label>
+          <input
+            id="dependent-age-input"
+            type="number"
+            min={0}
+            max={120}
+            value={age}
+            onChange={(event) => setAge(event.target.value)}
+            className="w-24 rounded-md border border-gray-300 px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="dependent-medical-conditions-input" className="text-xs text-gray-500">
+            Condiciones medicas (opcional)
+          </label>
+          <textarea
+            id="dependent-medical-conditions-input"
+            rows={2}
+            placeholder="Embarazo, hernia, lesiones, etc."
+            value={medicalConditions}
+            onChange={(event) => setMedicalConditions(event.target.value)}
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="dependent-notes-input" className="text-xs text-gray-500">
+            Notas adicionales (opcional)
+          </label>
+          <textarea
+            id="dependent-notes-input"
+            rows={2}
+            value={notes}
+            onChange={(event) => setNotes(event.target.value)}
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          />
         </div>
 
         <div className="flex justify-end gap-2 pt-2">

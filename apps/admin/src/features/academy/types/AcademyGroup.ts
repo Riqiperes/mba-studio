@@ -9,6 +9,9 @@ export type AcademyGroup = {
   name: string;
   instructorId: string | null;
   active: boolean;
+  ageMin: number | null;
+  ageMax: number | null;
+  maxCapacity: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -35,5 +38,10 @@ export type GroupScheduleInput = { dayOfWeek: number; startTime: string; endTime
 export type GroupInput = {
   name: string;
   instructorId?: string | null;
+  ageMin?: number | null;
+  ageMax?: number | null;
+  maxCapacity: number;
+  /** Colegiatura mensual en centavos. Se guarda en academy_tuition_periods, no en academy_groups. */
+  monthlyTuitionCents: number;
   schedules: GroupScheduleInput[];
 };

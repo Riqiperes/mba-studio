@@ -44,13 +44,14 @@ Working tree: limpio
 ## Siguiente paso sugerido
 
 1. ~~Aplicar migraciones 013-018 en Supabase dev + regenerar tipos TypeScript en ambas apps~~ — hecho (ver firma de Claude abajo)
-2. **Implementar política de cancelación 12h + reset mensual** en RPC `cancel_booking` + frontend (web + admin)
-3. **Implementar botón "Enviar recordatorio" waitlist** en admin (`ClassBookingsPage`)
-4. **Actualizar lógica colegiaturas a día 10** en `academyTuitionService` + frontend admin
-5. **Agregar campo descuento referido** en `CustomerDetailPage` + cálculo en `academyTuitionService`
-6. **Agregar campos médicos** en `DependentFormModal` + alerta visual en listas de clase
-7. **Implementar rol INSTRUCTOR_ADMIN** + navegación condicional + página "Mis clases" + filtro por instructor
-8. **Actualizar grupos academia** con campos edad/cupo + validaciones en inscripción
+2. ~~Botón de regreso (←) + rediseño vertical LandingPage~~ — hecho, ver firma abajo
+3. ~~Cron `reset_monthly_credits` (día 1 de cada mes)~~ — hecho: migración `019_schedule_monthly_credit_reset.sql`, job `monthly-credit-reset` activo en `cron.job`.
+4. ~~Edad/cupo en formulario de grupo de Academia~~ — hecho: `AcademyGroupFormModal` (inputs `age_min`/`age_max`/`max_capacity`), columnas nuevas en `AcademyGroupsPage`. El trigger de BD (`016`) ya validaba, esto le agrega la UI.
+5. ~~Colegiatura día 10~~ — hecho, pero resultó más grande de lo esperado: **no existía ninguna UI para configurar colegiatura por grupo** (`upsertTuitionPeriod` nunca se llamaba). Se agregó input "Colegiatura (MXN)" al form de grupo, que hace upsert de `academy_tuition_periods` con `day_of_month=10` fijo (no editable, decisión de negocio global) al guardar el grupo. De paso se encontró y corrigió un bug real: `academy_tuition_periods` nunca tuvo constraint unique en `group_id`, así que el `.upsert(..., { onConflict: 'group_id' })` iba a fallar en cuanto alguien lo llamara — migración `020_academy_tuition_periods_unique_group.sql`.
+6. ~~Descuento por referido~~ — hecho: `discountPercent` editable en `CustomerDetailPage`, se propaga a `MarkPaymentModal` (prellenado + `academy_payments.discount_applied` para auditoria) vía `AcademyGroupDetailPage`/`AcademyOverduePage`. De paso se encontró y corrigió un bug real en `MarkPaymentModal`: el input "Monto (pesos)" se mandaba tal cual a `amount_cents` sin multiplicar por 100 (pesos != centavos) — cualquier pago marcado manualmente quedaba guardado en 1/100 del monto real. Corregido: el input sigue en pesos, la conversión a centavos ahora pasa justo antes de `upsertPayment`.
+7. **Implementar botón "Enviar recordatorio" waitlist** en admin (`ClassBookingsPage`) — pendiente, revisar primero `docs/whatsapp.md` (puede faltar el `NotificationProvider` cableado).
+8. ~~Campos médicos~~ — hecho: `age`/`medicalConditions`/`notes` en `DependentFormModal` (create+edit, ambos flujos: `CustomerDetailPage` y `StudentsPage`), alerta ⚠️ (title = texto de la condición) en `DependentsTable` y en la tabla de inscritos de `AcademyGroupDetailPage` (se agregó `medical_conditions` al join de `academyEnrollmentsService.listEnrollmentsByGroup`). No se agregó a "lista de alumnos de instructor" porque esa vista no existe todavía (depende del punto 9).
+9. **Implementar rol INSTRUCTOR_ADMIN** + navegación condicional + página "Mis clases" + filtro por instructor — pendiente, es el más grande (auth/routing), dejarlo para una sesión con brainstorming aparte.
 9. ~~Botón de regreso (←) en casi todas las páginas + rediseño vertical de LandingPage~~ — hecho (implementado el mismo día, typecheck/lint/build limpios en ambas apps). Detalle abajo.
 
 ### Implementado — Botón de regreso (←) + rediseño LandingPage

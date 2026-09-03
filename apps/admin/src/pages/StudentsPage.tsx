@@ -40,6 +40,9 @@ export function StudentsPage() {
         birthDate: input.birthDate ?? null,
         guardianName: input.guardianName ?? null,
         guardianPhone: input.guardianPhone ?? null,
+        age: input.age ?? null,
+        medicalConditions: input.medicalConditions ?? null,
+        notes: input.notes ?? null,
       });
     } else {
       await createDependent(profile.businessId, {
@@ -47,6 +50,9 @@ export function StudentsPage() {
         birthDate: input.birthDate ?? null,
         guardianName: input.guardianName ?? null,
         guardianPhone: input.guardianPhone ?? null,
+        age: input.age ?? null,
+        medicalConditions: input.medicalConditions ?? null,
+        notes: input.notes ?? null,
       });
     }
     await reload();

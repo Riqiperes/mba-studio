@@ -38,7 +38,14 @@ export function DependentsTable({ dependents, showGuardianColumn, onEdit, onTogg
       <tbody>
         {dependents.map((dependent) => (
           <tr key={dependent.id} className="border-b border-gray-100">
-            <td className="py-2">{dependent.fullName}</td>
+            <td className="py-2">
+              {dependent.fullName}
+              {dependent.medicalConditions && (
+                <span title={dependent.medicalConditions} className="ml-1" aria-label="Condicion medica">
+                  ⚠️
+                </span>
+              )}
+            </td>
             {showGuardianColumn && <td className="py-2">{formatGuardian(dependent)}</td>}
             <td className="py-2">{dependent.birthDate ?? "-"}</td>
             <td className="py-2">

@@ -17,23 +17,44 @@ const scheduleSchema = z
     path: ["endTime"],
   });
 
-const schema = z.object({
-  name: z.string().min(1, "El nombre es obligatorio"),
-  instructorId: z.string(),
-  schedules: z.array(scheduleSchema),
-});
+const schema = z
+  .object({
+    name: z.string().min(1, "El nombre es obligatorio"),
+    instructorId: z.string(),
+    ageMin: z.string(),
+    ageMax: z.string(),
+    maxCapacity: z.coerce.number().int().min(1, "El cupo debe ser al menos 1").max(15, "El cupo maximo es 15"),
+    monthlyTuition: z.coerce.number().positive("La colegiatura debe ser mayor a 0"),
+    schedules: z.array(scheduleSchema),
+  })
+  .refine(
+    (value) => value.ageMin === "" || value.ageMax === "" || Number(value.ageMax) >= Number(value.ageMin),
+    { message: "La edad maxima debe ser mayor o igual a la minima", path: ["ageMax"] },
+  );
 
 type Props = {
   open: boolean;
   initialValue: AcademyGroupWithDetails | null;
+  initialMonthlyTuitionCents: number | null;
   instructors: Instructor[];
   onClose: () => void;
   onSubmit: (input: GroupInput) => Promise<void>;
 };
 
-export function AcademyGroupFormModal({ open, initialValue, instructors, onClose, onSubmit }: Props) {
+export function AcademyGroupFormModal({
+  open,
+  initialValue,
+  initialMonthlyTuitionCents,
+  instructors,
+  onClose,
+  onSubmit,
+}: Props) {
   const [name, setName] = useState("");
   const [instructorId, setInstructorId] = useState("");
+  const [ageMin, setAgeMin] = useState("");
+  const [ageMax, setAgeMax] = useState("");
+  const [maxCapacity, setMaxCapacity] = useState("15");
+  const [monthlyTuition, setMonthlyTuition] = useState("");
   const [schedules, setSchedules] = useState<GroupScheduleInput[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -43,6 +64,12 @@ export function AcademyGroupFormModal({ open, initialValue, instructors, onClose
     if (!open) return;
     setName(initialValue?.name ?? "");
     setInstructorId(initialValue?.instructorId ?? "");
+    setAgeMin(initialValue?.ageMin != null ? String(initialValue.ageMin) : "");
+    setAgeMax(initialValue?.ageMax != null ? String(initialValue.ageMax) : "");
+    setMaxCapacity(initialValue ? String(initialValue.maxCapacity) : "15");
+    setMonthlyTuition(
+      initialMonthlyTuitionCents != null ? String(initialMonthlyTuitionCents / 100) : "",
+    );
     setSchedules(
       initialValue
         ? initialValue.schedules.map((s) => ({
@@ -54,7 +81,7 @@ export function AcademyGroupFormModal({ open, initialValue, instructors, onClose
     );
     setFieldErrors({});
     setFormError(null);
-  }, [open, initialValue]);
+  }, [open, initialValue, initialMonthlyTuitionCents]);
 
   useEffect(() => {
     if (!open) return;
@@ -83,7 +110,15 @@ export function AcademyGroupFormModal({ open, initialValue, instructors, onClose
     event.preventDefault();
     setFormError(null);
 
-    const result = schema.safeParse({ name, instructorId, schedules });
+    const result = schema.safeParse({
+      name,
+      instructorId,
+      ageMin,
+      ageMax,
+      maxCapacity,
+      monthlyTuition,
+      schedules,
+    });
     if (!result.success) {
       const errors: Record<string, string> = {};
       for (const issue of result.error.issues) {
@@ -99,6 +134,10 @@ export function AcademyGroupFormModal({ open, initialValue, instructors, onClose
       await onSubmit({
         name: result.data.name,
         instructorId: result.data.instructorId ? result.data.instructorId : null,
+        ageMin: result.data.ageMin === "" ? null : Number(result.data.ageMin),
+        ageMax: result.data.ageMax === "" ? null : Number(result.data.ageMax),
+        maxCapacity: result.data.maxCapacity,
+        monthlyTuitionCents: Math.round(result.data.monthlyTuition * 100),
         schedules: result.data.schedules,
       });
       onClose();
@@ -147,6 +186,73 @@ export function AcademyGroupFormModal({ open, initialValue, instructors, onClose
             </option>
           ))}
         </select>
+
+        <div className="grid grid-cols-4 gap-2">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="academy-group-age-min-input" className="text-xs text-gray-500">
+              Edad minima
+            </label>
+            <input
+              id="academy-group-age-min-input"
+              type="number"
+              min={0}
+              placeholder="Sin limite"
+              value={ageMin}
+              onChange={(event) => setAgeMin(event.target.value)}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="academy-group-age-max-input" className="text-xs text-gray-500">
+              Edad maxima
+            </label>
+            <input
+              id="academy-group-age-max-input"
+              type="number"
+              min={0}
+              placeholder="Sin limite"
+              value={ageMax}
+              onChange={(event) => setAgeMax(event.target.value)}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            />
+            {fieldErrors.ageMax && <p className="text-xs text-red-600">{fieldErrors.ageMax}</p>}
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="academy-group-max-capacity-input" className="text-xs text-gray-500">
+              Cupo maximo
+            </label>
+            <input
+              id="academy-group-max-capacity-input"
+              type="number"
+              min={1}
+              max={15}
+              value={maxCapacity}
+              onChange={(event) => setMaxCapacity(event.target.value)}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            />
+            {fieldErrors.maxCapacity && <p className="text-xs text-red-600">{fieldErrors.maxCapacity}</p>}
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="academy-group-monthly-tuition-input" className="text-xs text-gray-500">
+              Colegiatura (MXN)
+            </label>
+            <input
+              id="academy-group-monthly-tuition-input"
+              type="number"
+              min={0}
+              step="0.01"
+              value={monthlyTuition}
+              onChange={(event) => setMonthlyTuition(event.target.value)}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            />
+            {fieldErrors.monthlyTuition && (
+              <p className="text-xs text-red-600">{fieldErrors.monthlyTuition}</p>
+            )}
+          </div>
+        </div>
+        <p className="-mt-1 text-xs text-gray-400">
+          Se cobra el dia 10 de cada mes (fecha fija, no configurable por grupo).
+        </p>
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">

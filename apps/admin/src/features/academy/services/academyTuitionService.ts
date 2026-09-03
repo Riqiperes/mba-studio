@@ -9,7 +9,7 @@ const TUITION_PERIOD_SELECT = `
 
 const PAYMENT_SELECT = `
   id, business_id, enrollment_id, period_start, period_end, status,
-  amount_cents, paid_at, payment_method, reference,
+  amount_cents, discount_applied, paid_at, payment_method, reference,
   created_at, updated_at
 `;
 
@@ -32,6 +32,7 @@ type PaymentRow = {
   period_end: string;
   status: string;
   amount_cents: number;
+  discount_applied: number;
   paid_at: string | null;
   payment_method: string | null;
   reference: string | null;
@@ -48,6 +49,7 @@ type PaymentWithEnrollmentRow = PaymentRow & {
       full_name: string;
       guardian_name: string | null;
       guardian_phone: string | null;
+      profiles: { discount_percent: number } | null;
     };
     group: {
       name: string;
@@ -77,6 +79,7 @@ function toPayment(row: PaymentRow): AcademyPayment {
     periodEnd: row.period_end,
     status: row.status as 'PAGADO' | 'NO_PAGADO',
     amountCents: row.amount_cents,
+    discountApplied: row.discount_applied,
     paidAt: row.paid_at,
     paymentMethod: row.payment_method as 'EFECTIVO' | 'TRANSFERENCIA' | 'OTRO' | null,
     reference: row.reference,
@@ -135,6 +138,7 @@ export async function upsertPayment(enrollmentId: string, input: PaymentInput): 
     period_end: input.periodEnd,
     status: input.status,
     amount_cents: input.amountCents,
+    discount_applied: input.discountApplied ?? 0,
     paid_at: input.paidAt ?? null,
     payment_method: input.paymentMethod ?? null,
     reference: input.reference ?? null,
@@ -156,7 +160,7 @@ export async function getOverduePayments(businessId: string, groupId?: string): 
       ${PAYMENT_SELECT},
       enrollment:academy_enrollments!inner(
         id, dependent_id, group_id,
-        dependent:dependents!inner(full_name, guardian_name, guardian_phone),
+        dependent:dependents!inner(full_name, guardian_name, guardian_phone, profiles(discount_percent)),
         group:academy_groups!inner(name)
       )
     `)
@@ -184,6 +188,7 @@ export async function getOverduePayments(businessId: string, groupId?: string): 
           fullName: row.enrollment.dependent.full_name,
           guardianName: row.enrollment.dependent.guardian_name,
           guardianPhone: row.enrollment.dependent.guardian_phone,
+          guardianDiscountPercent: row.enrollment.dependent.profiles?.discount_percent ?? null,
         },
         group: {
           name: row.enrollment.group.name,

@@ -4,6 +4,14 @@ import { AcademyGroupFormModal } from "@/features/academy/components/AcademyGrou
 import { useAcademyGroups } from "@/features/academy/hooks/useAcademyGroups";
 import type { AcademyGroupWithDetails, GroupInput } from "@/features/academy/types/AcademyGroup";
 import { useInstructors } from "@/features/instructors/hooks/useInstructors";
+import {
+  listTuitionPeriodsByGroup,
+  upsertTuitionPeriod,
+} from "@/features/academy/services/academyTuitionService";
+
+// Regla de negocio (business-rules.md): fecha de corte de colegiatura fija
+// el dia 10 de cada mes para todos los grupos, no configurable por grupo.
+const TUITION_DAY_OF_MONTH = 10;
 import { BackButton } from "@/components/ui/BackButton";
 
 const DAY_ABBREVIATIONS = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
@@ -15,28 +23,40 @@ function formatSchedule(group: AcademyGroupWithDetails): string {
     .join(", ");
 }
 
+function formatAgeRange(group: AcademyGroupWithDetails): string {
+  if (group.ageMin == null && group.ageMax == null) return "Todas las edades";
+  if (group.ageMin != null && group.ageMax != null) return `${group.ageMin}-${group.ageMax} anos`;
+  if (group.ageMin != null) return `Desde ${group.ageMin} anos`;
+  return `Hasta ${group.ageMax} anos`;
+}
+
 export function AcademyGroupsPage() {
   const { groups, loading, error, create, update } = useAcademyGroups();
   const { instructors } = useInstructors();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<AcademyGroupWithDetails | null>(null);
+  const [editingTuitionCents, setEditingTuitionCents] = useState<number | null>(null);
 
   function openCreate() {
     setEditingGroup(null);
+    setEditingTuitionCents(null);
     setModalOpen(true);
   }
 
-  function openEdit(group: AcademyGroupWithDetails) {
+  async function openEdit(group: AcademyGroupWithDetails) {
     setEditingGroup(group);
+    const periods = await listTuitionPeriodsByGroup(group.id);
+    setEditingTuitionCents(periods[0]?.amountCents ?? null);
     setModalOpen(true);
   }
 
   async function handleSubmit(input: GroupInput) {
-    if (editingGroup) {
-      await update(editingGroup.id, input);
-    } else {
-      await create(input);
-    }
+    const group = editingGroup ? await update(editingGroup.id, input) : await create(input);
+    await upsertTuitionPeriod({
+      groupId: group.id,
+      dayOfMonth: TUITION_DAY_OF_MONTH,
+      amountCents: input.monthlyTuitionCents,
+    });
   }
 
   return (
@@ -65,7 +85,8 @@ export function AcademyGroupsPage() {
               <th className="py-2">Nombre</th>
               <th className="py-2">Instructor</th>
               <th className="py-2">Horario</th>
-              <th className="py-2">Inscritos</th>
+              <th className="py-2">Edad</th>
+              <th className="py-2">Cupo</th>
               <th className="py-2">Acciones</th>
             </tr>
           </thead>
@@ -75,7 +96,10 @@ export function AcademyGroupsPage() {
                 <td className="py-2">{group.name}</td>
                 <td className="py-2">{group.instructorName ?? "-"}</td>
                 <td className="py-2">{formatSchedule(group)}</td>
-                <td className="py-2">{group.enrolledCount}</td>
+                <td className="py-2">{formatAgeRange(group)}</td>
+                <td className="py-2">
+                  {group.enrolledCount}/{group.maxCapacity}
+                </td>
                 <td className="py-2">
                   <Link
                     to={`/academy/groups/${group.id}`}
@@ -100,6 +124,7 @@ export function AcademyGroupsPage() {
       <AcademyGroupFormModal
         open={modalOpen}
         initialValue={editingGroup}
+        initialMonthlyTuitionCents={editingTuitionCents}
         instructors={instructors}
         onClose={() => setModalOpen(false)}
         onSubmit={handleSubmit}

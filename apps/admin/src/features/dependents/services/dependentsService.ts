@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabaseClient";
 import type { Dependent, DependentWithGuardian } from "../types/Dependent";
 
 const SELECT_COLUMNS =
-  "id, business_id, guardian_id, guardian_name, guardian_phone, full_name, birth_date, active, created_at, updated_at";
+  "id, business_id, guardian_id, guardian_name, guardian_phone, full_name, birth_date, age, medical_conditions, notes, active, created_at, updated_at";
 
 type DependentRow = {
   id: string;
@@ -12,6 +12,9 @@ type DependentRow = {
   guardian_phone: string | null;
   full_name: string;
   birth_date: string | null;
+  age: number | null;
+  medical_conditions: string | null;
+  notes: string | null;
   active: boolean;
   created_at: string;
   updated_at: string;
@@ -26,6 +29,9 @@ function toDependent(row: DependentRow): Dependent {
     guardianPhone: row.guardian_phone,
     fullName: row.full_name,
     birthDate: row.birth_date,
+    age: row.age,
+    medicalConditions: row.medical_conditions,
+    notes: row.notes,
     active: row.active,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -67,6 +73,9 @@ export type CreateDependentInput = {
   guardianId?: string | null;
   guardianName?: string | null;
   guardianPhone?: string | null;
+  age?: number | null;
+  medicalConditions?: string | null;
+  notes?: string | null;
 };
 
 export async function createDependent(
@@ -82,6 +91,9 @@ export async function createDependent(
       guardian_phone: input.guardianPhone ?? null,
       full_name: input.fullName,
       birth_date: input.birthDate ?? null,
+      age: input.age ?? null,
+      medical_conditions: input.medicalConditions ?? null,
+      notes: input.notes ?? null,
     })
     .select(SELECT_COLUMNS)
     .single();
@@ -95,6 +107,9 @@ export type UpdateDependentInput = {
   birthDate?: string | null;
   guardianName?: string | null;
   guardianPhone?: string | null;
+  age?: number | null;
+  medicalConditions?: string | null;
+  notes?: string | null;
 };
 
 export async function updateDependent(
@@ -106,12 +121,18 @@ export async function updateDependent(
     birth_date?: string | null;
     guardian_name?: string | null;
     guardian_phone?: string | null;
+    age?: number | null;
+    medical_conditions?: string | null;
+    notes?: string | null;
   } = {};
 
   if (input.fullName !== undefined) updateData.full_name = input.fullName;
   if (input.birthDate !== undefined) updateData.birth_date = input.birthDate;
   if (input.guardianName !== undefined) updateData.guardian_name = input.guardianName;
   if (input.guardianPhone !== undefined) updateData.guardian_phone = input.guardianPhone;
+  if (input.age !== undefined) updateData.age = input.age;
+  if (input.medicalConditions !== undefined) updateData.medical_conditions = input.medicalConditions;
+  if (input.notes !== undefined) updateData.notes = input.notes;
 
   const { data, error } = await supabase
     .from("dependents")
