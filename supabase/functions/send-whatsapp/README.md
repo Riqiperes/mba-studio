@@ -2,6 +2,7 @@
 
 Edge Function que envia un mensaje de WhatsApp usando el `WhatsAppProvider`
 activo, seleccionado por la variable de entorno `WHATSAPP_PROVIDER`
-(`mock` | `meta` | `twilio` | `ultramsg`). La logica de negocio nunca debe
-conocer el proveedor concreto, solo la interfaz `NotificationProvider`. Ver
-`docs/whatsapp.md`. Sin implementar todavia.
+(`mock` implementado; `meta` | `twilio` | `ultramsg` lanzan error explicito
+hasta que se decida el proveedor real). Funcion interna, requiere
+`Authorization: Bearer <service role key>`. Body: `{ to, templateName,
+variables? }`. Ver `docs/whatsapp.md`.

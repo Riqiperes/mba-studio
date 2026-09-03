@@ -48,6 +48,12 @@ interface WhatsAppProvider {
 
 ## Estado actual
 
-No implementado todavia. Carpeta `supabase/functions/send-whatsapp/`
-preparada. Se implementa en la etapa "WhatsApp" del roadmap, despues de
-tener Notifications funcionando con el `MockWhatsAppProvider`.
+Interfaz `WhatsAppProvider` y `MockWhatsAppProvider` implementadas en
+`supabase/functions/_shared/whatsapp/`. Edge Function `send-whatsapp/`
+funcional con `WHATSAPP_PROVIDER=mock` (selecciona el provider por env var,
+valida body, requiere llamado interno con la service role key). Providers
+reales (`meta`/`twilio`/`ultramsg`) lanzan error explicito "aun no
+implementado" -- pendiente decision de negocio sobre cual usar en
+produccion (ver `docs/roadmap.md`, "Decisiones pendientes"). Sin desplegar
+a Supabase todavia (`supabase functions deploy send-whatsapp`), sin probar
+en vivo.
