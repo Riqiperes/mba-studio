@@ -51,6 +51,77 @@ Working tree: limpio
 6. **Agregar campos médicos** en `DependentFormModal` + alerta visual en listas de clase
 7. **Implementar rol INSTRUCTOR_ADMIN** + navegación condicional + página "Mis clases" + filtro por instructor
 8. **Actualizar grupos academia** con campos edad/cupo + validaciones en inscripción
+9. **Botón de regreso (←) en casi todas las páginas + rediseño vertical de LandingPage** — diseño aprobado por el usuario el 2026-09-02, todavía sin implementar (el usuario pidió solo dejarlo documentado). Detalle completo abajo.
+
+### Diseño aprobado — Botón de regreso (←) + rediseño LandingPage
+
+**Contexto:** el usuario pidió un botón "←" para regresar en casi toda la
+app, y de paso rediseñar `LandingPage` (web) a un layout mas vertical con
+placeholders para partes que todavia no existen (logo, mapa). Se aclaro
+explicitamente que el `BottomNavigation` de `apps/web` **NO se quita** —
+el botón de regreso se agrega ademas del nav existente, no en su lugar.
+
+**1. Componente `BackButton` (uno por app, sin compartir entre apps):**
+- `apps/web/src/components/ui/BackButton.tsx` y
+  `apps/admin/src/components/ui/BackButton.tsx`. Boton fijo arriba-izquierda
+  de la pagina, icono `←`, mismo estilo visual en todas las paginas que lo
+  usen dentro de cada app.
+- **Comportamiento distinto por app** (esto es la parte que importa, no
+  usar el mismo componente/logica en ambas):
+  - **`apps/web`**: el botón siempre navega a `/` (home / `LandingPage`),
+    sin importar de donde vino el usuario — pedido explicito del usuario
+    ("que todo te devuelva a home"). Implementacion mas simple:
+    `<Link to="/">` o `navigate("/")`, no usa `navigate(-1)`.
+  - **`apps/admin`**: el botón usa `navigate(-1)` de React Router
+    (historial real del navegador), NO una ruta fija a home — pedido
+    explicito: "en admin redirija a la pestaña anterior... si estabas en
+    lista de ballet A y le das ← te muestre las listas... que no te lleve
+    a inicio". Ejemplo: Academia → grupo "Ballet A" → detalle de grupo →
+    ← debe regresar a la lista de grupos de Academia (con cualquier
+    filtro/scroll que tuviera), no al Home del panel.
+
+**2. Donde se agrega el botón:**
+- **`apps/web`** (siempre → home, NO se agrega en Landing ni en Login):
+  `PackagesCatalogPage` (`/packages`), `PackageDetailPage`
+  (`/packages/:id`), `ClassesCalendarPage` (`/classes`), `ClassDetailPage`
+  (`/classes/:id`), `MyBookingsPage` (`/my-bookings`),
+  `UserProfilePage` (`/profile`).
+- **`apps/admin`** (siempre `navigate(-1)`, NO se agrega en `HomePage`):
+  `InstructorsPage`, `ClassesPage`, `ClassBookingsPage` (`/classes/:id`,
+  detalle de reservaciones de una clase), `PackagesPage`, `CustomersPage`,
+  `CustomerDetailPage` (`/customers/:id`), `StudentsPage`,
+  `AcademyGroupsPage`, `AcademyGroupDetailPage` (`/academy/groups/:id`),
+  `AcademyOverduePage`. El nav superior de tabs de `AdminLayout` (ver
+  `apps/admin/src/layouts/AdminLayout.tsx`) se queda igual, sin tocar —
+  el botón de regreso es adicional, no lo reemplaza.
+
+**3. Rediseño vertical de `LandingPage`
+(`apps/web/src/pages/LandingPage.tsx`):**
+Reordenar a secciones apiladas verticalmente. El `BottomNavigation`
+existente (`apps/web/src/components/ui/BottomNavigation.tsx`, montado en
+`MainLayout`) no se toca. Orden de secciones aprobado:
+1. **Logo** — si `business?.logoUrl` existe usarlo (ya se carga via
+   `getBusiness()`); si no, placeholder visual tipo caja punteada con
+   texto "Aquí irá logo".
+2. **Información del negocio** — nombre + descripción, dato real ya
+   disponible en `business.name`/`business.description`; placeholder
+   "Aquí irá información" solo si el dato viene vacío.
+3. **Mapa de Google** — placeholder nuevo, div con texto "Mapa de
+   Google" (sin integracion real de Google Maps todavia, no hay API key
+   ni libreria instalada — quedaria como tarea aparte si se decide
+   implementar el mapa real despues).
+4. **Dirección** — real, ya se carga (`business.address`), no es
+   placeholder.
+5. **Teléfono / WhatsApp** — igual que la implementación actual (enlaces
+   `tel:`/`wa.me`), sin cambios de comportamiento, solo se reordena
+   dentro del nuevo layout vertical.
+6. **Accesos rápidos** — igual que ahora (tarjetas a Paquetes y
+   Horarios), sin cambios de comportamiento.
+
+**Nota para quien retome esto:** no se toco ningun archivo de codigo para
+este punto 9 — es un diseño aprobado en chat, pendiente de implementar.
+Seguir el flujo normal (TDD donde aplique, typecheck/lint/build después,
+actualizar este `HANDOFF.md`/`CURRENT_STATE.md` en el mismo cambio).
 
 ## Firma de participación
 
