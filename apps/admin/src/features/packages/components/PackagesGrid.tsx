@@ -4,11 +4,12 @@ type Props = {
   packages: Package[];
   onEdit: (pkg: Package) => void;
   onToggleActive: (pkg: Package) => void;
+  onDelete: (pkg: Package) => void;
 };
 
 const priceFormatter = new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" });
 
-export function PackagesGrid({ packages, onEdit, onToggleActive }: Props) {
+export function PackagesGrid({ packages, onEdit, onToggleActive, onDelete }: Props) {
   if (packages.length === 0) {
     return <p className="text-sm text-gray-500">Todavia no hay paquetes.</p>;
   }
@@ -59,6 +60,16 @@ export function PackagesGrid({ packages, onEdit, onToggleActive }: Props) {
                 className="text-xs text-gray-600 hover:underline"
               >
                 {pkg.active ? "Desactivar" : "Activar"}
+              </button>
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDelete(pkg);
+                }}
+                className="text-xs text-red-600 hover:underline"
+              >
+                Eliminar
               </button>
             </div>
           </div>

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import {
   createInstructor,
+  deleteInstructor,
   listInstructors,
   setInstructorActive,
   updateInstructor,
@@ -49,5 +50,10 @@ export function useInstructors() {
     await reload();
   }
 
-  return { instructors, loading, error, reload, create, update, setActive };
+  async function remove(id: string) {
+    await deleteInstructor(id);
+    await reload();
+  }
+
+  return { instructors, loading, error, reload, create, update, setActive, remove };
 }

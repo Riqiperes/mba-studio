@@ -82,3 +82,8 @@ export async function setInstructorActive(id: string, active: boolean): Promise<
   const { error } = await supabase.from("instructors").update({ active }).eq("id", id);
   if (error) throw error;
 }
+
+export async function deleteInstructor(id: string): Promise<void> {
+  const { error } = await supabase.from("instructors").delete().eq("id", id);
+  if (error) throw error;
+}
