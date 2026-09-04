@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { PackageFormModal } from "@/features/packages/components/PackageFormModal";
-import { PackagesTable } from "@/features/packages/components/PackagesTable";
+import { PackagesGrid } from "@/features/packages/components/PackagesGrid";
 import { usePackages } from "@/features/packages/hooks/usePackages";
 import type { Package } from "@/features/packages/types/Package";
 import { BackButton } from "@/components/ui/BackButton";
@@ -66,7 +66,7 @@ export function PackagesPage() {
       {error && <p className="text-sm text-red-600">{error}</p>}
       {actionError && <p className="text-sm text-red-600">{actionError}</p>}
       {!loading && !error && (
-        <PackagesTable packages={packages} onEdit={openEdit} onToggleActive={handleToggleActive} />
+        <PackagesGrid packages={packages} onEdit={openEdit} onToggleActive={handleToggleActive} />
       )}
 
       <PackageFormModal
