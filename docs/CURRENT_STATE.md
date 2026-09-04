@@ -3,7 +3,67 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-09-02 (Acceso público web + 8 specs nuevas + migración 016 consolidada):
+Ultima actualizacion: 2026-09-04 (delete real en Paquetes/Instructores + pestaña Admins, PR sin mergear):
+- **PR #15 (`feat/admin-delete-and-invites` → `develop`, sin mergear)**:
+  Paquetes e Instructores ganan boton "Eliminar" (DELETE real ademas del
+  Desactivar existente) — RLS ya permitia DELETE a STAFF/BUSINESS_ADMIN/
+  SUPER_ADMIN via la policy `for all` existente, no hizo falta migracion
+  para eso. Si Postgres bloquea el borrado por una FK (23503, hay
+  compras/clases asociadas) se muestra mensaje claro sugiriendo
+  Desactivar. Clases/horarios ya tenian "Cancelar" wired en la vista
+  semanal, no se toco. Nueva pagina `/admins` (solo SUPER_ADMIN): invita
+  un correo+rol a `admin_allowed_emails` antes de que se registre (antes
+  solo por SQL editor de Supabase), lista invitaciones pendiente/ya
+  registrado, permite quitarlas — `/users` sigue siendo donde se cambia
+  el rol de alguien ya registrado. Migracion nueva
+  `024_admin_invites_rpc.sql`: 3 RPC `SECURITY DEFINER`
+  (`list_admin_invites`, `add_admin_invite`, `remove_admin_invite`), cada
+  una verificando `current_user_role() = 'SUPER_ADMIN'` ella misma
+  (fail-closed si es NULL, verificado en el proyecto real: sin contexto
+  SUPER_ADMIN la RPC lanza `No autorizado`). Migracion ya aplicada al
+  proyecto Supabase real. typecheck/lint/build en verde. No se probo el
+  flujo completo en navegador (agregar/listar/quitar invitacion, login
+  con el rol asignado) porque este entorno no tenia sesion de Google
+  OAuth logueada y no se debe automatizar login con credenciales —
+  checklist pendiente para quien revise el PR.
+
+Ultima actualizacion anterior: 2026-09-04 (WhatsApp scaffold + vista semanal de clases; PR #14 ya se mergeo a `develop` junto con el reskin de Paquetes/Academia, PR #13 sigue sin mergear):
+- **PR #13 (`feat/whatsapp-notifications-scaffold` → `develop`, sin mergear)**:
+  primeras Edge Functions reales del repo. Interfaz `WhatsAppProvider` +
+  `MockWhatsAppProvider` + `getWhatsAppProvider()` por `WHATSAPP_PROVIDER`
+  (`supabase/functions/_shared/whatsapp/`), Edge Functions `send-whatsapp`
+  y `notifications` (valida tipo de evento contra `templates.ts`, despacha
+  a `send-whatsapp`), ambas protegidas con `requireServiceRole` (solo
+  service role key, nunca frontend). Deno instalado y usado para verificar
+  (`deno test`/`deno check` en verde) — no estaba disponible al abrir el
+  PR, se instaló durante la sesión. Sin desplegar a Supabase, sin probar
+  en vivo contra el proyecto real. Proveedor real (Meta/Twilio/UltraMsg)
+  pendiente de decision de negocio. Nada llama a `notifications/` todavia
+  (el boton "Enviar recordatorio" de waitlist sigue pospuesto hasta esto).
+- **PR #14 (`feat/admin-classes-week-view` → `develop`, sin mergear)**:
+  `ClassesPage` (admin) rediseñada — grilla semanal Domingo-Sábado
+  (`ClassesWeekGrid`, reemplaza la tabla), `WeekSelector` para navegar,
+  filtro simplificado a solo instructor. `ClassFormModal` en creación
+  gana selector de días + "repetir N semanas" para crear varias clases de
+  una vez (`classesService.createClasses`, client-side, sin RPC/migración
+  nueva, saltea y avisa conflictos de horario). Proceso completo:
+  brainstorming → spec → plan de 9 tasks → subagent-driven-development →
+  review final de rama (encontró y corrigió un bug real: `listClasses`
+  comparaba fechas locales contra un limite que Postgres casteaba a UTC,
+  clases de sabado tarde desaparecian de la grilla) → **QA manual completa
+  en navegador contra el proyecto de Supabase real**: grid, WeekSelector
+  (prev/next/Hoy), filtro instructor, click-a-detalle, crear clase simple,
+  crear en lote (2 dias x 2 semanas, detecto correctamente conflictos
+  contra clases creadas en submits previos), editar, cancelar — los 10
+  pasos del checklist del plan, todos verificados en vivo, datos de
+  prueba creados y cancelados (limpieza), sin hallazgos nuevos. Unico
+  problema notado fue de la herramienta de QA (`form_input` en checkboxes
+  no disparaba el evento de React de forma confiable; click real de mouse
+  si funciono siempre) -- no es un bug de la app.
+- Ambos PR listos para revision humana y merge; ninguno afecta produccion
+  hasta que se mergeen a `develop`.
+
+Ultima actualizacion anterior: 2026-09-02 (Acceso público web + 8 specs nuevas + migración 016 consolidada):
 - **Web pública**: Rutas `/`, `/packages`, `/packages/:id`, `/classes`, `/classes/:id` accesibles sin login.
   Login/registro solo para `/my-bookings`, `/profile`. `redirectTo` en todo el flujo auth.
   Navegación inferior mobile-first con redirección a login si no hay sesión.
@@ -302,23 +362,30 @@ WhatsApp, White-label activo, Testing, Deployment (Cloudflare Pages).
     ver `mapSaveError` en `InstructorFormModal.tsx`); sin toast — `sonner`
     no es dependencia de `apps/admin` (ver `apps/admin/package.json`).
 - **CRUD de Clases en `apps/admin`** (rama `feat-admin-classes-instructors`,
-  tabla existente migracion `004`):
-  - Crear clase (titulo, instructor, fecha/hora de inicio, fecha/hora de
-    fin, cupo maximo).
-  - Editar todos los campos.
+  extendida a grilla semanal + creacion por lote en
+  `worktree-admin-classes-week-view`; tabla existente migracion `004`):
+  - Grilla semanal (Domingo-Sabado, `ClassesWeekGrid.tsx`) en vez de tabla
+    plana, navegable semana a semana con `WeekSelector`; filtrada solo por
+    instructor (se quito el filtro de estado/rango de fechas al pasar a
+    vista de semana).
+  - `ClassFormModal` soporta dos modos: edicion de una clase existente
+    (sin cambios respecto a antes: titulo, instructor, fecha/hora de
+    inicio/fin, cupo) y creacion por lote (elegir instructor, titulo,
+    varios dias de la semana, hora de inicio/fin, cupo, y repetir N
+    semanas).
+  - Creacion por lote con deteccion de conflictos del lado del cliente:
+    si un slot generado se solapa con una clase `SCHEDULED` existente se
+    saltea (no se crea) y se reporta en un resumen ("Se crearon N de M.
+    Se saltearon por conflicto de horario: ...") — ver `createClasses` en
+    `classesService.ts`.
   - Cancelar clase (estado pasa a `CANCELLED`, sigue listada).
-  - Tabla listable con columnas (titulo, instructor, horario, cupo,
-    estado, acciones), ordenada por `starts_at` ascendente (mas proxima
-    primero — ver `listClasses` en `classesService.ts`).
-  - Filtros (instructor, estado, rango de fechas desde/hasta — ver
-    `ClassFiltersBar.tsx`).
-  - Modal de formulario reutilizable (`ClassFormModal`).
-  - Validacion con Zod (titulo y instructor obligatorios, fecha/hora de
-    inicio y fin obligatorias, fin posterior a inicio, cupo entero
-    positivo; sin validacion de fecha minima/pasada).
+  - Validacion con Zod (titulo y instructor obligatorios en ambos modos;
+    modo edicion: fecha/hora de inicio y fin obligatorias, fin posterior
+    a inicio; modo lote: al menos un dia de la semana, hora fin posterior
+    a hora inicio, semanas entre 1 y 52; cupo entero positivo en ambos).
   - Instructores desactivados no aparecen en selector para clases nuevas
     (verificado con RLS y logica frontend).
-  - Mensajes de error inline (mismo patron que Instructores, sin toast).
+  - Mensajes de error inline (`getErrorMessage.ts`, sin toast).
 - **CRUD de Paquetes en `apps/admin`** (rama `feat/admin-packages`, tabla
   existente migracion `005`):
   - Crear paquete (nombre, descripcion opcional, creditos, precio,

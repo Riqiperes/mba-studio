@@ -6,7 +6,7 @@ import type { Instructor } from "@/features/instructors/types/Instructor";
 import { BackButton } from "@/components/ui/BackButton";
 
 export function InstructorsPage() {
-  const { instructors, loading, error, create, update, setActive } = useInstructors();
+  const { instructors, loading, error, create, update, setActive, remove } = useInstructors();
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Instructor | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -42,6 +42,25 @@ export function InstructorsPage() {
     }
   }
 
+  async function handleDelete(instructor: Instructor) {
+    if (!window.confirm(`Eliminar a ${instructor.fullName}? Esta accion no se puede deshacer.`)) {
+      return;
+    }
+    setActionError(null);
+    try {
+      await remove(instructor.id);
+    } catch (err) {
+      if (err && typeof err === "object" && "code" in err && err.code === "23503") {
+        setActionError(
+          `No se puede eliminar a ${instructor.fullName}: tiene clases asociadas. Usa Desactivar en su lugar.`,
+        );
+      } else {
+        setActionError("No se pudo eliminar el instructor. Intenta de nuevo.");
+      }
+      console.error("[instructors] delete fallo", err);
+    }
+  }
+
   return (
     <div id="instructors-page" className="mx-auto max-w-3xl p-6">
       <BackButton />
@@ -64,6 +83,7 @@ export function InstructorsPage() {
           instructors={instructors}
           onEdit={openEdit}
           onToggleActive={handleToggleActive}
+          onDelete={handleDelete}
         />
       )}
 

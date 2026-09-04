@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { EnrollStudentModal } from '@/features/academy/components/EnrollStudentModal';
 import { MarkPaymentModal } from '@/features/academy/components/MarkPaymentModal';
-import { TuitionStatusBadge } from '@/features/academy/components/TuitionStatusBadge';
 import { useAcademyGroupEnrollments } from '@/features/academy/hooks/useAcademyGroupEnrollments';
 import { useAcademyGroups } from '@/features/academy/hooks/useAcademyGroups';
 import { useAcademyTuitionPeriod } from '@/features/academy/hooks/useAcademyTuitionPeriod';
 import { useCustomers } from '@/features/customers/hooks/useCustomers';
-import { calculatePeriodsForEnrollment, formatPeriodLabel } from '@/features/academy/utils/calculatePeriod';
+import {
+  calculatePeriodsForEnrollment,
+  formatPeriodLabel,
+} from '@/features/academy/utils/calculatePeriod';
+import { listCurrentMonthPaymentStatus } from '@/features/academy/services/academyTuitionService';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 import { BackButton } from '@/components/ui/BackButton';
 
@@ -28,6 +31,13 @@ export function AcademyGroupDetailPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEnrollmentId, setSelectedEnrollmentId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<Map<string, boolean>>(new Map());
+
+  useEffect(() => {
+    listCurrentMonthPaymentStatus()
+      .then(setPaymentStatus)
+      .catch((err) => console.error('[academy] listCurrentMonthPaymentStatus fallo', err));
+  }, [enrollments]);
 
   async function handleWithdraw(enrollmentId: string) {
     if (!window.confirm('Dar de baja a este alumno del grupo?')) return;
@@ -106,7 +116,6 @@ export function AcademyGroupDetailPage() {
             <thead>
               <tr className="border-b border-gray-200 text-left text-gray-500">
                 <th className="py-2">Alumno</th>
-                <th className="py-2">Tutor</th>
                 <th className="py-2">Fecha de inscripcion</th>
                 <th className="py-2">Colegiatura actual</th>
                 <th className="py-2">Acciones</th>
@@ -117,20 +126,28 @@ export function AcademyGroupDetailPage() {
                 const currentPeriod = tuitionPeriod
                   ? calculatePeriodsForEnrollment(tuitionPeriod, enrollment.enrollmentDate, 1)[0]
                   : null;
+                // Solo tintar si el grupo tiene colegiatura configurada -- sin
+                // eso no hay nada que pagar, tintar de rojo seria enganoso.
+                const paid =
+                  currentPeriod && tuitionPeriod ? paymentStatus.get(enrollment.dependentId) : undefined;
 
                 return (
-                  <tr key={enrollment.id} className="border-b border-gray-100">
-                    <td className="py-2">{enrollment.studentName}</td>
-                    <td className="py-2">{enrollment.guardianName ?? '-'}</td>
+                  <tr
+                    key={enrollment.id}
+                    className={`border-b border-gray-100 ${
+                      paid === true ? 'bg-green-50' : paid === false ? 'bg-red-50' : ''
+                    }`}
+                  >
+                    <td className="py-2">
+                      <p className="font-medium text-gray-900">{enrollment.studentName}</p>
+                      <p className="text-xs text-gray-500">{enrollment.guardianName ?? '-'}</p>
+                    </td>
                     <td className="py-2">{enrollment.enrollmentDate}</td>
                     <td className="py-2">
                       {currentPeriod && tuitionPeriod ? (
-                        <>
-                          <TuitionStatusBadge status="NO_PAGADO" />
-                          <span className="ml-2 text-xs text-gray-500">
-                            {formatPeriodLabel(currentPeriod.periodStart, currentPeriod.periodEnd)}
-                          </span>
-                        </>
+                        <span className="text-xs text-gray-500">
+                          {formatPeriodLabel(currentPeriod.periodStart, currentPeriod.periodEnd)}
+                        </span>
                       ) : tuitionLoading ? (
                         <span className="text-xs text-gray-500">Cargando...</span>
                       ) : (
@@ -138,23 +155,23 @@ export function AcademyGroupDetailPage() {
                       )}
                     </td>
                     <td className="py-2">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleWithdraw(enrollment.id)}
-                          className="text-gray-600 hover:underline"
-                        >
-                          Dar de baja
-                        </button>
+                      <div className="flex items-center gap-3">
                         {currentPeriod && tuitionPeriod && (
                           <button
                             type="button"
                             onClick={() => handleOpenPaymentModal(enrollment.id)}
-                            className="text-brand-primary hover:underline text-sm"
+                            className="text-sm text-brand-primary hover:underline"
                           >
                             Marcar pago
                           </button>
                         )}
+                        <button
+                          type="button"
+                          onClick={() => handleWithdraw(enrollment.id)}
+                          className="text-sm text-red-600 hover:underline"
+                        >
+                          Dar de baja
+                        </button>
                       </div>
                     </td>
                   </tr>

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import {
   createPackage,
+  deletePackage,
   listPackages,
   setPackageActive,
   updatePackage,
@@ -55,5 +56,10 @@ export function usePackages() {
     await reload();
   }
 
-  return { packages, loading, error, reload, create, update, setActive };
+  async function remove(id: string) {
+    await deletePackage(id);
+    await reload();
+  }
+
+  return { packages, loading, error, reload, create, update, setActive, remove };
 }

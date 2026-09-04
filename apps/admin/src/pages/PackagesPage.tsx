@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { PackageFormModal } from "@/features/packages/components/PackageFormModal";
-import { PackagesTable } from "@/features/packages/components/PackagesTable";
+import { PackagesGrid } from "@/features/packages/components/PackagesGrid";
 import { usePackages } from "@/features/packages/hooks/usePackages";
 import type { Package } from "@/features/packages/types/Package";
 import { BackButton } from "@/components/ui/BackButton";
 
 export function PackagesPage() {
-  const { packages, loading, error, create, update, setActive } = usePackages();
+  const { packages, loading, error, create, update, setActive, remove } = usePackages();
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Package | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -48,6 +48,25 @@ export function PackagesPage() {
     }
   }
 
+  async function handleDelete(pkg: Package) {
+    if (!window.confirm(`Eliminar el paquete "${pkg.name}"? Esta accion no se puede deshacer.`)) {
+      return;
+    }
+    setActionError(null);
+    try {
+      await remove(pkg.id);
+    } catch (err) {
+      if (err && typeof err === "object" && "code" in err && err.code === "23503") {
+        setActionError(
+          `No se puede eliminar "${pkg.name}": tiene compras asociadas. Usa Desactivar en su lugar.`,
+        );
+      } else {
+        setActionError("No se pudo eliminar el paquete. Intenta de nuevo.");
+      }
+      console.error("[packages] delete fallo", err);
+    }
+  }
+
   return (
     <div id="packages-page" className="mx-auto max-w-3xl p-6">
       <BackButton />
@@ -66,7 +85,12 @@ export function PackagesPage() {
       {error && <p className="text-sm text-red-600">{error}</p>}
       {actionError && <p className="text-sm text-red-600">{actionError}</p>}
       {!loading && !error && (
-        <PackagesTable packages={packages} onEdit={openEdit} onToggleActive={handleToggleActive} />
+        <PackagesGrid
+          packages={packages}
+          onEdit={openEdit}
+          onToggleActive={handleToggleActive}
+          onDelete={handleDelete}
+        />
       )}
 
       <PackageFormModal
