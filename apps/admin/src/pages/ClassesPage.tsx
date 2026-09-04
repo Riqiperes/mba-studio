@@ -1,14 +1,27 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ClassFiltersBar } from "@/features/classes/components/ClassFiltersBar";
 import { ClassFormModal } from "@/features/classes/components/ClassFormModal";
-import { ClassesTable } from "@/features/classes/components/ClassesTable";
+import { ClassesWeekGrid } from "@/features/classes/components/ClassesWeekGrid";
+import { WeekSelector } from "@/features/classes/components/WeekSelector";
 import { useClasses } from "@/features/classes/hooks/useClasses";
 import type { ClassFilters, StudioClass } from "@/features/classes/types/StudioClass";
+import { formatDateKey, getWeekDays, getWeekStart } from "@/features/classes/utils/weekUtils";
 import { useInstructors } from "@/features/instructors/hooks/useInstructors";
 import { BackButton } from "@/components/ui/BackButton";
 
 export function ClassesPage() {
-  const [filters, setFilters] = useState<ClassFilters>({});
+  const [instructorFilter, setInstructorFilter] = useState<ClassFilters>({});
+  const [weekStart, setWeekStart] = useState<Date>(() => getWeekStart(new Date()));
+
+  const filters = useMemo<ClassFilters>(() => {
+    const days = getWeekDays(weekStart);
+    return {
+      ...instructorFilter,
+      dateFrom: formatDateKey(days[0]!),
+      dateTo: formatDateKey(days[6]!),
+    };
+  }, [instructorFilter, weekStart]);
+
   const { classes, loading, error, create, update, cancel } = useClasses(filters);
   const { instructors, error: instructorsError } = useInstructors();
   const [modalOpen, setModalOpen] = useState(false);
@@ -25,20 +38,6 @@ export function ClassesPage() {
     setModalOpen(true);
   }
 
-  async function handleSubmit(input: {
-    instructorId: string;
-    title: string;
-    startsAt: string;
-    endsAt: string;
-    maxCapacity: number;
-  }) {
-    if (editing) {
-      await update(editing.id, input);
-    } else {
-      await create(input);
-    }
-  }
-
   async function handleCancel(studioClass: StudioClass) {
     if (!window.confirm(`Cancelar la clase "${studioClass.title}"?`)) {
       return;
@@ -53,7 +52,7 @@ export function ClassesPage() {
   }
 
   return (
-    <div id="classes-page" className="mx-auto max-w-4xl p-6">
+    <div id="classes-page" className="mx-auto max-w-5xl p-6">
       <BackButton />
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-brand-primary">Clases</h1>
@@ -66,14 +65,16 @@ export function ClassesPage() {
         </button>
       </div>
 
-      <ClassFiltersBar instructors={instructors} filters={filters} onChange={setFilters} />
+      <WeekSelector selectedWeekStart={formatDateKey(weekStart)} onChange={(value) => setWeekStart(new Date(`${value}T00:00:00`))} />
+      <ClassFiltersBar instructors={instructors} filters={instructorFilter} onChange={setInstructorFilter} />
 
       {loading && <p className="text-sm text-gray-500">Cargando...</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
       {instructorsError && <p className="text-sm text-red-600">{instructorsError}</p>}
       {cancelError && <p className="text-sm text-red-600">{cancelError}</p>}
       {!loading && !error && (
-        <ClassesTable
+        <ClassesWeekGrid
+          weekStart={weekStart}
           classes={classes}
           instructors={instructors}
           onEdit={openEdit}
@@ -85,8 +86,10 @@ export function ClassesPage() {
         open={modalOpen}
         initialValue={editing}
         instructors={instructors}
+        weekStart={weekStart}
         onClose={() => setModalOpen(false)}
-        onSubmit={handleSubmit}
+        onCreate={create}
+        onUpdate={update}
       />
     </div>
   );

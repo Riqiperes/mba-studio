@@ -1,15 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
-import { cancelClass, createClass, listClasses, updateClass } from "../services/classesService";
-import type { ClassFilters, StudioClass } from "../types/StudioClass";
-
-type ClassInput = {
-  instructorId: string;
-  title: string;
-  startsAt: string;
-  endsAt: string;
-  maxCapacity: number;
-};
+import { cancelClass, createClasses, listClasses, updateClass } from "../services/classesService";
+import type {
+  ClassFilters,
+  CreateClassesInput,
+  CreateClassesResult,
+  StudioClass,
+  UpdateClassInput,
+} from "../types/StudioClass";
 
 export function useClasses(filters: ClassFilters) {
   const { profile } = useAuth();
@@ -28,9 +26,6 @@ export function useClasses(filters: ClassFilters) {
     } finally {
       setLoading(false);
     }
-    // Solo dependemos de campos primitivos individuales de `filters` (no
-    // del objeto en si) para no disparar recargas por una referencia
-    // nueva de objeto en cada render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.instructorId, filters.status, filters.dateFrom, filters.dateTo]);
 
@@ -38,13 +33,14 @@ export function useClasses(filters: ClassFilters) {
     reload();
   }, [reload]);
 
-  async function create(input: ClassInput) {
+  async function create(input: CreateClassesInput): Promise<CreateClassesResult> {
     if (!profile) throw new Error("Falta el perfil del usuario actual.");
-    await createClass(profile.businessId, input);
+    const result = await createClasses(profile.businessId, input);
     await reload();
+    return result;
   }
 
-  async function update(id: string, input: Partial<ClassInput>) {
+  async function update(id: string, input: UpdateClassInput) {
     await updateClass(id, input);
     await reload();
   }

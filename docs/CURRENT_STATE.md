@@ -338,23 +338,30 @@ WhatsApp, White-label activo, Testing, Deployment (Cloudflare Pages).
     ver `mapSaveError` en `InstructorFormModal.tsx`); sin toast — `sonner`
     no es dependencia de `apps/admin` (ver `apps/admin/package.json`).
 - **CRUD de Clases en `apps/admin`** (rama `feat-admin-classes-instructors`,
-  tabla existente migracion `004`):
-  - Crear clase (titulo, instructor, fecha/hora de inicio, fecha/hora de
-    fin, cupo maximo).
-  - Editar todos los campos.
+  extendida a grilla semanal + creacion por lote en
+  `worktree-admin-classes-week-view`; tabla existente migracion `004`):
+  - Grilla semanal (Domingo-Sabado, `ClassesWeekGrid.tsx`) en vez de tabla
+    plana, navegable semana a semana con `WeekSelector`; filtrada solo por
+    instructor (se quito el filtro de estado/rango de fechas al pasar a
+    vista de semana).
+  - `ClassFormModal` soporta dos modos: edicion de una clase existente
+    (sin cambios respecto a antes: titulo, instructor, fecha/hora de
+    inicio/fin, cupo) y creacion por lote (elegir instructor, titulo,
+    varios dias de la semana, hora de inicio/fin, cupo, y repetir N
+    semanas).
+  - Creacion por lote con deteccion de conflictos del lado del cliente:
+    si un slot generado se solapa con una clase `SCHEDULED` existente se
+    saltea (no se crea) y se reporta en un resumen ("Se crearon N de M.
+    Se saltearon por conflicto de horario: ...") — ver `createClasses` en
+    `classesService.ts`.
   - Cancelar clase (estado pasa a `CANCELLED`, sigue listada).
-  - Tabla listable con columnas (titulo, instructor, horario, cupo,
-    estado, acciones), ordenada por `starts_at` ascendente (mas proxima
-    primero — ver `listClasses` en `classesService.ts`).
-  - Filtros (instructor, estado, rango de fechas desde/hasta — ver
-    `ClassFiltersBar.tsx`).
-  - Modal de formulario reutilizable (`ClassFormModal`).
-  - Validacion con Zod (titulo y instructor obligatorios, fecha/hora de
-    inicio y fin obligatorias, fin posterior a inicio, cupo entero
-    positivo; sin validacion de fecha minima/pasada).
+  - Validacion con Zod (titulo y instructor obligatorios en ambos modos;
+    modo edicion: fecha/hora de inicio y fin obligatorias, fin posterior
+    a inicio; modo lote: al menos un dia de la semana, hora fin posterior
+    a hora inicio, semanas entre 1 y 52; cupo entero positivo en ambos).
   - Instructores desactivados no aparecen en selector para clases nuevas
     (verificado con RLS y logica frontend).
-  - Mensajes de error inline (mismo patron que Instructores, sin toast).
+  - Mensajes de error inline (`getErrorMessage.ts`, sin toast).
 - **CRUD de Paquetes en `apps/admin`** (rama `feat/admin-packages`, tabla
   existente migracion `005`):
   - Crear paquete (nombre, descripcion opcional, creditos, precio,
