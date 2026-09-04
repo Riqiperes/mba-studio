@@ -3,7 +3,43 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-09-02 (Acceso público web + 8 specs nuevas + migración 016 consolidada):
+Ultima actualizacion: 2026-09-04 (WhatsApp scaffold + vista semanal de clases, ambos en PR sin mergear):
+- **PR #13 (`feat/whatsapp-notifications-scaffold` → `develop`, sin mergear)**:
+  primeras Edge Functions reales del repo. Interfaz `WhatsAppProvider` +
+  `MockWhatsAppProvider` + `getWhatsAppProvider()` por `WHATSAPP_PROVIDER`
+  (`supabase/functions/_shared/whatsapp/`), Edge Functions `send-whatsapp`
+  y `notifications` (valida tipo de evento contra `templates.ts`, despacha
+  a `send-whatsapp`), ambas protegidas con `requireServiceRole` (solo
+  service role key, nunca frontend). Deno instalado y usado para verificar
+  (`deno test`/`deno check` en verde) — no estaba disponible al abrir el
+  PR, se instaló durante la sesión. Sin desplegar a Supabase, sin probar
+  en vivo contra el proyecto real. Proveedor real (Meta/Twilio/UltraMsg)
+  pendiente de decision de negocio. Nada llama a `notifications/` todavia
+  (el boton "Enviar recordatorio" de waitlist sigue pospuesto hasta esto).
+- **PR #14 (`feat/admin-classes-week-view` → `develop`, sin mergear)**:
+  `ClassesPage` (admin) rediseñada — grilla semanal Domingo-Sábado
+  (`ClassesWeekGrid`, reemplaza la tabla), `WeekSelector` para navegar,
+  filtro simplificado a solo instructor. `ClassFormModal` en creación
+  gana selector de días + "repetir N semanas" para crear varias clases de
+  una vez (`classesService.createClasses`, client-side, sin RPC/migración
+  nueva, saltea y avisa conflictos de horario). Proceso completo:
+  brainstorming → spec → plan de 9 tasks → subagent-driven-development →
+  review final de rama (encontró y corrigió un bug real: `listClasses`
+  comparaba fechas locales contra un limite que Postgres casteaba a UTC,
+  clases de sabado tarde desaparecian de la grilla) → **QA manual completa
+  en navegador contra el proyecto de Supabase real**: grid, WeekSelector
+  (prev/next/Hoy), filtro instructor, click-a-detalle, crear clase simple,
+  crear en lote (2 dias x 2 semanas, detecto correctamente conflictos
+  contra clases creadas en submits previos), editar, cancelar — los 10
+  pasos del checklist del plan, todos verificados en vivo, datos de
+  prueba creados y cancelados (limpieza), sin hallazgos nuevos. Unico
+  problema notado fue de la herramienta de QA (`form_input` en checkboxes
+  no disparaba el evento de React de forma confiable; click real de mouse
+  si funciono siempre) -- no es un bug de la app.
+- Ambos PR listos para revision humana y merge; ninguno afecta produccion
+  hasta que se mergeen a `develop`.
+
+Ultima actualizacion anterior: 2026-09-02 (Acceso público web + 8 specs nuevas + migración 016 consolidada):
 - **Web pública**: Rutas `/`, `/packages`, `/packages/:id`, `/classes`, `/classes/:id` accesibles sin login.
   Login/registro solo para `/my-bookings`, `/profile`. `redirectTo` en todo el flujo auth.
   Navegación inferior mobile-first con redirección a login si no hay sesión.
