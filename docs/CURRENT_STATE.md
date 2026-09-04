@@ -575,8 +575,20 @@ otro negocio (Studio packages, bookings, Academia) implementado todavia.
 - **Cloudflare Pages**: todavia no configurado. Plan (dos proyectos, Root
   directory = raiz del repo, preview deployments automaticos por commit)
   documentado en `docs/deployment.md`.
-- Stripe, Google OAuth y WhatsApp: documentados en `docs/` pero sin
-  credenciales reales todavia.
+- Stripe y Google OAuth: documentados en `docs/` pero sin credenciales
+  reales todavia.
+- **WhatsApp / Notifications (primeras Edge Functions reales del repo)**:
+  `supabase/functions/_shared/whatsapp/` (interfaz `WhatsAppProvider` +
+  `MockWhatsAppProvider` + `getWhatsAppProvider()` por `WHATSAPP_PROVIDER`),
+  `send-whatsapp/` y `notifications/` (esta ultima valida el tipo de
+  evento contra `templates.ts` y despacha a `send-whatsapp/`). Ambas
+  funciones son internas (`requireServiceRole`, solo aceptan la service
+  role key). Sin desplegar, sin probar en vivo (no hay `deno` CLI en este
+  entorno para correr `getWhatsAppProvider.test.ts`). Proveedor real
+  (Meta/Twilio/UltraMsg) pendiente de decision de negocio -- ver
+  `docs/roadmap.md`. Nada llama a `notifications/` todavia (falta el boton
+  "Enviar recordatorio" de waitlist en admin, pospuesto a proposito hasta
+  esto).
 
 ## Variables de entorno necesarias
 

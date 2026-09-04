@@ -4,6 +4,18 @@ Edge Functions de Supabase (Deno). Cada subcarpeta es una funcion
 desplegable independiente; `_shared/` contiene codigo comun importado por
 varias funciones (nunca al reves).
 
+## Funciones implementadas
+
+- `notifications/` - recibe `{ type, to, variables }`, valida el tipo de
+  evento y despacha a `send-whatsapp/`. Ver `docs/notifications.md`.
+- `send-whatsapp/` - envia un mensaje de WhatsApp a traves del
+  `WhatsAppProvider` activo (`WHATSAPP_PROVIDER`, solo `mock` implementado
+  hoy). Ver `docs/whatsapp.md`.
+
+Ambas son funciones internas: las llama otra Edge Function, nunca el
+frontend. `requireServiceRole` (`_shared/internalAuth.ts`) exige que el
+`Authorization` sea la service role key.
+
 ## Funciones preparadas (estructura, sin implementar todavia)
 
 - `stripe-checkout/` - crea una Stripe Checkout Session para comprar un
@@ -11,11 +23,6 @@ varias funciones (nunca al reves).
 - `stripe-webhook/` - recibe y verifica eventos de Stripe, es la unica
   fuente de verdad para confirmar un pago y otorgar creditos. Ver
   `docs/payments.md`.
-- `notifications/` - genera y despacha notificaciones (nuevo pago,
-  confirmacion, recordatorio, lista de espera, cancelacion, pago atrasado,
-  baja). Ver `docs/notifications.md`.
-- `send-whatsapp/` - envia un mensaje de WhatsApp a traves del
-  `WhatsAppProvider` activo (`WHATSAPP_PROVIDER`). Ver `docs/whatsapp.md`.
 - `send-email/` - envia un correo a traves del `EmailProvider` activo.
 
 ## `_shared/`

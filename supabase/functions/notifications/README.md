@@ -1,7 +1,7 @@
 # notifications
 
-Edge Function que genera notificaciones a partir de eventos de negocio
-(nuevo pago, confirmacion, recordatorio, lista de espera, cancelacion, aviso
-de clase, pago atrasado, baja) y las despacha a traves de los proveedores de
-email/WhatsApp configurados. Ver `docs/notifications.md`. Sin implementar
-todavia.
+Edge Function que recibe un evento de negocio y lo despacha al canal
+correspondiente. Funcion interna, requiere `Authorization: Bearer <service
+role key>`. Body: `{ type, to, variables? }`, `type` uno de
+`NOTIFICATION_TEMPLATES` (`templates.ts`). Solo WhatsApp implementado por
+ahora (via `send-whatsapp/`); email pendiente. Ver `docs/notifications.md`.

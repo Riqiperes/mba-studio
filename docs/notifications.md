@@ -38,5 +38,12 @@ que desacopla el proveedor concreto de WhatsApp.
 
 ## Estado actual
 
-No implementado todavia. `supabase/functions/notifications/` existe como
-carpeta preparada. Se implementa en la etapa "Notifications" del roadmap.
+Edge Function `notifications/` implementada: recibe `{ type, to, variables
+}`, valida el tipo contra `NOTIFICATION_TEMPLATES`
+(`supabase/functions/notifications/templates.ts`, un tipo por cada evento
+de la lista de arriba) y despacha a `send-whatsapp/` via fetch interno con
+la service role key. Solo canal WhatsApp por ahora -- `EmailProvider` no
+implementado, se agrega cuando se necesite (mismo patron: nueva rama de
+despacho en `notifications/index.ts`). Nadie llama a esta funcion todavia
+(el boton "Enviar recordatorio" de waitlist en admin sigue pendiente, ver
+`docs/roadmap.md` etapa 20). Sin desplegar a Supabase, sin probar en vivo.
