@@ -54,6 +54,8 @@ funcional con `WHATSAPP_PROVIDER=mock` (selecciona el provider por env var,
 valida body, requiere llamado interno con la service role key). Providers
 reales (`meta`/`twilio`/`ultramsg`) lanzan error explicito "aun no
 implementado" -- pendiente decision de negocio sobre cual usar en
-produccion (ver `docs/roadmap.md`, "Decisiones pendientes"). Sin desplegar
-a Supabase todavia (`supabase functions deploy send-whatsapp`), sin probar
-en vivo.
+produccion (ver `docs/roadmap.md`, "Decisiones pendientes"). Desplegada al
+proyecto Supabase real (2026-09-04): sin `WHATSAPP_PROVIDER` seteado, usa
+el default `mock` (no envia nada real). Probada en vivo con la anon key
+-- devuelve `401 {"error":"No autorizado"}` como se espera, cualquier
+caller que no sea la service role key es rechazado.

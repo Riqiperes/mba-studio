@@ -46,4 +46,8 @@ la service role key. Solo canal WhatsApp por ahora -- `EmailProvider` no
 implementado, se agrega cuando se necesite (mismo patron: nueva rama de
 despacho en `notifications/index.ts`). Nadie llama a esta funcion todavia
 (el boton "Enviar recordatorio" de waitlist en admin sigue pendiente, ver
-`docs/roadmap.md` etapa 20). Sin desplegar a Supabase, sin probar en vivo.
+`docs/roadmap.md` etapa 20). Desplegada al proyecto Supabase real
+(2026-09-04), probada en vivo con la anon key (rechaza correctamente con
+401). La cadena completa `notifications` -> `send-whatsapp` con la
+service role key real no se probo end-to-end en esta sesion (requiere el
+secreto, que no se debe extraer ni imprimir).
