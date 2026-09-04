@@ -1,5 +1,11 @@
 import { supabase } from "@/lib/supabaseClient";
-import type { ClassFilters, CreateClassesInput, CreateClassesResult, StudioClass } from "../types/StudioClass";
+import type {
+  ClassFilters,
+  CreateClassesInput,
+  CreateClassesResult,
+  StudioClass,
+  UpdateClassInput,
+} from "../types/StudioClass";
 
 const SELECT_COLUMNS =
   "id, business_id, instructor_id, title, starts_at, ends_at, max_capacity, status, created_at, updated_at";
@@ -17,13 +23,13 @@ type StudioClassRow = {
   updated_at: string;
 };
 
-// `dateTo` es un YYYY-MM-DD (input local); suma un dia para comparar con
-// `starts_at` como limite exclusivo, evitando que Postgres castee a
-// medianoche UTC y excluya las clases del propio dia `dateTo`.
-function nextDayIso(dateStr: string): string {
-  const date = new Date(`${dateStr}T00:00:00Z`);
-  date.setUTCDate(date.getUTCDate() + 1);
-  return date.toISOString().slice(0, 10);
+// Los limites vienen como fecha LOCAL (YYYY-MM-DD); convertirlos a instantes
+// locales evita que Postgres los castee a medianoche UTC y deje fuera las
+// clases de la tarde/noche del ultimo dia del rango (bug real: una clase de
+// sabado 19:00 desaparecia de la grilla semanal y podia duplicarse en el
+// ultimo dia de un lote de creacion).
+function localDayStartIso(dateStr: string): string {
+  return new Date(`${dateStr}T00:00:00`).toISOString();
 }
 
 function toStudioClass(row: StudioClassRow): StudioClass {
@@ -46,11 +52,10 @@ export async function listClasses(filters: ClassFilters = {}): Promise<StudioCla
 
   if (filters.instructorId) query = query.eq("instructor_id", filters.instructorId);
   if (filters.status) query = query.eq("status", filters.status);
-  if (filters.dateFrom) query = query.gte("starts_at", filters.dateFrom);
-  // El input date es una fecha local; la comparacion en la DB es en UTC —
-  // aceptable para este MVP de una sola zona horaria (ver comentario en
-  // nextDayIso).
-  if (filters.dateTo) query = query.lt("starts_at", nextDayIso(filters.dateTo));
+  if (filters.dateFrom) query = query.gte("starts_at", localDayStartIso(filters.dateFrom));
+  // dateTo es inclusive del dia completo: el limite exclusivo es el inicio
+  // del dia SIGUIENTE en hora local.
+  if (filters.dateTo) query = query.lt("starts_at", localDayStartIso(addDays(filters.dateTo, 1)));
 
   const { data, error } = await query.order("starts_at", { ascending: true });
 
@@ -58,9 +63,8 @@ export async function listClasses(filters: ClassFilters = {}): Promise<StudioCla
   return data.map(toStudioClass);
 }
 
-// Suma `days` dias a una fecha YYYY-MM-DD en UTC -- misma tecnica que
-// nextDayIso arriba, evita que el timezone del navegador corra la fecha
-// al operar sobre un string de solo-fecha.
+// Suma `days` dias a una fecha YYYY-MM-DD en UTC -- evita que el timezone
+// del navegador corra la fecha al operar sobre un string de solo-fecha.
 function addDays(dateStr: string, days: number): string {
   const date = new Date(`${dateStr}T00:00:00Z`);
   date.setUTCDate(date.getUTCDate() + days);
@@ -95,7 +99,7 @@ export async function createClasses(
 
   const lastDate = slots.reduce((max, slot) => (slot.date > max ? slot.date : max), slots[0]?.date ?? input.weekStart);
   const existing = (await listClasses({ dateFrom: input.weekStart, dateTo: lastDate })).filter(
-    (studioClass) => studioClass.status !== "CANCELLED",
+    (studioClass) => studioClass.status === "SCHEDULED",
   );
 
   const toCreate: { startsAt: string; endsAt: string }[] = [];
@@ -134,16 +138,7 @@ export async function createClasses(
   return { created: data.map(toStudioClass), skipped };
 }
 
-export async function updateClass(
-  id: string,
-  input: {
-    instructorId?: string;
-    title?: string;
-    startsAt?: string;
-    endsAt?: string;
-    maxCapacity?: number;
-  },
-): Promise<StudioClass> {
+export async function updateClass(id: string, input: UpdateClassInput): Promise<StudioClass> {
   const updateData: { instructor_id?: string; title?: string; starts_at?: string; ends_at?: string; max_capacity?: number } = {};
 
   if (input.instructorId !== undefined) updateData.instructor_id = input.instructorId;

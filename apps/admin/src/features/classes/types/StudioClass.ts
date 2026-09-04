@@ -40,3 +40,11 @@ export type CreateClassesResult = {
   created: StudioClass[];
   skipped: { startsAt: string; reason: string }[];
 };
+
+export type UpdateClassInput = {
+  instructorId?: string;
+  title?: string;
+  startsAt?: string;
+  endsAt?: string;
+  maxCapacity?: number;
+};

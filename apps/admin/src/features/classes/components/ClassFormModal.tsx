@@ -3,7 +3,12 @@ import { useEffect, useState, type FormEvent } from "react";
 import { z } from "zod";
 import type { Instructor } from "@/features/instructors/types/Instructor";
 import { getErrorMessage } from "@/utils/getErrorMessage";
-import type { CreateClassesInput, CreateClassesResult, StudioClass } from "../types/StudioClass";
+import type {
+  CreateClassesInput,
+  CreateClassesResult,
+  StudioClass,
+  UpdateClassInput,
+} from "../types/StudioClass";
 import { formatDateKey } from "../utils/weekUtils";
 
 const DAY_LABELS = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
@@ -41,14 +46,6 @@ const createSchema = z
     message: "La hora de fin debe ser despues de la hora de inicio",
     path: ["endTime"],
   });
-
-type UpdateClassInput = {
-  instructorId?: string;
-  title?: string;
-  startsAt?: string;
-  endsAt?: string;
-  maxCapacity?: number;
-};
 
 type Props = {
   open: boolean;
@@ -88,6 +85,7 @@ export function ClassFormModal({
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [skipped, setSkipped] = useState<{ startsAt: string; reason: string }[]>([]);
+  const [createdCount, setCreatedCount] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
 
   const activeInstructors = instructors.filter((i) => i.active);
@@ -115,6 +113,7 @@ export function ClassFormModal({
     setFieldErrors({});
     setFormError(null);
     setSkipped([]);
+    setCreatedCount(0);
     // activeInstructors se deriva de `instructors`, que ya esta en deps.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialValue, instructors]);
@@ -197,6 +196,7 @@ export function ClassFormModal({
         weeksCount: result.data.weeksCount,
       });
       if (created.skipped.length > 0) {
+        setCreatedCount(created.created.length);
         setSkipped(created.skipped);
       } else {
         onClose();
@@ -374,7 +374,9 @@ export function ClassFormModal({
         {formError && <p className="text-sm text-red-600">{formError}</p>}
         {skipped.length > 0 && (
           <div className="rounded-md bg-yellow-50 p-2 text-xs text-yellow-800">
-            <p className="font-medium">Se saltearon {skipped.length} clase(s) por conflicto de horario:</p>
+            <p className="font-medium">
+              Se crearon {createdCount} de {createdCount + skipped.length}. Se saltearon por conflicto de horario:
+            </p>
             <ul className="list-disc pl-4">
               {skipped.map((item) => (
                 <li key={item.startsAt}>

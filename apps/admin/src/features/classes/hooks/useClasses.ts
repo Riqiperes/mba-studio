@@ -1,15 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { cancelClass, createClasses, listClasses, updateClass } from "../services/classesService";
-import type { ClassFilters, CreateClassesInput, CreateClassesResult, StudioClass } from "../types/StudioClass";
-
-type UpdateClassInput = {
-  instructorId?: string;
-  title?: string;
-  startsAt?: string;
-  endsAt?: string;
-  maxCapacity?: number;
-};
+import type {
+  ClassFilters,
+  CreateClassesInput,
+  CreateClassesResult,
+  StudioClass,
+  UpdateClassInput,
+} from "../types/StudioClass";
 
 export function useClasses(filters: ClassFilters) {
   const { profile } = useAuth();
