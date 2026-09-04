@@ -869,6 +869,23 @@ export type Database = {
           created_at: string
         }[]
       }
+      list_admin_invites: {
+        Args: never
+        Returns: {
+          email: string
+          role: Database["public"]["Enums"]["user_role"]
+          created_at: string
+          registered: boolean
+        }[]
+      }
+      add_admin_invite: {
+        Args: { p_email: string; p_role: Database["public"]["Enums"]["user_role"] }
+        Returns: undefined
+      }
+      remove_admin_invite: {
+        Args: { p_email: string }
+        Returns: undefined
+      }
       current_user_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]

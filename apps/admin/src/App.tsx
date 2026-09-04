@@ -15,6 +15,7 @@ import { AcademyGroupsPage } from "@/pages/AcademyGroupsPage";
 import { AcademyGroupDetailPage } from "@/pages/AcademyGroupDetailPage";
 import { AcademyOverduePage } from "@/pages/AcademyOverduePage";
 import { UsersPage } from "@/pages/UsersPage";
+import { AdminInvitesPage } from "@/pages/AdminInvitesPage";
 import { InstructorMyClassesPage } from "@/pages/InstructorMyClassesPage";
 import { EstudioHubPage } from "@/pages/EstudioHubPage";
 import { AcademiaHubPage } from "@/pages/AcademiaHubPage";
@@ -161,6 +162,16 @@ function App() {
               <RequireAuth allowedRoles={["BUSINESS_ADMIN", "SUPER_ADMIN"]}>
                 <AdminLayout>
                   <UsersPage />
+                </AdminLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admins"
+            element={
+              <RequireAuth allowedRoles={["SUPER_ADMIN"]}>
+                <AdminLayout>
+                  <AdminInvitesPage />
                 </AdminLayout>
               </RequireAuth>
             }

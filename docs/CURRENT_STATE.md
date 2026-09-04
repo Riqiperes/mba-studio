@@ -3,7 +3,31 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-09-04 (WhatsApp scaffold + vista semanal de clases, ambos en PR sin mergear):
+Ultima actualizacion: 2026-09-04 (delete real en Paquetes/Instructores + pestaña Admins, PR sin mergear):
+- **PR #15 (`feat/admin-delete-and-invites` → `develop`, sin mergear)**:
+  Paquetes e Instructores ganan boton "Eliminar" (DELETE real ademas del
+  Desactivar existente) — RLS ya permitia DELETE a STAFF/BUSINESS_ADMIN/
+  SUPER_ADMIN via la policy `for all` existente, no hizo falta migracion
+  para eso. Si Postgres bloquea el borrado por una FK (23503, hay
+  compras/clases asociadas) se muestra mensaje claro sugiriendo
+  Desactivar. Clases/horarios ya tenian "Cancelar" wired en la vista
+  semanal, no se toco. Nueva pagina `/admins` (solo SUPER_ADMIN): invita
+  un correo+rol a `admin_allowed_emails` antes de que se registre (antes
+  solo por SQL editor de Supabase), lista invitaciones pendiente/ya
+  registrado, permite quitarlas — `/users` sigue siendo donde se cambia
+  el rol de alguien ya registrado. Migracion nueva
+  `024_admin_invites_rpc.sql`: 3 RPC `SECURITY DEFINER`
+  (`list_admin_invites`, `add_admin_invite`, `remove_admin_invite`), cada
+  una verificando `current_user_role() = 'SUPER_ADMIN'` ella misma
+  (fail-closed si es NULL, verificado en el proyecto real: sin contexto
+  SUPER_ADMIN la RPC lanza `No autorizado`). Migracion ya aplicada al
+  proyecto Supabase real. typecheck/lint/build en verde. No se probo el
+  flujo completo en navegador (agregar/listar/quitar invitacion, login
+  con el rol asignado) porque este entorno no tenia sesion de Google
+  OAuth logueada y no se debe automatizar login con credenciales —
+  checklist pendiente para quien revise el PR.
+
+Ultima actualizacion anterior: 2026-09-04 (WhatsApp scaffold + vista semanal de clases; PR #14 ya se mergeo a `develop` junto con el reskin de Paquetes/Academia, PR #13 sigue sin mergear):
 - **PR #13 (`feat/whatsapp-notifications-scaffold` → `develop`, sin mergear)**:
   primeras Edge Functions reales del repo. Interfaz `WhatsAppProvider` +
   `MockWhatsAppProvider` + `getWhatsAppProvider()` por `WHATSAPP_PROVIDER`

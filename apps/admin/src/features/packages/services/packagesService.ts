@@ -110,3 +110,8 @@ export async function setPackageActive(id: string, active: boolean): Promise<voi
   const { error } = await supabase.from("packages").update({ active }).eq("id", id);
   if (error) throw error;
 }
+
+export async function deletePackage(id: string): Promise<void> {
+  const { error } = await supabase.from("packages").delete().eq("id", id);
+  if (error) throw error;
+}

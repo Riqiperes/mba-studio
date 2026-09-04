@@ -4,9 +4,10 @@ type Props = {
   instructors: Instructor[];
   onEdit: (instructor: Instructor) => void;
   onToggleActive: (instructor: Instructor) => void;
+  onDelete: (instructor: Instructor) => void;
 };
 
-export function InstructorsTable({ instructors, onEdit, onToggleActive }: Props) {
+export function InstructorsTable({ instructors, onEdit, onToggleActive, onDelete }: Props) {
   if (instructors.length === 0) {
     return <p className="text-sm text-gray-500">Todavia no hay instructores.</p>;
   }
@@ -49,6 +50,16 @@ export function InstructorsTable({ instructors, onEdit, onToggleActive }: Props)
                 className="text-gray-600 hover:underline"
               >
                 {instructor.active ? "Desactivar" : "Activar"}
+              </button>
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDelete(instructor);
+                }}
+                className="ml-2 text-red-600 hover:underline"
+              >
+                Eliminar
               </button>
             </td>
           </tr>

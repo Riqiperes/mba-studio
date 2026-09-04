@@ -14,6 +14,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   const { profile } = useAuth();
   const isInstructor = profile?.role === "INSTRUCTOR_ADMIN";
   const isBusinessAdmin = profile?.role === "BUSINESS_ADMIN" || profile?.role === "SUPER_ADMIN";
+  const isSuperAdmin = profile?.role === "SUPER_ADMIN";
 
   return (
     <div id="admin-layout" className="min-h-screen bg-gray-50">
@@ -33,6 +34,11 @@ export function AdminLayout({ children }: { children: ReactNode }) {
               {isBusinessAdmin && (
                 <NavLink to="/users" className={navLinkClass}>
                   Usuarios
+                </NavLink>
+              )}
+              {isSuperAdmin && (
+                <NavLink to="/admins" className={navLinkClass}>
+                  Admins
                 </NavLink>
               )}
             </>
