@@ -90,7 +90,7 @@ npm run test          # corre tests donde existan (todavia no hay ninguno)
 1. Crear un proyecto en [supabase.com](https://supabase.com).
 2. Copiar `Project URL` y `anon public key` a `VITE_SUPABASE_URL` /
    `VITE_SUPABASE_ANON_KEY`.
-3. Aplicar migraciones (`supabase/migrations/`, vacio por ahora — ver
+3. Aplicar las migraciones existentes (`supabase/migrations/`, ver
    `docs/database.md`) con el Supabase CLI o el MCP de Supabase.
 4. Detalle completo en `docs/development.md` y `docs/PROJECT_RECOVERY.md`.
 
@@ -118,6 +118,12 @@ Cloudflare Pages para `apps/web` y `apps/admin` (un proyecto por app),
 Supabase para backend. Checklist completo en
 [`docs/deployment.md`](./docs/deployment.md).
 
+## Equipo
+
+Roles asignados, por donde empezar cada uno, y las instrucciones a darle a
+tu agente de IA antes de pedirle una tarea especifica:
+[`docs/team.md`](./docs/team.md).
+
 ## Recuperar el proyecto desde cero
 
 Si se pierde la maquina, el `node_modules`, o hay que clonar en un equipo
@@ -139,6 +145,7 @@ completa paso a paso) y [`docs/RECOVERY_CHECKLIST.md`](./docs/RECOVERY_CHECKLIST
 | [`docs/whatsapp.md`](./docs/whatsapp.md) | Abstraccion de proveedor de WhatsApp |
 | [`docs/deployment.md`](./docs/deployment.md) | Cloudflare Pages + Supabase |
 | [`docs/development.md`](./docs/development.md) | Flujo de desarrollo local |
+| [`docs/team.md`](./docs/team.md) | Roles del equipo y por donde empezar cada uno |
 | [`docs/white-label.md`](./docs/white-label.md) | Preparacion multi-tenant / white-label |
 | [`docs/security.md`](./docs/security.md) | RLS, secretos, manejo de errores |
 | [`docs/testing.md`](./docs/testing.md) | Estrategia de tests |
@@ -149,35 +156,8 @@ completa paso a paso) y [`docs/RECOVERY_CHECKLIST.md`](./docs/RECOVERY_CHECKLIST
 
 ## Current project status
 
-**Fase: scaffolding inicial completo. Sin funcionalidades de negocio
-implementadas todavia.**
-
-Completado:
-
-- Estructura de monorepo (npm workspaces): `apps/web`, `apps/admin`,
-  `packages/shared`.
-- `apps/web` y `apps/admin`: Vite + React 19 + TypeScript estricto +
-  Tailwind CSS v4, con arquitectura Feature First y una pantalla de
-  bienvenida temporal (build funcional, sin logica de negocio).
-- `CLAUDE.md`, documentacion completa en `docs/`, `.env.example`,
-  `.gitignore`, `tsconfig.base.json` con strict mode.
-- Estructura de `supabase/migrations/` y `supabase/functions/` (carpetas y
-  README, sin SQL ni Edge Functions todavia).
-
-Pendiente (ver `docs/roadmap.md` para el orden completo):
-
-- Proyecto de Supabase creado y conectado.
-- Migraciones de base de datos y RLS.
-- Autenticacion (email/password + Google OAuth).
-- Paquetes, clases, reservaciones, creditos, lista de espera.
-- Stripe (Checkout + Webhooks).
-- Academia (inscripciones, colegiaturas).
-- Notificaciones y WhatsApp.
-- Deploy a Cloudflare Pages.
-
-Problemas conocidos:
-
-- Este scaffolding se genero en un entorno sandbox sin acceso a internet,
-  por lo que `npm install` **no se ha ejecutado ni verificado todavia**.
-  Es el primer paso a correr localmente. Ver
-  `docs/CURRENT_STATE.md` para el detalle.
+Este README no duplica el estado del proyecto para no desactualizarse por
+su cuenta — la fuente de verdad, actualizada despues de cada cambio
+importante, es [`docs/CURRENT_STATE.md`](./docs/CURRENT_STATE.md). Para el
+orden de construccion del MVP y la deuda tecnica conocida, ver
+[`docs/roadmap.md`](./docs/roadmap.md).
