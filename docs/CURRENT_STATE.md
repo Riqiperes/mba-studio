@@ -3,7 +3,31 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-09-04 (delete real en Paquetes/Instructores + pestaña Admins, PR sin mergear):
+Ultima actualizacion: 2026-09-04 (PR #13 y #15 mergeados a develop; WhatsApp desplegado con mock):
+- **PR #13 y #15 mergeados a `develop`** (ver detalle de cada uno mas
+  abajo, quedaron documentados como "sin mergear" al escribirse — ya lo
+  estan). `list_business_profiles` recibio ademas un fix post-merge (no
+  en ningun PR abierto, commiteado directo): `auth.users.email` es
+  `character varying(255)`, la funcion declaraba la columna de salida
+  `email text`, Postgres 17 rechaza ese mismatch en `RETURN QUERY` —
+  `/users` en el admin siempre fallaba con "No se pudieron cargar los
+  usuarios." Verificado en vivo (reporte real de un usuario probando
+  `/admins`) simulando el JWT del SUPER_ADMIN via SQL: antes tronaba con
+  `structure of query does not match function result type`, con el fix
+  devuelve las 4 cuentas reales del proyecto.
+- **WhatsApp desplegado al proyecto real** (`notifications` y
+  `send-whatsapp`, ambas `verify_jwt=true` + `requireServiceRole` propio,
+  sin `WHATSAPP_PROVIDER` seteado por lo que usan el default `mock` — no
+  envian nada real, solo loguean). Probado en vivo con la anon key: ambas
+  devuelven `401 {"error":"No autorizado"}` como se espera (rechazan
+  cualquier caller que no sea la service role key). No se pudo probar la
+  cadena completa `notifications` -> `send-whatsapp` end-to-end porque
+  eso requiere la service role key real, que no se debe extraer ni
+  imprimir. Sigue pendiente: elegir proveedor real (Meta/Twilio/UltraMsg,
+  decision de negocio) y el boton "Enviar recordatorio" en waitlist que
+  finalmente llame a `notifications/`.
+
+Ultima actualizacion anterior: 2026-09-04 (delete real en Paquetes/Instructores + pestaña Admins, PR sin mergear):
 - **PR #15 (`feat/admin-delete-and-invites` → `develop`, sin mergear)**:
   Paquetes e Instructores ganan boton "Eliminar" (DELETE real ademas del
   Desactivar existente) — RLS ya permitia DELETE a STAFF/BUSINESS_ADMIN/
