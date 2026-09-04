@@ -24,3 +24,19 @@ export type ClassFilters = {
   dateFrom?: string;
   dateTo?: string;
 };
+
+export type CreateClassesInput = {
+  instructorId: string;
+  title: string;
+  weekdays: number[]; // 0=Domingo .. 6=Sabado
+  startTime: string; // "HH:mm"
+  endTime: string; // "HH:mm"
+  maxCapacity: number;
+  weekStart: string; // YYYY-MM-DD, Domingo de la semana de referencia
+  weeksCount: number;
+};
+
+export type CreateClassesResult = {
+  created: StudioClass[];
+  skipped: { startsAt: string; reason: string }[];
+};
