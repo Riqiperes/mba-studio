@@ -3,7 +3,32 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-09-04 (PR #13 y #15 mergeados a develop; WhatsApp desplegado con mock):
+Ultima actualizacion: 2026-09-07 (Academia visible en `apps/web` por primera vez: catalogo publico + boton WhatsApp):
+- **`apps/web` gana `/academy`** (feature nueva `features/academy/`): antes
+  `academy_groups`/`academy_group_schedules` eran 100% staff-scoped, ningun
+  cliente podia ver el catalogo de Academia. Migracion nueva
+  `026_academy_groups_public_read.sql` (aplicada al proyecto real) agrega
+  lectura publica de grupos activos y sus horarios, mismo patron que
+  `packages`/`studio_classes`. Pagina nueva (`AcademyCatalogPage`, hook
+  `useAcademyGroups`, service `academyService.ts`, `AcademyGroupCard`)
+  lista grupos con instructor, rango de edad y horario formateado
+  ("Mar 17:00-18:00"); cada tarjeta tiene boton "💬 Inscribir por WhatsApp"
+  que abre `wa.me` al numero de la academia (`business.whatsapp_number`)
+  con mensaje prellenado — mismo patron ya usado en Paquetes/Clases, sin
+  backend nuevo de inscripcion. Ruta publica agregada a `App.tsx` y link
+  nuevo ("Academia" 🩰) en `BottomNavigation.tsx` (4 -> 5 items).
+  Deliberadamente NO se implemento inscripcion real (insert directo a
+  `academy_enrollments`/`dependents`, ninguna RLS de cliente en esas tablas
+  todavia) ni cobro automatico: decision del usuario fue mantenerlo a
+  WhatsApp por ahora. El flujo completo (solicitud con estado `PENDIENTE`
+  + aprobacion de staff + alta de alumno inline + conexion a cobro
+  automatico solo cuando exista Stripe) queda documentado sin implementar
+  en `docs/superpowers/specs/2026-09-07-academy-web-self-enrollment-design.md`
+  y roadmap item 18f. Verificado: typecheck/lint/build en verde en
+  `apps/web`, migracion aplicada sin nuevos hallazgos de seguridad
+  (`get_advisors`).
+
+Ultima actualizacion anterior: 2026-09-04 (PR #13 y #15 mergeados a develop; WhatsApp desplegado con mock):
 - **PR #13 y #15 mergeados a `develop`** (ver detalle de cada uno mas
   abajo, quedaron documentados como "sin mergear" al escribirse — ya lo
   estan). `list_business_profiles` recibio ademas un fix post-merge (no
@@ -578,7 +603,8 @@ otro negocio (Studio packages, bookings, Academia) implementado todavia.
   - Ya reservado → badge "Reservado" + "Cancelar" (RPC `cancel_booking`, devuelve crédito)
 - **Mi horario** (`/my-bookings`): lista de reservaciones activas con botón cancelar, lista de espera con posición FIFO y botón salir, badge de créditos (`💎 N`).
 - **Perfil** (`/profile`): ver/editar nombre y teléfono, muestra email, rol, fecha de registro, botón cerrar sesión.
-- **Navegación inferior fija** (mobile-first): Inicio, Paquetes, Horarios, Usuario.
+- **Academia** (`/academy`): catálogo público de grupos (instructor, rango de edad, horario) con botón "Inscribir por WhatsApp" por grupo; sin inscripción real todavía (ver "Next Task").
+- **Navegación inferior fija** (mobile-first): Inicio, Paquetes, Horarios, Academia, Usuario.
 - **Auth**: Google OAuth + email/password, `RequireAuth` con carga de perfil, `signOut` en contexto.
 - **Créditos**: balance visible en nav y páginas, se actualiza tras reservar/cancelar.
 
@@ -735,6 +761,20 @@ versionadas en `supabase/migrations/`:
 - `021_users_admin_and_instructor_rls.sql` — RPC `list_business_profiles()` (security definer, gated a
   `BUSINESS_ADMIN`/`SUPER_ADMIN`, expone `auth.users.email` junto con `profiles`) y policy
   `academy_groups_instructor_own_select` (faltaba, `016` solo cubrio `academy_enrollments`).
+- `022_medical_fields_to_profiles_and_auto_enroll.sql` — mueve `medical_conditions`/`notes` de
+  `dependents` a `profiles` (decision: tiene mas sentido en el adulto para Pilates); elimina
+  `dependents.age` (se calcula de `birth_date`); trigger nuevo de auto-inscripcion por rango de
+  edad al crear/editar un grupo de Academia.
+- `023_fix_enrollment_trigger_age_column.sql` — corrige `enforce_academy_enrollment_capacity_and_age`
+  (016) que todavia leia la columna `dependents.age` eliminada por `022`, rompiendo toda inscripcion
+  nueva; ahora calcula edad de `birth_date` igual que el trigger de auto-inscripcion.
+- `024_admin_invites_rpc.sql` — RPCs `list_admin_invites`/`add_admin_invite`/`remove_admin_invite`
+  (security definer, gated a `SUPER_ADMIN`) para la pagina `/admins`.
+- `025_fix_list_business_profiles_email_type.sql` — corrige mismatch de tipo (`character varying` vs
+  `text`) en `list_business_profiles()` que rompia `/users` en Postgres 17.
+- `026_academy_groups_public_read.sql` — lectura publica de `academy_groups` (activos) y
+  `academy_group_schedules`, mismo patron que `packages`/`studio_classes`; primera vez que Academia
+  es visible desde `apps/web` (`/academy`, solo catalogo + WhatsApp, sin inscripcion real).
 
 **Rol INSTRUCTOR_ADMIN + gestion de usuarios (`apps/admin`)**: pagina `/users`
 (solo `BUSINESS_ADMIN`/`SUPER_ADMIN`) para ver todas las cuentas registradas
