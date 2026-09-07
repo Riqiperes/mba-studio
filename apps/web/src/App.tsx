@@ -8,6 +8,7 @@ import { PackagesCatalogPage } from "@/features/packages/components/PackagesCata
 import { PackageDetailPage } from "@/features/packages/components/PackageDetailPage";
 import { ClassesCalendarPage } from "@/features/studio/components/ClassesCalendarPage";
 import { ClassDetailPage } from "@/features/studio/components/ClassDetailPage";
+import { AcademyCatalogPage } from "@/features/academy/components/AcademyCatalogPage";
 import { MyBookingsPage } from "@/pages/MyBookingsPage";
 import { UserProfilePage } from "@/features/auth/components/UserProfilePage";
 
@@ -25,6 +26,7 @@ function App() {
             <Route path="/packages/:id" element={<PackageDetailPage />} />
             <Route path="/classes" element={<ClassesCalendarPage />} />
             <Route path="/classes/:id" element={<ClassDetailPage />} />
+            <Route path="/academy" element={<AcademyCatalogPage />} />
           </Route>
           
           {/* Login page - no layout */}

@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { to: "/", label: "Inicio", icon: "🏠" },
   { to: "/packages", label: "Paquetes", icon: "📦" },
   { to: "/classes", label: "Horarios", icon: "📅" },
+  { to: "/academy", label: "Academia", icon: "🩰" },
   { to: "/profile", label: "Usuario", icon: "👤" },
 ] as const;
 
@@ -19,7 +20,7 @@ export function BottomNavigation() {
       role="navigation"
       aria-label="Navegación principal"
     >
-      <div className="grid grid-cols-4">
+      <div className="grid grid-cols-5">
         {NAV_ITEMS.map((item) => {
           const isActive = location.pathname === item.to ||
             (item.to !== "/" && location.pathname.startsWith(item.to));
