@@ -11,12 +11,13 @@ export type Business = {
   faviconUrl: string | null;
   primaryColor: string;
   accentColor: string;
+  academyRegistrationFeeCents: number | null;
   createdAt: string;
   updatedAt: string;
 };
 
 const SELECT_COLUMNS =
-  "id, name, description, address, phone, whatsapp_number, logo_url, favicon_url, primary_color, accent_color, created_at, updated_at";
+  "id, name, description, address, phone, whatsapp_number, logo_url, favicon_url, primary_color, accent_color, created_at, updated_at, academy_registration_fee_cents";
 
 type BusinessRow = {
   id: string;
@@ -29,6 +30,7 @@ type BusinessRow = {
   favicon_url: string | null;
   primary_color: string;
   accent_color: string;
+  academy_registration_fee_cents: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -45,6 +47,7 @@ function toBusiness(row: BusinessRow): Business {
     faviconUrl: row.favicon_url,
     primaryColor: row.primary_color,
     accentColor: row.accent_color,
+    academyRegistrationFeeCents: row.academy_registration_fee_cents,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
