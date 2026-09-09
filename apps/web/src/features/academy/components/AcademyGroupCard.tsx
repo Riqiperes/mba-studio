@@ -1,4 +1,9 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { Button } from "@/components/ui/Button";
+import { EnrollAndPayModal } from "./EnrollAndPayModal";
+import { TrialClassModal } from "./TrialClassModal";
 import type { AcademyGroupCatalogItem } from "../types/AcademyGroup";
 
 const DAY_ABBREVIATIONS = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
@@ -29,10 +34,26 @@ function formatWhatsAppLink(whatsappNumber: string | null, group: AcademyGroupCa
 export function AcademyGroupCard({
   group,
   whatsappNumber,
+  registrationFeeCents,
 }: {
   group: AcademyGroupCatalogItem;
   whatsappNumber: string | null;
+  registrationFeeCents: number | null;
 }) {
+  const { session } = useAuth();
+  const navigate = useNavigate();
+  const [enrollModalOpen, setEnrollModalOpen] = useState(false);
+  const [trialModalOpen, setTrialModalOpen] = useState(false);
+  const [requestSent, setRequestSent] = useState<"enroll" | "trial" | null>(null);
+
+  function requireSession(open: () => void) {
+    if (!session) {
+      navigate(`/login?redirectTo=${encodeURIComponent("/academy")}`);
+      return;
+    }
+    open();
+  }
+
   return (
     <article
       id={`academy-group-card-${group.id}`}
@@ -48,16 +69,56 @@ export function AcademyGroupCard({
         <p>{formatAgeRange(group)}</p>
       </div>
 
-      <div className="mt-auto pt-4 border-t border-gray-100">
+      {requestSent && (
+        <p className="mb-3 text-sm text-green-700">
+          {requestSent === "enroll"
+            ? "Solicitud enviada. El staff la revisará pronto."
+            : "Clase muestra solicitada. El staff confirmará tu lugar."}
+        </p>
+      )}
+
+      <div className="mt-auto flex flex-col gap-2 pt-4 border-t border-gray-100">
         <Button
           variant="primary"
           size="lg"
           className="w-full"
-          onClick={() => window.open(formatWhatsAppLink(whatsappNumber, group), "_blank")}
+          onClick={() => requireSession(() => setEnrollModalOpen(true))}
         >
-          💬 Inscribir por WhatsApp
+          Inscribir y pagar inscripción
         </Button>
+        {group.schedules.length > 0 && (
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full"
+            onClick={() => requireSession(() => setTrialModalOpen(true))}
+          >
+            Agendar clase muestra
+          </Button>
+        )}
+        <button
+          type="button"
+          onClick={() => window.open(formatWhatsAppLink(whatsappNumber, group), "_blank")}
+          className="text-xs text-gray-500 hover:underline"
+        >
+          💬 O escríbenos por WhatsApp
+        </button>
       </div>
+
+      <EnrollAndPayModal
+        open={enrollModalOpen}
+        groupId={group.id}
+        groupName={group.name}
+        registrationFeeCents={registrationFeeCents}
+        onClose={() => setEnrollModalOpen(false)}
+        onSuccess={() => setRequestSent("enroll")}
+      />
+      <TrialClassModal
+        open={trialModalOpen}
+        group={group}
+        onClose={() => setTrialModalOpen(false)}
+        onSuccess={() => setRequestSent("trial")}
+      />
     </article>
   );
 }

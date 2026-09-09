@@ -7,9 +7,13 @@ import { BackButton } from "@/components/ui/BackButton";
 export function AcademyCatalogPage() {
   const { groups, loading, error } = useAcademyGroups();
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
+  const [registrationFeeCents, setRegistrationFeeCents] = useState<number | null>(null);
 
   useEffect(() => {
-    getBusiness().then((business) => setWhatsappNumber(business?.whatsappNumber ?? null));
+    getBusiness().then((business) => {
+      setWhatsappNumber(business?.whatsappNumber ?? null);
+      setRegistrationFeeCents(business?.academyRegistrationFeeCents ?? null);
+    });
   }, []);
 
   return (
@@ -18,7 +22,8 @@ export function AcademyCatalogPage() {
       <header className="mb-8">
         <h1 className="text-2xl font-semibold text-brand-primary">Academia de Ballet</h1>
         <p className="mt-1 text-gray-600">
-          Consulta los grupos disponibles y sus horarios. Para inscribir a tu hijo/a, escríbenos por WhatsApp.
+          Consulta los grupos disponibles y sus horarios. Inscribe a tu hijo/a o agenda una clase
+          muestra directamente aquí.
         </p>
       </header>
 
@@ -39,7 +44,12 @@ export function AcademyCatalogPage() {
       ) : (
         <div id="academy-groups-grid" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {groups.map((group) => (
-            <AcademyGroupCard key={group.id} group={group} whatsappNumber={whatsappNumber} />
+            <AcademyGroupCard
+              key={group.id}
+              group={group}
+              whatsappNumber={whatsappNumber}
+              registrationFeeCents={registrationFeeCents}
+            />
           ))}
         </div>
       )}
