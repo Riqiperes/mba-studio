@@ -50,14 +50,16 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
 > sesión de grupo) fue descartado por orden de la directora. No se
 > implementará ninguna funcionalidad de asistencia en la Academia.
 
-    18f. **Academia — Inscripción propia en `apps_web` (self-service).**
-         Catálogo público de grupos + botón "Inscribir por WhatsApp" ya
-         implementado (2026-09-07, migración `026_academy_groups_public_read.sql`).
-         Pendiente: solicitud de inscripción real (estado `PENDIENTE`,
-         requiere aprobación de staff) + alta de alumno inline + cobro
-         automático de colegiatura conectado solo cuando la etapa 14
-         (Stripe) esté lista. Ver spec completo:
-         `docs/superpowers/specs/2026-09-07-academy-web-self-enrollment-design.md`.
+    18f. **Academia — Inscripción propia en `apps/web` (self-service).**
+         Implementado (2026-09-09, migración `027_academy_self_enrollment.sql`):
+         solicitud de inscripción real (`PENDIENTE`, requiere aprobación de
+         staff), alta de alumno inline, clase muestra (`MUESTRA`), cuota de
+         inscripción con botón de pago **dummy** (sin Stripe todavía), y
+         badge de solicitudes nuevas para el staff en `apps/admin`. Pendiente
+         real: conectar el cobro de inscripción y de colegiatura a Stripe
+         Checkout cuando la etapa 14 esté lista (ver "Cobro automático" en
+         el spec). Spec completo:
+         `docs/superpowers/specs/2026-09-09-academy-self-enrollment-and-admin-visibility-design.md`.
 
 19. **Politicas de cancelacion y creditos (Studio):**
     - Ventana de 12 horas antes de la clase para cancelar y recuperar credito.

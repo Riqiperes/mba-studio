@@ -579,6 +579,10 @@ WhatsApp, White-label activo, Testing, Deployment (Cloudflare Pages).
     Monto, Días de atraso, y acción "Marcar pagado" inline.
   - Navegación: link "Colegiaturas" en `AdminLayout` y botón "Colegiaturas" en grid de `HomePage`.
   - Manejo de errores con `getErrorMessage.ts`, Zod en formularios, `noValidate`, cierre con Escape.
+- **Academia — Solicitudes de autoservicio en `apps/admin`** (migracion `027_academy_self_enrollment.sql`):
+  Sección "Solicitudes pendientes" en el detalle de grupo (`/academy/groups/:id`) con
+  Aprobar/Rechazar/Marcar atendida sobre solicitudes `PENDIENTE`/`MUESTRA`; badge de conteo en el
+  dashboard y en el hub de Academia.
 - **HomePage** (`apps/admin`): rediseñado de saludo de texto a panel de
   botones grandes (grid con Instructores, Clases, Paquetes, Clientes,
   Alumnos, Academia), cada uno navega a su ruta via `Link` de React Router.
@@ -603,7 +607,7 @@ otro negocio (Studio packages, bookings, Academia) implementado todavia.
   - Ya reservado → badge "Reservado" + "Cancelar" (RPC `cancel_booking`, devuelve crédito)
 - **Mi horario** (`/my-bookings`): lista de reservaciones activas con botón cancelar, lista de espera con posición FIFO y botón salir, badge de créditos (`💎 N`).
 - **Perfil** (`/profile`): ver/editar nombre y teléfono, muestra email, rol, fecha de registro, botón cerrar sesión.
-- **Academia** (`/academy`): catálogo público de grupos (instructor, rango de edad, horario) con botón "Inscribir por WhatsApp" por grupo; sin inscripción real todavía (ver "Next Task").
+- **Academia** (`/academy`): catálogo público de grupos con inscripción propia — "Inscribir y pagar inscripción" (crea alumno inline si hace falta, INSERT con `status='PENDIENTE'` y cuota de inscripción marcada como pagada — **pago dummy, sin Stripe todavía**) y "Agendar clase muestra" (`status='MUESTRA'`, sin costo); WhatsApp queda como alternativa secundaria. `/profile` gana la sección "Mis alumnos e inscripciones" con el estado de cada solicitud.
 - **Navegación inferior fija** (mobile-first): Inicio, Paquetes, Horarios, Academia, Usuario.
 - **Auth**: Google OAuth + email/password, `RequireAuth` con carga de perfil, `signOut` en contexto.
 - **Créditos**: balance visible en nav y páginas, se actualiza tras reservar/cancelar.
@@ -775,6 +779,12 @@ versionadas en `supabase/migrations/`:
 - `026_academy_groups_public_read.sql` — lectura publica de `academy_groups` (activos) y
   `academy_group_schedules`, mismo patron que `packages`/`studio_classes`; primera vez que Academia
   es visible desde `apps/web` (`/academy`, solo catalogo + WhatsApp, sin inscripcion real).
+- `027_academy_self_enrollment.sql` — estados `PENDIENTE`/`MUESTRA` en `academy_enrollments`,
+  columnas `schedule_id`/`trial_date`/`registration_fee_paid`/`registration_fee_paid_at`,
+  `business.academy_registration_fee_cents`, y RLS de autoservicio para `dependents` y
+  `academy_enrollments` (`CUSTOMER` inserta solo `PENDIENTE`/`MUESTRA` para sus propios alumnos,
+  nunca `ACTIVA` directo). Primera vez que un cliente puede inscribir a su hijo sin pasar por
+  staff, con aprobación de staff como paso obligatorio antes de `ACTIVA`.
 
 **Rol INSTRUCTOR_ADMIN + gestion de usuarios (`apps/admin`)**: pagina `/users`
 (solo `BUSINESS_ADMIN`/`SUPER_ADMIN`) para ver todas las cuentas registradas
