@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { BackButton } from "@/components/ui/BackButton";
+import { usePendingAcademyRequestsCount } from "@/features/academy/hooks/usePendingAcademyRequestsCount";
 
 const ACADEMIA_ITEMS = [
   { to: "/academy/groups", label: "Ver horarios", icon: "📅" },
@@ -7,10 +8,18 @@ const ACADEMIA_ITEMS = [
 ];
 
 export function AcademiaHubPage() {
+  const { count: pendingCount } = usePendingAcademyRequestsCount();
+
   return (
     <div id="academia-hub-page" className="mx-auto max-w-3xl p-6">
       <BackButton />
-      <h1 className="mb-6 text-xl font-semibold text-brand-primary">Academia</h1>
+      <h1 className="mb-2 text-xl font-semibold text-brand-primary">Academia</h1>
+      {pendingCount > 0 && (
+        <p className="mb-4 text-sm font-medium text-red-600">
+          {pendingCount} solicitud{pendingCount === 1 ? "" : "es"} nueva{pendingCount === 1 ? "" : "s"} sin
+          atender — revisa "Ver horarios" y entra al grupo correspondiente.
+        </p>
+      )}
       <div className="grid grid-cols-2 gap-4">
         {ACADEMIA_ITEMS.map((item) => (
           <Link
