@@ -22,7 +22,11 @@ export type Database = {
           enrollment_date: string
           group_id: string
           id: string
+          registration_fee_paid: boolean
+          registration_fee_paid_at: string | null
+          schedule_id: string | null
           status: string
+          trial_date: string | null
           updated_at: string
         }
         Insert: {
@@ -32,7 +36,11 @@ export type Database = {
           enrollment_date?: string
           group_id: string
           id?: string
+          registration_fee_paid?: boolean
+          registration_fee_paid_at?: string | null
+          schedule_id?: string | null
           status?: string
+          trial_date?: string | null
           updated_at?: string
         }
         Update: {
@@ -42,7 +50,11 @@ export type Database = {
           enrollment_date?: string
           group_id?: string
           id?: string
+          registration_fee_paid?: boolean
+          registration_fee_paid_at?: string | null
+          schedule_id?: string | null
           status?: string
+          trial_date?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -65,6 +77,13 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "academy_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_enrollments_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "academy_group_schedules"
             referencedColumns: ["id"]
           },
         ]
@@ -270,7 +289,7 @@ export type Database = {
           {
             foreignKeyName: "academy_tuition_periods_group_id_fkey"
             columns: ["group_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "academy_groups"
             referencedColumns: ["id"]
           },
@@ -354,6 +373,7 @@ export type Database = {
       }
       business: {
         Row: {
+          academy_registration_fee_cents: number | null
           accent_color: string
           address: string | null
           created_at: string
@@ -368,6 +388,7 @@ export type Database = {
           whatsapp_number: string | null
         }
         Insert: {
+          academy_registration_fee_cents?: number | null
           accent_color?: string
           address?: string | null
           created_at?: string
@@ -382,6 +403,7 @@ export type Database = {
           whatsapp_number?: string | null
         }
         Update: {
+          academy_registration_fee_cents?: number | null
           accent_color?: string
           address?: string | null
           created_at?: string
@@ -817,13 +839,6 @@ export type Database = {
             foreignKeyName: "waitlist_notifications_sent_by_fkey"
             columns: ["sent_by"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "waitlist_notifications_waitlist_id_fkey"
-            columns: ["waitlist_id"]
-            isOneToOne: false
             referencedRelation: "waitlist"
             referencedColumns: ["id"]
           },
@@ -834,6 +849,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_admin_invite: {
+        Args: {
+          p_email: string
+          p_role: Database["public"]["Enums"]["user_role"]
+        }
+        Returns: undefined
+      }
       book_class: {
         Args: { p_class_id: string; p_customer_id: string }
         Returns: {
@@ -864,6 +886,28 @@ export type Database = {
         Args: { p_amount: number; p_customer_id: string; p_notes?: string }
         Returns: undefined
       }
+      list_admin_invites: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          registered: boolean
+          role: Database["public"]["Enums"]["user_role"]
+        }[]
+      }
+      list_business_profiles: {
+        Args: never
+        Returns: {
+          created_at: string
+          discount_percent: number
+          email: string
+          full_name: string
+          id: string
+          instructor_id: string
+          phone: string
+          role: Database["public"]["Enums"]["user_role"]
+        }[]
+      }
       promote_from_waitlist: {
         Args: { p_waitlist_id: string }
         Returns: {
@@ -884,6 +928,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      remove_admin_invite: { Args: { p_email: string }; Returns: undefined }
       reset_monthly_credits: { Args: never; Returns: undefined }
     }
     Enums: {
@@ -1017,3 +1062,18 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      studio_class_status: ["SCHEDULED", "CANCELLED", "COMPLETED"],
+      user_role: [
+        "CUSTOMER",
+        "STAFF",
+        "BUSINESS_ADMIN",
+        "SUPER_ADMIN",
+        "INSTRUCTOR_ADMIN",
+      ],
+    },
+  },
+} as const
