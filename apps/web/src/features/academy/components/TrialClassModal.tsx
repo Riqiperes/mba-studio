@@ -8,12 +8,17 @@ import type { AcademyGroupCatalogItem } from "../types/AcademyGroup";
 
 const DAY_NAMES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
+function toLocalISODate(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
 function nextOccurrenceOf(dayOfWeek: number): string {
   const today = new Date();
   const diff = (dayOfWeek - today.getDay() + 7) % 7;
   const date = new Date(today);
   date.setDate(today.getDate() + diff);
-  return date.toISOString().slice(0, 10);
+  return toLocalISODate(date);
 }
 
 type Props = {

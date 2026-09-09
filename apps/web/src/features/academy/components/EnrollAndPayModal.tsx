@@ -45,7 +45,11 @@ export function EnrollAndPayModal({
     setNewStudentName("");
     setNewStudentBirthDate("");
     setFormError(null);
-  }, [open, dependents.length]);
+    // ponytail: deps intentionally [open] only -- including dependents.length
+    // re-fires this effect right after creating an alumno inline (create()
+    // reloads the list), wiping the just-selected dependentId.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   if (!open) return null;
 

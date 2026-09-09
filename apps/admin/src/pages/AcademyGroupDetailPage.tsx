@@ -23,10 +23,14 @@ export function AcademyGroupDetailPage() {
   const { groups, loading: groupsLoading, error: groupsError } = useAcademyGroups();
   const group = groups.find((g) => g.id === groupId);
   const { customers } = useCustomers();
-  const { enrollments, loading, error, enroll, withdraw } = useAcademyGroupEnrollments(
-    groupId,
-    group?.businessId ?? '',
-  );
+  const {
+    enrollments,
+    loading,
+    error,
+    enroll,
+    withdraw,
+    reload: reloadEnrollments,
+  } = useAcademyGroupEnrollments(groupId, group?.businessId ?? '');
   const { tuitionPeriod, loading: tuitionLoading } = useAcademyTuitionPeriod(groupId);
   const {
     requests: pendingRequests,
@@ -68,6 +72,7 @@ export function AcademyGroupDetailPage() {
     setPendingActionError(null);
     try {
       await approve(id);
+      await reloadEnrollments();
     } catch (err) {
       setPendingActionError(getErrorMessage(err, 'No se pudo aprobar la solicitud.'));
       console.error('[academy] aprobar solicitud fallo', err);

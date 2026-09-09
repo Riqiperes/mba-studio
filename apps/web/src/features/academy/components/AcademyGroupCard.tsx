@@ -105,20 +105,24 @@ export function AcademyGroupCard({
         </button>
       </div>
 
-      <EnrollAndPayModal
-        open={enrollModalOpen}
-        groupId={group.id}
-        groupName={group.name}
-        registrationFeeCents={registrationFeeCents}
-        onClose={() => setEnrollModalOpen(false)}
-        onSuccess={() => setRequestSent("enroll")}
-      />
-      <TrialClassModal
-        open={trialModalOpen}
-        group={group}
-        onClose={() => setTrialModalOpen(false)}
-        onSuccess={() => setRequestSent("trial")}
-      />
+      {enrollModalOpen && (
+        <EnrollAndPayModal
+          open={enrollModalOpen}
+          groupId={group.id}
+          groupName={group.name}
+          registrationFeeCents={registrationFeeCents}
+          onClose={() => setEnrollModalOpen(false)}
+          onSuccess={() => setRequestSent("enroll")}
+        />
+      )}
+      {trialModalOpen && (
+        <TrialClassModal
+          open={trialModalOpen}
+          group={group}
+          onClose={() => setTrialModalOpen(false)}
+          onSuccess={() => setRequestSent("trial")}
+        />
+      )}
     </article>
   );
 }
