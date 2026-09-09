@@ -370,6 +370,27 @@ WhatsApp, White-label activo, Testing, Deployment (Cloudflare Pages).
   esto ya esta aplicado a Supabase dev y verificado** (typecheck/lint/build
   limpios en ambas apps) -- ver `docs/security.md` para el checklist que
   evita que el patron de bug original se repita.
+- **[Abierto]** La feature de autoservicio de Academia (`027`/`028`,
+  2026-09-09) nunca tuvo QA manual real en navegador: no habia credenciales
+  de cuenta `CUSTOMER`/`STAFF` de prueba disponibles y se decidio no crear
+  cuentas nuevas en el Supabase compartido sin permiso. Solo se verifico
+  con `typecheck`/`lint`/`build`. Pendiente: correr el flujo completo
+  (padre inscribe + paga dummy + agenda clase muestra desde `apps/web`;
+  staff aprueba/rechaza desde `apps/admin` y ve bajar el badge) con una
+  cuenta real antes de confiar en que el camino feliz funciona de punta a
+  punta.
+- **[Abierto]** `EnrollAndPayModal.tsx` (`apps/web/src/features/academy/
+  components/`): un cliente que ya tiene alumnos y reabre "Inscribir y
+  pagar inscripcion" ve por defecto el formulario "Crear alumno" en vez
+  del selector de sus alumnos existentes -- tiene un boton "Cancelar"
+  visible como salida (sin perdida de datos, sin nada de seguridad). Causa:
+  el `useEffect` de reset (deps `[open]`) corre antes de que
+  `useMyDependents()` resuelva su fetch async, porque el modal ahora solo
+  monta cuando `open=true` (fix de un hallazgo de la revision final que a
+  su vez introdujo este). Encontrado en el re-review del fix, parqueado
+  porque el proceso de revision final no permite una segunda ronda de fix.
+  Arreglo sugerido: que el seed de `showNewStudentForm` reaccione tambien
+  a `dependentsLoading` pasando a `false`, no solo a `open`.
 
 ## Recent Decisions
 
@@ -619,7 +640,7 @@ otro negocio (Studio packages, bookings, Academia) implementado todavia.
   `studio_classes`, `packages`, `admin_allowed_emails`, `dependents`,
   `bookings`, `waitlist`, `customer_credits_ledger`, `academy_groups`,
   `academy_group_schedules`, `academy_enrollments`, `academy_tuition_periods`,
-  `academy_payments`, `waitlist_notifications`) y RLS, migraciones `001`-`018`
+  `academy_payments`, `waitlist_notifications`) y RLS, migraciones `001`-`028`
   aplicadas (ver "Migraciones existentes"). Se usa
   como backend compartido de desarrollo/staging para todo el equipo (local
   y previews de Cloudflare Pages) — ver `docs/deployment.md`. `apps/web/.env`
@@ -785,6 +806,13 @@ versionadas en `supabase/migrations/`:
   `academy_enrollments` (`CUSTOMER` inserta solo `PENDIENTE`/`MUESTRA` para sus propios alumnos,
   nunca `ACTIVA` directo). Primera vez que un cliente puede inscribir a su hijo sin pasar por
   staff, con aprobación de staff como paso obligatorio antes de `ACTIVA`.
+- `028_academy_self_enrollment_constraints.sql` — hallazgos de la revisión final de la rama de
+  autoservicio de Academia: amplía `academy_enrollments_active_unique` a `status in ('ACTIVA',
+  'PENDIENTE')` (evita solicitudes `PENDIENTE` duplicadas o redundantes junto a una inscripción ya
+  `ACTIVA`), y agrega `business_id = current_user_business_id()` al `with check` de las dos policies
+  de autoservicio de `027` (antes solo validaban `guardian_id`/status, sin fijar `business_id` —
+  sin explotar hoy por ser un solo negocio, pero violaba la regla de no confiar en valores del
+  frontend y el `business_id` que cada tabla lleva justo para preparar multi-tenant).
 
 **Rol INSTRUCTOR_ADMIN + gestion de usuarios (`apps/admin`)**: pagina `/users`
 (solo `BUSINESS_ADMIN`/`SUPER_ADMIN`) para ver todas las cuentas registradas

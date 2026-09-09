@@ -99,6 +99,14 @@ mismo cambio que se implemente.
 
 ## Deuda tecnica conocida
 
+- **`EnrollAndPayModal.tsx` muestra "Crear alumno" por defecto en vez del
+  selector, para un cliente que ya tiene alumnos**: el `useEffect` de
+  reset (deps `[open]`) corre antes de que `useMyDependents()` resuelva su
+  fetch async, porque el modal solo monta cuando `open=true`. Tiene salida
+  funcional (boton "Cancelar"), sin perdida de datos. Detalle completo y
+  fix sugerido en `docs/CURRENT_STATE.md` > "Known Issues" (entrada
+  `[Abierto]`, sesion 2026-09-09). Arreglar la proxima vez que se toque
+  esta feature.
 - **`mapSaveError`/`err instanceof Error` no detecta errores de Supabase**:
   `InstructorFormModal.tsx`, `DependentFormModal.tsx` y
   `PackageFormModal.tsx` usan `err instanceof Error ? err.message : ...`
