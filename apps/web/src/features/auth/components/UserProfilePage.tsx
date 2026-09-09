@@ -1,10 +1,26 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { updateProfile } from "@/features/auth/services/authService";
+import { useMyAcademyEnrollments } from "@/features/academy/hooks/useMyAcademyEnrollments";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { SignOutButton } from "@/features/auth/components/SignOutButton";
 import { BackButton } from "@/components/ui/BackButton";
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDIENTE: "Pendiente de aprobación",
+  ACTIVA: "Activa",
+  BAJA: "Inactiva",
+  MUESTRA: "Clase muestra solicitada",
+};
+
+const STATUS_CLASSES: Record<string, string> = {
+  PENDIENTE: "bg-yellow-100 text-yellow-800",
+  ACTIVA: "bg-green-100 text-green-800",
+  BAJA: "bg-gray-100 text-gray-600",
+  MUESTRA: "bg-blue-100 text-blue-800",
+};
 
 export function UserProfilePage() {
   const { profile, session } = useAuth();
@@ -13,6 +29,7 @@ export function UserProfilePage() {
   const [medicalConditions, setMedicalConditions] = useState("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const { enrollments, loading: enrollmentsLoading } = useMyAcademyEnrollments();
 
   useEffect(() => {
     if (profile) {
@@ -140,6 +157,42 @@ export function UserProfilePage() {
               </dd>
             </div>
           </dl>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="space-y-3 p-6">
+          <h2 className="text-lg font-semibold text-gray-900">Mis alumnos e inscripciones</h2>
+          {enrollmentsLoading ? (
+            <p className="text-sm text-gray-500">Cargando...</p>
+          ) : enrollments.length === 0 ? (
+            <p className="text-sm text-gray-500">
+              Todavía no has inscrito a ningún alumno. Ve a{" "}
+              <Link to="/academy" className="text-brand-primary hover:underline">
+                Academia
+              </Link>{" "}
+              para inscribir o agendar una clase muestra.
+            </p>
+          ) : (
+            <ul id="my-academy-enrollments-list" className="space-y-2 text-sm">
+              {enrollments.map((enrollment) => (
+                <li
+                  key={enrollment.id}
+                  className="flex items-center justify-between gap-2 border-b border-gray-100 pb-2 last:border-0"
+                >
+                  <div>
+                    <p className="font-medium text-gray-900">{enrollment.studentName}</p>
+                    <p className="text-xs text-gray-500">{enrollment.groupName}</p>
+                  </div>
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_CLASSES[enrollment.status]}`}
+                  >
+                    {STATUS_LABELS[enrollment.status]}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </CardContent>
       </Card>
     </div>
