@@ -5,6 +5,7 @@ import { MarkPaymentModal } from '@/features/academy/components/MarkPaymentModal
 import { useAcademyGroupEnrollments } from '@/features/academy/hooks/useAcademyGroupEnrollments';
 import { useAcademyGroups } from '@/features/academy/hooks/useAcademyGroups';
 import { useAcademyTuitionPeriod } from '@/features/academy/hooks/useAcademyTuitionPeriod';
+import { usePendingAcademyRequests } from '@/features/academy/hooks/usePendingAcademyRequests';
 import { useCustomers } from '@/features/customers/hooks/useCustomers';
 import {
   calculatePeriodsForEnrollment,
@@ -27,10 +28,19 @@ export function AcademyGroupDetailPage() {
     group?.businessId ?? '',
   );
   const { tuitionPeriod, loading: tuitionLoading } = useAcademyTuitionPeriod(groupId);
+  const {
+    requests: pendingRequests,
+    loading: pendingLoading,
+    error: pendingError,
+    approve,
+    reject,
+    markTrialAttended,
+  } = usePendingAcademyRequests(groupId);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEnrollmentId, setSelectedEnrollmentId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [pendingActionError, setPendingActionError] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<Map<string, boolean>>(new Map());
 
   useEffect(() => {
@@ -52,6 +62,37 @@ export function AcademyGroupDetailPage() {
 
   async function handleEnroll(dependentId: string, enrollmentDate: string) {
     await enroll(dependentId, enrollmentDate);
+  }
+
+  async function handleApprove(id: string) {
+    setPendingActionError(null);
+    try {
+      await approve(id);
+    } catch (err) {
+      setPendingActionError(getErrorMessage(err, 'No se pudo aprobar la solicitud.'));
+      console.error('[academy] aprobar solicitud fallo', err);
+    }
+  }
+
+  async function handleReject(id: string) {
+    if (!window.confirm('Rechazar esta solicitud de inscripcion?')) return;
+    setPendingActionError(null);
+    try {
+      await reject(id);
+    } catch (err) {
+      setPendingActionError(getErrorMessage(err, 'No se pudo rechazar la solicitud.'));
+      console.error('[academy] rechazar solicitud fallo', err);
+    }
+  }
+
+  async function handleMarkTrialAttended(id: string) {
+    setPendingActionError(null);
+    try {
+      await markTrialAttended(id);
+    } catch (err) {
+      setPendingActionError(getErrorMessage(err, 'No se pudo marcar la clase muestra.'));
+      console.error('[academy] marcar clase muestra fallo', err);
+    }
   }
 
   function handleOpenPaymentModal(enrollmentId: string) {
@@ -94,6 +135,82 @@ export function AcademyGroupDetailPage() {
 
       {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
       {actionError && <p className="mb-4 text-sm text-red-600">{actionError}</p>}
+
+      {(pendingRequests.length > 0 || pendingLoading) && (
+        <div className="mb-6">
+          <h2 className="mb-2 text-lg font-semibold text-brand-primary">Solicitudes pendientes</h2>
+          {pendingError && <p className="mb-2 text-sm text-red-600">{pendingError}</p>}
+          {pendingActionError && <p className="mb-2 text-sm text-red-600">{pendingActionError}</p>}
+          {pendingLoading ? (
+            <p className="text-sm text-gray-500">Cargando...</p>
+          ) : (
+            <div id="academy-pending-requests-table" className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200 text-left text-gray-500">
+                    <th className="py-2">Alumno</th>
+                    <th className="py-2">Tipo</th>
+                    <th className="py-2">Inscripcion pagada</th>
+                    <th className="py-2">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingRequests.map((request) => (
+                    <tr key={request.id} className="border-b border-gray-100">
+                      <td className="py-2">
+                        <p className="font-medium text-gray-900">{request.studentName}</p>
+                        <p className="text-xs text-gray-500">{request.guardianName ?? '-'}</p>
+                      </td>
+                      <td className="py-2 text-xs text-gray-600">
+                        {request.status === 'PENDIENTE'
+                          ? 'Inscripcion'
+                          : `Clase muestra (${request.scheduleLabel ?? '-'}, ${request.trialDate ?? '-'})`}
+                      </td>
+                      <td className="py-2 text-xs">
+                        {request.status === 'PENDIENTE'
+                          ? request.registrationFeePaid
+                            ? 'Si (pago de prueba)'
+                            : 'No'
+                          : '-'}
+                      </td>
+                      <td className="py-2">
+                        <div className="flex items-center gap-3">
+                          {request.status === 'PENDIENTE' ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleApprove(request.id)}
+                                className="text-sm text-brand-primary hover:underline"
+                              >
+                                Aprobar
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleReject(request.id)}
+                                className="text-sm text-red-600 hover:underline"
+                              >
+                                Rechazar
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleMarkTrialAttended(request.id)}
+                              className="text-sm text-brand-primary hover:underline"
+                            >
+                              Marcar atendida
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-brand-primary">Alumnos inscritos</h2>
