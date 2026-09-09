@@ -839,6 +839,13 @@ export type Database = {
             foreignKeyName: "waitlist_notifications_sent_by_fkey"
             columns: ["sent_by"]
             isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_notifications_waitlist_id_fkey"
+            columns: ["waitlist_id"]
+            isOneToOne: false
             referencedRelation: "waitlist"
             referencedColumns: ["id"]
           },
