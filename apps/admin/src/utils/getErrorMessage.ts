@@ -16,6 +16,11 @@ export function getErrorMessage(err: unknown, fallback: string): string {
       // violates unique constraint ...") no le sirve al usuario final.
       return "Ya existe un registro con esos datos.";
     }
+    if ("code" in err && (err as { code: unknown }).code === "23503") {
+      // Postgres foreign_key_violation: pasa al borrar una clase que ya
+      // tiene reservaciones o lista de espera asociadas.
+      return "No se puede eliminar: tiene reservaciones asociadas. Cancela la clase en su lugar.";
+    }
     if ("message" in err) {
       const message = (err as { message: unknown }).message;
       if (typeof message === "string" && message.length > 0) return message;

@@ -1,37 +1,10 @@
 import { useState, useEffect } from "react";
+import { addWeeks, formatWeekStartKey, getWeekLabel, getWeekStart } from "../utils/weekUtils";
 
 type Props = {
-  selectedWeekStart: string; // YYYY-MM-DD (Monday of the week)
+  selectedWeekStart: string; // YYYY-MM-DD (Domingo de la semana)
   onChange: (weekStart: string) => void;
 };
-
-function getWeekStart(date: Date): Date {
-  const d = new Date(date);
-  const day = d.getDay(); // 0 = Sunday, 1 = Monday, etc.
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust to Monday
-  d.setDate(diff);
-  return d;
-}
-
-function formatDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
-
-function addWeeks(date: Date, weeks: number): Date {
-  const d = new Date(date);
-  d.setDate(d.getDate() + weeks * 7);
-  return d;
-}
-
-function getWeekLabel(weekStart: Date): string {
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekEnd.getDate() + 6);
-  
-  const startStr = weekStart.toLocaleDateString("es-MX", { day: "numeric", month: "short" });
-  const endStr = weekEnd.toLocaleDateString("es-MX", { day: "numeric", month: "short" });
-  
-  return `${startStr} – ${endStr}`;
-}
 
 export function WeekSelector({ selectedWeekStart, onChange }: Props) {
   const [currentWeekStart, setCurrentWeekStart] = useState(selectedWeekStart);
@@ -41,7 +14,7 @@ export function WeekSelector({ selectedWeekStart, onChange }: Props) {
   }, [selectedWeekStart]);
 
   const today = new Date();
-  const todayWeekStart = formatDate(getWeekStart(today));
+  const todayWeekStart = formatWeekStartKey(getWeekStart(today));
 
   const goToToday = () => {
     onChange(todayWeekStart);
@@ -50,7 +23,7 @@ export function WeekSelector({ selectedWeekStart, onChange }: Props) {
   const goToWeek = (weeksOffset: number) => {
     const current = new Date(currentWeekStart + "T00:00:00");
     const newWeek = addWeeks(current, weeksOffset);
-    onChange(formatDate(newWeek));
+    onChange(formatWeekStartKey(newWeek));
   };
 
   return (

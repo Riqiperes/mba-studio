@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
-import { cancelClass, createClasses, listClasses, updateClass } from "../services/classesService";
+import { cancelClass, createClasses, deleteClass, listClasses, updateClass } from "../services/classesService";
 import type {
   ClassFilters,
   CreateClassesInput,
@@ -50,5 +50,10 @@ export function useClasses(filters: ClassFilters) {
     await reload();
   }
 
-  return { classes, loading, error, reload, create, update, cancel };
+  async function remove(id: string) {
+    await deleteClass(id);
+    await reload();
+  }
+
+  return { classes, loading, error, reload, create, update, cancel, remove };
 }

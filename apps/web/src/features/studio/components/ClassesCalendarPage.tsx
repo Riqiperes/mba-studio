@@ -10,18 +10,7 @@ import { bookClass, cancelBooking, joinWaitlist, leaveWaitlist } from "@/feature
 import type { BookingWithClass } from "@/features/bookings/types/Booking";
 import type { WaitlistEntryWithClass } from "@/features/bookings/types/WaitlistEntry";
 import { BackButton } from "@/components/ui/BackButton";
-
-function getWeekStart(date: Date): Date {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  d.setDate(diff);
-  return d;
-}
-
-function formatDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
+import { formatWeekStartKey, getWeekStart } from "@/features/studio/utils/weekUtils";
 
 function addDays(date: Date, days: number): Date {
   const d = new Date(date);
@@ -31,12 +20,12 @@ function addDays(date: Date, days: number): Date {
 
 export function ClassesCalendarPage() {
   const today = new Date();
-  const todayWeekStart = formatDate(getWeekStart(today));
+  const todayWeekStart = formatWeekStartKey(getWeekStart(today));
   const [weekStart, setWeekStart] = useState<string>(todayWeekStart);
 
-  // Compute dateFrom (Monday) and dateTo (Sunday) from weekStart
+  // Calcula dateFrom (Domingo) y dateTo (Sabado) a partir de weekStart
   const dateFrom = weekStart;
-  const dateTo = formatDate(addDays(new Date(weekStart + "T00:00:00"), 6));
+  const dateTo = formatWeekStartKey(addDays(new Date(weekStart + "T00:00:00"), 6));
 
   const filters = useMemo<ClassFilters>(() => ({ dateFrom, dateTo }), [dateFrom, dateTo]);
   const { classes, loading, error } = useStudioClasses(filters);

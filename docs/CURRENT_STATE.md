@@ -410,6 +410,13 @@ WhatsApp, White-label activo, Testing, Deployment (Cloudflare Pages).
   equipo por ahora; segundo proyecto de Supabase de produccion se crea
   recien antes de operar con clientes/pagos reales (ver
   `docs/deployment.md`).
+- Fix: el calendario de clases de `apps/web` (`ClassesCalendarPage.tsx`,
+  `WeekSelector.tsx`) calculaba el inicio de semana en Lunes (formula
+  `diff = date - day + (day === 0 ? -6 : 1)`), inconsistente con la
+  grilla semanal de `apps/admin` que ya usaba Domingo-Sabado
+  (`weekUtils.ts`). Se unifico a Domingo-Sabado en ambas apps; la logica
+  de `apps/web` se extrajo a `features/studio/utils/weekUtils.ts` para no
+  duplicarla otra vez entre `WeekSelector.tsx` y `ClassesCalendarPage.tsx`.
 
 ## Funcionalidades implementadas
 
@@ -449,6 +456,14 @@ WhatsApp, White-label activo, Testing, Deployment (Cloudflare Pages).
     Se saltearon por conflicto de horario: ...") — ver `createClasses` en
     `classesService.ts`.
   - Cancelar clase (estado pasa a `CANCELLED`, sigue listada).
+  - Eliminar clase (borrado fisico via `deleteClass` en `classesService.ts`,
+    boton "Eliminar" junto a "Cancelar" en `ClassesWeekGrid.tsx`, con
+    `window.confirm` previo). Si la clase tiene reservaciones o lista de
+    espera asociadas, la foreign key de `bookings`/`waitlist` rechaza el
+    delete (Postgres `23503`) y se muestra "No se puede eliminar: tiene
+    reservaciones asociadas. Cancela la clase en su lugar." (mensaje
+    agregado a `getErrorMessage.ts`) — en ese caso usar "Cancelar" en vez
+    de "Eliminar".
   - Validacion con Zod (titulo y instructor obligatorios en ambos modos;
     modo edicion: fecha/hora de inicio y fin obligatorias, fin posterior
     a inicio; modo lote: al menos un dia de la semana, hora fin posterior
