@@ -166,3 +166,12 @@ export async function cancelClass(id: string): Promise<void> {
 
   if (error) throw error;
 }
+
+// Borrado fisico. Si la clase tiene reservaciones o lugares en lista de
+// espera, la foreign key en bookings/waitlist rechaza el delete (23503) --
+// en ese caso el admin debe cancelar la clase en vez de eliminarla.
+export async function deleteClass(id: string): Promise<void> {
+  const { error } = await supabase.from("studio_classes").delete().eq("id", id);
+
+  if (error) throw error;
+}

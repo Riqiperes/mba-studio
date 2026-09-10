@@ -8,6 +8,7 @@ import type { ClassFilters, StudioClass } from "@/features/classes/types/StudioC
 import { formatDateKey, getWeekDays, getWeekStart } from "@/features/classes/utils/weekUtils";
 import { useInstructors } from "@/features/instructors/hooks/useInstructors";
 import { BackButton } from "@/components/ui/BackButton";
+import { getErrorMessage } from "@/utils/getErrorMessage";
 
 export function ClassesPage() {
   const [instructorFilter, setInstructorFilter] = useState<ClassFilters>({});
@@ -22,11 +23,12 @@ export function ClassesPage() {
     };
   }, [instructorFilter, weekStart]);
 
-  const { classes, loading, error, create, update, cancel } = useClasses(filters);
+  const { classes, loading, error, create, update, cancel, remove } = useClasses(filters);
   const { instructors, error: instructorsError } = useInstructors();
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<StudioClass | null>(null);
   const [cancelError, setCancelError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   function openCreate() {
     setEditing(null);
@@ -51,6 +53,19 @@ export function ClassesPage() {
     }
   }
 
+  async function handleDelete(studioClass: StudioClass) {
+    if (!window.confirm(`Eliminar la clase "${studioClass.title}"? Esta accion no se puede deshacer.`)) {
+      return;
+    }
+    setDeleteError(null);
+    try {
+      await remove(studioClass.id);
+    } catch (err) {
+      setDeleteError(getErrorMessage(err, "No se pudo eliminar la clase. Intenta de nuevo."));
+      console.error("[classes] eliminar fallo", err);
+    }
+  }
+
   return (
     <div id="classes-page" className="mx-auto max-w-5xl p-6">
       <BackButton />
@@ -72,6 +87,7 @@ export function ClassesPage() {
       {error && <p className="text-sm text-red-600">{error}</p>}
       {instructorsError && <p className="text-sm text-red-600">{instructorsError}</p>}
       {cancelError && <p className="text-sm text-red-600">{cancelError}</p>}
+      {deleteError && <p className="text-sm text-red-600">{deleteError}</p>}
       {!loading && !error && (
         <ClassesWeekGrid
           weekStart={weekStart}
@@ -79,6 +95,7 @@ export function ClassesPage() {
           instructors={instructors}
           onEdit={openEdit}
           onCancel={handleCancel}
+          onDelete={handleDelete}
         />
       )}
 

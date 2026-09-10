@@ -12,9 +12,10 @@ type Props = {
   instructors: Instructor[];
   onEdit: (studioClass: StudioClass) => void;
   onCancel: (studioClass: StudioClass) => void;
+  onDelete: (studioClass: StudioClass) => void;
 };
 
-export function ClassesWeekGrid({ weekStart, classes, instructors, onEdit, onCancel }: Props) {
+export function ClassesWeekGrid({ weekStart, classes, instructors, onEdit, onCancel, onDelete }: Props) {
   const navigate = useNavigate();
   const days = getWeekDays(weekStart);
 
@@ -84,6 +85,16 @@ export function ClassesWeekGrid({ weekStart, classes, instructors, onEdit, onCan
                       Cancelar
                     </button>
                   )}
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onDelete(studioClass);
+                    }}
+                    className="text-red-800 hover:underline"
+                  >
+                    Eliminar
+                  </button>
                 </div>
               </div>
             ))}
