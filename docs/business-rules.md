@@ -33,9 +33,9 @@ reservar.
 
 ## Cancelacion de reservaciones (Studio)
 
-- **Ventana de 12 horas antes del inicio de la clase** para cancelar y
+- **Ventana de 8 horas antes del inicio de la clase** para cancelar y
   recuperar el credito.
-- Cancelacion dentro de las 12 horas previas a la clase, o no-show:
+- Cancelacion dentro de las 8 horas previas a la clase, o no-show:
   **se cobra el credito** (no se devuelve).
 - La cancelacion la puede hacer el cliente (web) o el staff (admin).
 
@@ -65,6 +65,8 @@ Falta de pago sostenida / solicitud del alumno -> Baja
 - Toda inscripcion genera una colegiatura mensual.
 - **Fecha limite de pago: dia 10 de cada mes** (primeros 10 dias del mes).
 - Pasado el dia 10 sin pago registrado, se genera alerta de pago atrasado.
+- **Recargo del 10%** sobre el monto de la colegiatura cuando se paga
+  despues del dia 10.
 - Una baja cambia el estado de la inscripcion y detiene las alertas futuras.
 
 ## Descuentos por referido (Academia - Ballet)
@@ -77,6 +79,9 @@ Falta de pago sostenida / solicitud del alumno -> Baja
 ## Campos personalizados de cliente (Studio + Academia)
 
 - **Condiciones medicas** (texto libre): embarazo, hernia, lesiones, etc.
+  **Obligatorio responder** (no se deja en blanco), pero "Ninguna"/"Sin
+  condicion" es una respuesta valida cuando no aplica — evita un campo
+  vacio ambiguo sin forzar a nadie a revelar una condicion real.
 - **Edad** (numero, opcional).
 - **Notas adicionales** (texto libre).
 - Visibles en: admin (detalle de cliente), detalle de clase/reservacion,
@@ -117,6 +122,7 @@ Falta de pago sostenida / solicitud del alumno -> Baja
 
 ## Notas
 
-Los valores numericos exactos (ventana de cancelacion 12h, reset mensual
-dia 1, pago colegiatura dia 10, capacidad max 15) estan definidos aqui
-y deben implementarse en el mismo cambio que se agreguen.
+Los valores numericos exactos (ventana de cancelacion 8h, reset mensual
+dia 1, pago colegiatura dia 10, recargo por pago tardio 10%, capacidad max
+15) estan definidos aqui y deben implementarse en el mismo cambio que se
+agreguen.
