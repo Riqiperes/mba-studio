@@ -41,8 +41,10 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
     18c. Colegiaturas — **pago en primeros 10 dias del mes**, estado
          `PAGADO`/`NO_PAGADO` por periodo de inscripcion (sin Stripe
          todavia), que el staff marca manualmente al cobrar en
-         efectivo/transferencia; alertas de pago atrasado
-         (ver `docs/business-rules.md`).
+         efectivo/transferencia; alertas de pago atrasado y **recargo del
+         10%** por pago tardio (ver `docs/business-rules.md`) — recargo
+         confirmado como regla de negocio, pendiente de implementar en
+         codigo (no hay logica todavia que lo calcule/aplique).
     18d. Descuentos por referido — campo de descuento personalizado
          en perfil de cliente (admin), aplicable a clases de ballet.
 
@@ -62,7 +64,7 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
          `docs/superpowers/specs/2026-09-09-academy-self-enrollment-and-admin-visibility-design.md`.
 
 19. **Politicas de cancelacion y creditos (Studio):**
-    - Ventana de 12 horas antes de la clase para cancelar y recuperar credito.
+    - Ventana de 8 horas antes de la clase para cancelar y recuperar credito.
     - Cancelacion despues de la ventana o no-show: se cobra el credito.
     - Creditos expiran mensualmente (reset el dia 1 de cada mes).
 20. **Lista de espera (Studio):** boton "Enviar notificacion" (recordatorio

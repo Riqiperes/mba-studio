@@ -3,7 +3,37 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-09-07 (Academia visible en `apps/web` por primera vez: catalogo publico + boton WhatsApp):
+Ultima actualizacion: 2026-09-11 (ventana de cancelacion corregida a 8h + recargo de colegiatura documentado, a partir de datos reales del negocio para `legal/`):
+- **Migracion `029_cancel_booking_8h_window.sql`**: `cancel_booking`
+  (definida en `016_comprehensive_features.sql`) usaba `interval '12
+  hours'`. La duena del negocio confirmo por escrito que la regla real es
+  **8 horas** (ver `legal/plan-de-accion-legal.md`), asi que se crea una
+  migracion nueva que reemplaza la funcion (mismo nombre/firma, mismos
+  chequeos de autorizacion y grants, unico cambio: `interval '8 hours'`);
+  `016` no se edita porque ya esta aplicada. `docs/business-rules.md`,
+  `docs/preguntas-para-negocio.md` y `docs/roadmap.md` actualizados para
+  decir 8h en vez de 12h.
+- **Recargo de colegiatura tardia (10%)** agregado a
+  `docs/business-rules.md` y `docs/roadmap.md` (18c): dato de negocio
+  nuevo, confirmado por la duena junto con los datos fiscales que se
+  estan usando para redactar el Aviso de Privacidad/Terminos (`legal/`).
+  **No implementado en codigo todavia** — no hay logica que calcule o
+  aplique el recargo sobre `academy_payments`, queda como deuda pendiente
+  hasta que se priorice.
+- **Plan legal** (`legal/plan-de-accion-legal.md`, `legal/aviso-privacidad-integral.md`,
+  `legal/aviso-privacidad-simplificado.md`, `legal/terminos-y-condiciones.md`,
+  rama `feat/politicas-privacidad`): borradores completos con los datos
+  fiscales reales del negocio (persona fisica, RFC, domicilio parcial).
+  Decisiones ya cerradas con la duena: no se requiere identificacion
+  oficial del tutor (basta una declaracion explicita "bajo protesta de
+  decir verdad", todavia no implementada como checkbox/firma real en el
+  formulario), y la ventana de cancelacion (arriba). Pendientes reales:
+  codigo postal del domicilio fiscal (contradiccion sin resolver entre
+  "Temax" y "Merida"), proveedor definitivo de WhatsApp/email, y si
+  Studio adopta el mismo Si/No explicito de fotos/video que ya usa
+  Academia. Los 3 documentos siguen sin revision de un abogado real.
+
+Ultima actualizacion anterior: 2026-09-07 (Academia visible en `apps/web` por primera vez: catalogo publico + boton WhatsApp):
 - **`apps/web` gana `/academy`** (feature nueva `features/academy/`): antes
   `academy_groups`/`academy_group_schedules` eran 100% staff-scoped, ningun
   cliente podia ver el catalogo de Academia. Migracion nueva
