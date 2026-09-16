@@ -3,7 +3,49 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-09-11 (ventana de cancelacion corregida a 8h + recargo de colegiatura documentado, a partir de datos reales del negocio para `legal/`):
+Ultima actualizacion: 2026-09-15 (Primer proyecto Supabase de produccion + main listo para deploy):
+- **Se creo `MBA-STUDIO-PROD`** (`nnabpthdclgggpxysyxs`, `us-east-1`, plan
+  gratuito), segundo proyecto de Supabase separado de `MBA-STUDIO`
+  (desarrollo/staging), para poder mostrarle el MVP al cliente sin
+  exponer la base de datos de desarrollo del equipo -- ver
+  `docs/deployment.md`. Se aplicaron las 29 migraciones existentes en el
+  orden correcto; la migracion `016_comprehensive_features.sql` tuvo que
+  aplicarse en dos pasos porque Postgres no permite usar un valor de enum
+  (`INSTRUCTOR_ADMIN`) en la misma transaccion en que se crea ("unsafe use
+  of new value ... must be committed before they can be used") -- no es un
+  problema del archivo de migracion en si, solo de como el runner de
+  aplicacion agrupa las sentencias en una transaccion. Se sembraron datos
+  demo minimos (1 instructor, 2 paquetes, 3 clases de Studio, 1 grupo de
+  Academia con horario) para que la demo no se vea vacia. `get_advisors`
+  (security) sobre el proyecto nuevo solo muestra los mismos warnings ya
+  conocidos y esperados del patron de RPCs `SECURITY DEFINER` del proyecto
+  (documentados en `docs/security.md`), ningun hallazgo nuevo.
+- **Rama `feat/politicas-privacidad` mergeada a `develop`** (merge limpio,
+  sin conflictos): agrega `legal/` (aviso de privacidad integral y
+  simplificado, terminos y condiciones, plan de accion legal) y la
+  migracion `029_cancel_booking_8h_window.sql` (ver detalle debajo).
+- **Rama `feat/academy-web-catalog` descartada, no mergeada**: tenia
+  conflicto add/add contra `develop` en `AcademyCatalogPage.tsx` y
+  `AcademyGroupCard.tsx` (mas conflicto en docs) -- era una version previa
+  del catalogo publico de Academia, ya superada por el flujo de
+  autoservicio mergeado el 2026-09-09. Decision del usuario: descartar en
+  vez de resolver el conflicto. La rama remota se dejo intacta sin borrar.
+- **`develop` mergeado a `main`** (fast-forward, `main` estaba muy
+  atrasado desde antes de casi todo el trabajo de Academia/bookings/admin)
+  para dejar `main` listo como rama de produccion real por primera vez.
+  Verificado antes del merge: `npm run typecheck`, `npm run build` y
+  `npm run lint` sin errores en ambas apps.
+- **Pendiente (manual, fuera del alcance de este cambio)**: crear los 2
+  proyectos de Cloudflare Pages apuntando a `main` como rama de
+  produccion, configurar sus variables de entorno (Production apunta a
+  `MBA-STUDIO-PROD`, Preview sigue apuntando a `MBA-STUDIO`), habilitar el
+  provider de Google OAuth en `MBA-STUDIO-PROD` (proyecto nuevo, no
+  hereda la config de auth de `MBA-STUDIO`) y verificar login real antes
+  de la demo -- checklist completo en `docs/deployment.md`. No se hizo en
+  esta sesion porque `wrangler` no tenia sesion de Cloudflare autenticada
+  en este entorno.
+
+Ultima actualizacion anterior: 2026-09-11 (ventana de cancelacion corregida a 8h + recargo de colegiatura documentado, a partir de datos reales del negocio para `legal/`):
 - **Migracion `029_cancel_booking_8h_window.sql`**: `cancel_booking`
   (definida en `016_comprehensive_features.sql`) usaba `interval '12
   hours'`. La duena del negocio confirmo por escrito que la regla real es
@@ -680,21 +722,31 @@ otro negocio (Studio packages, bookings, Academia) implementado todavia.
 
 ## Integraciones configuradas
 
-- **Supabase**: proyecto (`MBA-STUDIO`, ref `eazyblybekyygimqpjjw`, region
-  `us-east-1`) con 16 tablas (`business`, `profiles`, `instructors`,
-  `studio_classes`, `packages`, `admin_allowed_emails`, `dependents`,
-  `bookings`, `waitlist`, `customer_credits_ledger`, `academy_groups`,
-  `academy_group_schedules`, `academy_enrollments`, `academy_tuition_periods`,
-  `academy_payments`, `waitlist_notifications`) y RLS, migraciones `001`-`028`
-  aplicadas (ver "Migraciones existentes"). Se usa
-  como backend compartido de desarrollo/staging para todo el equipo (local
-  y previews de Cloudflare Pages) — ver `docs/deployment.md`. `apps/web/.env`
-  y `apps/admin/.env` ya apuntan a este proyecto para desarrollo local.
-  Se sembro una fila en `business` (`name = 'MBA MID'`) para que el trigger
-  de registro de usuarios tenga a que negocio asignar el `profile` nuevo.
-- **Cloudflare Pages**: todavia no configurado. Plan (dos proyectos, Root
-  directory = raiz del repo, preview deployments automaticos por commit)
-  documentado en `docs/deployment.md`.
+- **Supabase (desarrollo/staging)**: proyecto `MBA-STUDIO`
+  (ref `eazyblybekyygimqpjjw`, region `us-east-1`) con 16 tablas (`business`,
+  `profiles`, `instructors`, `studio_classes`, `packages`,
+  `admin_allowed_emails`, `dependents`, `bookings`, `waitlist`,
+  `customer_credits_ledger`, `academy_groups`, `academy_group_schedules`,
+  `academy_enrollments`, `academy_tuition_periods`, `academy_payments`,
+  `waitlist_notifications`) y RLS, migraciones `001`-`029` aplicadas (ver
+  "Migraciones existentes"). Se usa como backend compartido de
+  desarrollo/staging para todo el equipo (local y previews de Cloudflare
+  Pages) — ver `docs/deployment.md`. `apps/web/.env` y `apps/admin/.env`
+  ya apuntan a este proyecto para desarrollo local. Se sembro una fila en
+  `business` (`name = 'MBA MID'`) para que el trigger de registro de
+  usuarios tenga a que negocio asignar el `profile` nuevo.
+- **Supabase (produccion)**: proyecto nuevo `MBA-STUDIO-PROD`
+  (ref `nnabpthdclgggpxysyxs`, region `us-east-1`, creado 2026-09-15),
+  mismo esquema (29 migraciones aplicadas) con datos demo minimos en vez
+  de los de desarrollo -- ver detalle en la entrada de arriba y en
+  `docs/deployment.md`. URL: `https://nnabpthdclgggpxysyxs.supabase.co`.
+  Sin Edge Functions ni Google OAuth configurados todavia (pendiente,
+  ver `docs/deployment.md`).
+- **Cloudflare Pages**: todavia no configurado (pendiente, checklist
+  manual en `docs/deployment.md` -- requiere `wrangler login` o acceso al
+  dashboard, no disponible en este entorno). Plan (dos proyectos, Root
+  directory = raiz del repo, preview deployments automaticos por commit,
+  rama de produccion = `main`) documentado ahi mismo.
 - Stripe y Google OAuth: documentados en `docs/` pero sin credenciales
   reales todavia.
 - **WhatsApp / Notifications (primeras Edge Functions reales del repo)**:

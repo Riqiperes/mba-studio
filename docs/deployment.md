@@ -79,7 +79,42 @@ Notas:
 
 ## Estado actual
 
-Existe un proyecto de Supabase (`MBA-STUDIO`, sin tablas/migraciones
-todavia) que se usa como backend de desarrollo/staging compartido. Ningun
-proyecto de Cloudflare Pages configurado todavia. Ver
-`docs/CURRENT_STATE.md` para el estado exacto.
+Dos proyectos de Supabase:
+
+- `MBA-STUDIO` (`eazyblybekyygimqpjjw`): desarrollo/staging compartido,
+  usado por `npm run dev` local y por los preview deployments.
+- `MBA-STUDIO-PROD` (`nnabpthdclgggpxysyxs`): produccion, creado para poder
+  mostrarle el MVP al cliente sin exponer la base de desarrollo. Tiene las
+  29 migraciones aplicadas y datos demo minimos sembrados (1 instructor,
+  2 paquetes, 3 clases de Studio, 1 grupo de Academia) para que no se vea
+  vacio en la presentacion. URL: `https://nnabpthdclgggpxysyxs.supabase.co`.
+  Sin Edge Functions desplegadas todavia (nada en el frontend las llama
+  activamente hoy: WhatsApp/notifications siguen en `mock`, Stripe no esta
+  integrado) -- desplegarlas cuando se conecten de verdad.
+
+Ningun proyecto de Cloudflare Pages configurado todavia (wrangler no esta
+autenticado en este entorno). Pasos manuales pendientes para terminar el
+deploy a produccion:
+
+1. En el dashboard de Cloudflare Pages, crear los 2 proyectos como describe
+   la tabla de arriba (Root directory = raiz del repo), conectados a
+   `Riqiperes/mba-studio`, **rama de produccion = `main`**.
+2. Variables de entorno **Production** (usar el proyecto `MBA-STUDIO-PROD`):
+   - `VITE_SUPABASE_URL=https://nnabpthdclgggpxysyxs.supabase.co`
+   - `VITE_SUPABASE_ANON_KEY=<anon key de MBA-STUDIO-PROD, ver Supabase
+     dashboard > Settings > API>`
+   - `VITE_APP_ENV=production`
+   - `VITE_STRIPE_PUBLIC_KEY=` (vacio, sin Stripe live todavia)
+3. Variables de entorno **Preview** (proyecto `MBA-STUDIO` de siempre,
+   igual que `.env` local).
+4. En Supabase Auth del proyecto `MBA-STUDIO-PROD`: habilitar el provider
+   de Google OAuth y agregar su URL de callback
+   (`https://nnabpthdclgggpxysyxs.supabase.co/auth/v1/callback`) a los
+   Authorized redirect URIs del cliente OAuth en Google Cloud Console --
+   es un proyecto nuevo, no hereda la config de `MBA-STUDIO`. Sin esto el
+   login con Google no funciona en produccion (email/password si funciona
+   por defecto).
+5. Verificar login real (Google y/o email/password) contra
+   `MBA-STUDIO-PROD` antes de la demo con el cliente.
+
+Ver `docs/CURRENT_STATE.md` para el detalle de que se aplico y cuando.
