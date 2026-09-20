@@ -43,3 +43,6 @@ supabase/.temp/
 .worktrees/
 .superpowers/
 comandos-para-trabajo.md
+
+# Volcados de fallo de Git Bash
+*.stackdump
