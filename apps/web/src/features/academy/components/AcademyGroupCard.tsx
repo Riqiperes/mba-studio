@@ -22,11 +22,14 @@ function formatAgeRange(group: AcademyGroupCatalogItem): string {
   return `Hasta ${group.ageMax} años`;
 }
 
+// Respaldo cuando businesses.whatsapp_number esta vacio (lada de Mexico 52).
+const WHATSAPP_FALLBACK_NUMBER = "529991072423";
+
 function formatWhatsAppLink(whatsappNumber: string | null, group: AcademyGroupCatalogItem): string {
   const message = encodeURIComponent(
     `Hola, quiero inscribir a mi hijo/a al grupo "${group.name}" de la Academia de Ballet.`,
   );
-  if (!whatsappNumber) return `https://wa.me/?text=${message}`;
+  if (!whatsappNumber) return `https://wa.me/${WHATSAPP_FALLBACK_NUMBER}?text=${message}`;
   const cleaned = whatsappNumber.replace(/\D/g, "");
   return `https://wa.me/52${cleaned}?text=${message}`;
 }
