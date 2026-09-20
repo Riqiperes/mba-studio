@@ -22,8 +22,11 @@ function formatTime(dateStr: string): string {
   });
 }
 
+// Numero de WhatsApp para informes y clases (lada de Mexico 52).
+const WHATSAPP_CONTACT_NUMBER = "529991072423";
+
 function formatWhatsAppLink(message: string): string {
-  return `https://wa.me/?text=${encodeURIComponent(message)}`;
+  return `https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
 export function ClassDetailPage() {
@@ -55,9 +58,7 @@ export function ClassDetailPage() {
 
   const handleWhatsApp = () => {
     if (!cls) return;
-    const message = encodeURIComponent(
-      `Hola, me interesa la clase "${cls.title}" el ${formatDate(cls.startsAt)} a las ${formatTime(cls.startsAt)}. Quiero reservar mi lugar.`
-    );
+    const message = `Hola, me interesa la clase "${cls.title}" el ${formatDate(cls.startsAt)} a las ${formatTime(cls.startsAt)}. Quiero reservar mi lugar.`;
     window.open(formatWhatsAppLink(message), "_blank");
   };
 

@@ -6,6 +6,9 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { BackButton } from "@/components/ui/BackButton";
 
+// Numero de WhatsApp para informes y clases (lada de Mexico 52).
+const WHATSAPP_CONTACT_NUMBER = "529991072423";
+
 export function PackageDetailPage() {
   const { id } = useParams<{ id: string }>();
   const packageId = id ?? "";
@@ -38,7 +41,7 @@ export function PackageDetailPage() {
     const message = encodeURIComponent(
       `Hola, me interesa el paquete "${pkg.name}" (${pkg.credits} créditos por ${pkg.priceFormatted}). Quiero más información.`
     );
-    window.open(`https://wa.me/?text=${message}`, "_blank");
+    window.open(`https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=${message}`, "_blank");
   };
 
   if (loading) {
