@@ -25,7 +25,6 @@ export function EnrollAndPayModal({
   groupName,
   registrationFeeCents,
   onClose,
-  onSuccess,
 }: Props) {
   const { profile } = useAuth();
   const { dependents, loading: dependentsLoading, create } = useMyDependents();
@@ -87,11 +86,12 @@ export function EnrollAndPayModal({
     }
     setFormError(null);
     try {
+      // enroll() redirige el navegador a Stripe Checkout al terminar; el
+      // exito real (registration_fee_paid) lo confirma stripe-webhook, no
+      // este flujo -- por eso no hay onSuccess()/onClose() aqui.
       await enroll(profile.businessId, dependentId, groupId);
-      onSuccess();
-      onClose();
     } catch (err) {
-      setFormError(getErrorMessage(err, "No se pudo enviar la solicitud."));
+      setFormError(getErrorMessage(err, "No se pudo iniciar el pago de la inscripción."));
     }
   }
 
@@ -105,8 +105,8 @@ export function EnrollAndPayModal({
         <h2 className="text-lg font-semibold text-brand-primary">Inscribir a {groupName}</h2>
         <p className="text-sm text-gray-600">
           Tu solicitud queda pendiente de aprobación por el staff. La cuota de inscripción es de{" "}
-          {formatCents(registrationFeeCents)}. <strong>Este es un pago de prueba</strong>, todavía no
-          procesamos cobros reales — el staff confirmará el pago cuando revise tu solicitud.
+          {formatCents(registrationFeeCents)} y se paga ahora mismo con Stripe. Al continuar te
+          llevaremos a la pantalla segura de pago.
         </p>
 
         {dependentsLoading ? (

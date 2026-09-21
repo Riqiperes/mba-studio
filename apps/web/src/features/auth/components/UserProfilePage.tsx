@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { updateProfile } from "@/features/auth/services/authService";
 import { useMyAcademyEnrollments } from "@/features/academy/hooks/useMyAcademyEnrollments";
@@ -30,6 +30,8 @@ export function UserProfilePage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const { enrollments, loading: enrollmentsLoading } = useMyAcademyEnrollments();
+  const [searchParams] = useSearchParams();
+  const paymentSucceeded = searchParams.get("pago") === "exitoso";
 
   useEffect(() => {
     if (profile) {
@@ -68,6 +70,13 @@ export function UserProfilePage() {
         <h1 className="text-xl font-semibold text-brand-primary">Mi perfil</h1>
         <SignOutButton />
       </header>
+
+      {paymentSucceeded && (
+        <div id="registration-payment-success" className="rounded-md bg-green-50 p-4 text-sm text-green-700">
+          ¡Pago recibido! Tu inscripción se actualizará en "Mis alumnos e inscripciones" en unos
+          segundos.
+        </div>
+      )}
 
       <Card>
         <CardContent className="space-y-4 p-6">

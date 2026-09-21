@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAcademyGroups } from "@/features/academy/hooks/useAcademyGroups";
 import { AcademyGroupCard } from "@/features/academy/components/AcademyGroupCard";
 import { getBusiness } from "@/features/studio/services/businessService";
@@ -8,6 +9,8 @@ export function AcademyCatalogPage() {
   const { groups, loading, error } = useAcademyGroups();
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [registrationFeeCents, setRegistrationFeeCents] = useState<number | null>(null);
+  const [searchParams] = useSearchParams();
+  const paymentCancelled = searchParams.get("pago") === "cancelado";
 
   useEffect(() => {
     getBusiness().then((business) => {
@@ -26,6 +29,12 @@ export function AcademyCatalogPage() {
           muestra directamente aquí.
         </p>
       </header>
+
+      {paymentCancelled && (
+        <div id="academy-payment-cancelled" className="mb-6 rounded-md bg-yellow-50 p-4 text-sm text-yellow-800">
+          Cancelaste el pago de la cuota de inscripción. Puedes intentarlo de nuevo cuando quieras.
+        </div>
+      )}
 
       {error && (
         <div id="academy-error" className="mb-6 rounded-md bg-red-50 p-4 text-sm text-red-600">

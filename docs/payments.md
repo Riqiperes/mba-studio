@@ -87,7 +87,14 @@ el patron general de manejo de errores (ver `docs/security.md`).
 
 ## Estado actual
 
-No implementado todavia. `supabase/functions/stripe-checkout/` y
-`supabase/functions/stripe-webhook/` existen como carpetas preparadas con
-un README describiendo su responsabilidad. Se implementa en la etapa
-"Stripe" / "Payments" del roadmap.
+Implementado para la cuota de inscripción de Academia (migración
+`030_academy_registration_stripe.sql`, Edge Functions
+`supabase/functions/stripe-checkout/` y `supabase/functions/stripe-webhook/`).
+Idempotencia via tabla `stripe_events`. Modo test de Stripe. Pendiente:
+cargar `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` como secrets de
+Supabase, desplegar ambas funciones, crear el webhook endpoint en el
+dashboard de Stripe, y probar con una tarjeta de test (ver
+`docs/CURRENT_STATE.md`). El cobro de paquetes de Studio (Checkout
+genérico) todavia no esta conectado -- `stripe-checkout` hoy solo sabe
+crear la sesión para `academy_enrollments`; hay que generalizarla (o
+agregar una segunda función) cuando se implemente ese flujo.
