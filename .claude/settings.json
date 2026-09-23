@@ -10,5 +10,11 @@
     "ponytail@ponytail": true,
     "caveman@caveman": true,
     "skill-creator@claude-plugins-official": true
+  },
+  "permissions": {
+    "allow": [
+      "Bash(gh pr merge:*)",
+      "mcp__claude_ai_Supabase__apply_migration"
+    ]
   }
 }

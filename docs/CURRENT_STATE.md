@@ -9,7 +9,7 @@ Ultima actualizacion: 2026-09-23 (crear clientes de Studio sin cuenta desde `app
   notas opcionales) para clientes que pagan/reservan en mostrador y no usan
   el software. Llama a `customersService.createCustomer` -> RPC
   `create_customer_without_account`.
-- **Migracion `030_customers_without_account.sql`** (pendiente de aplicar
+- **Migracion `030_customers_without_account.sql`** (aplicada el 2026-09-23
   en `MBA-STUDIO` y `MBA-STUDIO-PROD`): quita el FK `profiles.id ->
   auth.users`, pone default `gen_random_uuid()` y crea la RPC
   `SECURITY DEFINER` (solo STAFF/BUSINESS_ADMIN/SUPER_ADMIN; fija
@@ -17,7 +17,7 @@ Ultima actualizacion: 2026-09-23 (crear clientes de Studio sin cuenta desde `app
   `profiles`). Consecuencias: borrar un usuario de Auth ya no borra su
   profile, y si el cliente se registra despues obtiene un profile nuevo (no
   se fusiona con el creado por el staff). `database.types.ts` de ambas apps
-  se edito a mano con la RPC; regenerar cuando se aplique la migracion.
+  se edito a mano con la RPC; conviene regenerarlos.
 
 Ultima actualizacion anterior: 2026-09-15 (Primer proyecto Supabase de produccion + main listo para deploy):
 - **Se creo `MBA-STUDIO-PROD`** (`nnabpthdclgggpxysyxs`, `us-east-1`, plan
