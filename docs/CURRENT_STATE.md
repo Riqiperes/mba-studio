@@ -3,7 +3,23 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-09-15 (Primer proyecto Supabase de produccion + main listo para deploy):
+Ultima actualizacion: 2026-09-23 (crear clientes de Studio sin cuenta desde `apps/admin`):
+- **Boton "Nuevo cliente" en `/customers`** (`CustomersPage`) abre
+  `CustomerCreateModal` (nombre obligatorio; telefono, condiciones medicas y
+  notas opcionales) para clientes que pagan/reservan en mostrador y no usan
+  el software. Llama a `customersService.createCustomer` -> RPC
+  `create_customer_without_account`.
+- **Migracion `030_customers_without_account.sql`** (pendiente de aplicar
+  en `MBA-STUDIO` y `MBA-STUDIO-PROD`): quita el FK `profiles.id ->
+  auth.users`, pone default `gen_random_uuid()` y crea la RPC
+  `SECURITY DEFINER` (solo STAFF/BUSINESS_ADMIN/SUPER_ADMIN; fija
+  `role='CUSTOMER'` y `business_id` server-side; no hay policy de INSERT en
+  `profiles`). Consecuencias: borrar un usuario de Auth ya no borra su
+  profile, y si el cliente se registra despues obtiene un profile nuevo (no
+  se fusiona con el creado por el staff). `database.types.ts` de ambas apps
+  se edito a mano con la RPC; regenerar cuando se aplique la migracion.
+
+Ultima actualizacion anterior: 2026-09-15 (Primer proyecto Supabase de produccion + main listo para deploy):
 - **Se creo `MBA-STUDIO-PROD`** (`nnabpthdclgggpxysyxs`, `us-east-1`, plan
   gratuito), segundo proyecto de Supabase separado de `MBA-STUDIO`
   (desarrollo/staging), para poder mostrarle el MVP al cliente sin

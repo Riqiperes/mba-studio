@@ -52,6 +52,23 @@ export async function getCustomer(id: string): Promise<Customer> {
   return toCustomer(data);
 }
 
+export async function createCustomer(input: {
+  fullName: string;
+  phone?: string | null;
+  medicalConditions?: string | null;
+  notes?: string | null;
+}): Promise<string> {
+  const { data, error } = await supabase.rpc("create_customer_without_account", {
+    p_full_name: input.fullName,
+    p_phone: input.phone ?? "",
+    p_medical_conditions: input.medicalConditions ?? "",
+    p_notes: input.notes ?? "",
+  });
+
+  if (error) throw error;
+  return data as string;
+}
+
 export async function updateCustomer(
   id: string,
   input: {

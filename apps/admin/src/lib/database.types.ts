@@ -884,6 +884,15 @@ export type Database = {
         }
       }
       cancel_booking: { Args: { p_booking_id: string }; Returns: undefined }
+      create_customer_without_account: {
+        Args: {
+          p_full_name: string
+          p_medical_conditions?: string
+          p_notes?: string
+          p_phone?: string
+        }
+        Returns: string
+      }
       current_user_business_id: { Args: never; Returns: string }
       current_user_role: {
         Args: never
