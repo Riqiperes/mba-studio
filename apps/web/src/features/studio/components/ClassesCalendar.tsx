@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { StudioClassWithInstructor } from "../types/StudioClass";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { formatTimeParts } from "@/utils/dateUtils";
 
 export interface ClassBookingState {
   isBooked: boolean;
@@ -157,7 +158,7 @@ function WeekDaysRow({
 }
 
 function ClassRow({ cls, action }: { cls: ClassWithBookingState; action: ReactNode }) {
-  const { time, period } = splitTime(cls.startsAt);
+  const { time, period } = formatTimeParts(cls.startsAt);
   const durationMinutes = Math.round((new Date(cls.endsAt).getTime() - new Date(cls.startsAt).getTime()) / 60000);
   const meta = [cls.instructorName, `${durationMinutes} min`].filter(Boolean).join(" · ");
 
@@ -259,17 +260,6 @@ function formatDate(dateStr: string): string {
     day: "numeric",
     month: "long",
   });
-}
-
-/** "7:00" y "a. m." por separado para la columna de hora. */
-function splitTime(dateStr: string): { time: string; period: string } {
-  const formatted = new Date(dateStr).toLocaleTimeString("es-MX", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
-  const [time = formatted, ...rest] = formatted.split(/\s/);
-  return { time, period: rest.join(" ") };
 }
 
 /** Clave YYYY-MM-DD en hora local (no UTC), para agrupar por dia real. */

@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { useMyDependents } from "@/features/dependents/hooks/useMyDependents";
 import { useScheduleTrialClass } from "@/features/academy/hooks/useScheduleTrialClass";
+import { CircleAlert } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { ModalDialog } from "@/components/ui/ModalDialog";
+import { SelectField } from "@/components/ui/SelectField";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import type { AcademyGroupCatalogItem } from "../types/AcademyGroup";
 
@@ -73,70 +76,65 @@ export function TrialClassModal({ open, group, onClose, onSuccess }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div
-        id="trial-class-modal"
-        className="flex w-full max-w-md flex-col gap-3 rounded-lg bg-white p-6"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <h2 className="text-lg font-semibold text-brand-primary">Clase muestra — {group.name}</h2>
-        <p className="text-sm text-gray-600">Sin costo. El staff confirmará tu lugar.</p>
-
-        <div className="flex flex-col gap-1">
-          <label htmlFor="trial-dependent-select" className="text-xs text-gray-500">
-            Alumno
-          </label>
-          <select
-            id="trial-dependent-select"
-            value={dependentId}
-            onChange={(event) => setDependentId(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-            disabled={dependentsLoading}
-          >
-            <option value="">Elige un alumno</option>
-            {dependents.map((dependent) => (
-              <option key={dependent.id} value={dependent.id}>
-                {dependent.fullName}
-              </option>
-            ))}
-          </select>
-          {dependents.length === 0 && !dependentsLoading && (
-            <p className="text-xs text-gray-500">
-              Primero agrega un alumno desde "Inscribir y pagar inscripción".
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label htmlFor="trial-schedule-select" className="text-xs text-gray-500">
-            Horario
-          </label>
-          <select
-            id="trial-schedule-select"
-            value={scheduleId}
-            onChange={(event) => setScheduleId(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-          >
-            {group.schedules.map((schedule) => (
-              <option key={schedule.id} value={schedule.id}>
-                {DAY_NAMES[schedule.dayOfWeek]} {schedule.startTime.slice(0, 5)}-{schedule.endTime.slice(0, 5)}
-              </option>
-            ))}
-          </select>
-          {trialDate && <p className="text-xs text-gray-500">Fecha propuesta: {trialDate}</p>}
-        </div>
-
-        {formError && <p className="text-sm text-red-600">{formError}</p>}
-
-        <div className="flex justify-end gap-2 pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600">
+    <ModalDialog
+      id="trial-class-modal"
+      open={open}
+      onClose={onClose}
+      title={`Clase muestra — ${group.name}`}
+      description="Sin costo. El staff confirmará tu lugar."
+      footer={
+        <>
+          <Button variant="outline" onClick={onClose}>
             Cancelar
-          </button>
+          </Button>
           <Button variant="primary" onClick={handleSubmit} disabled={submitting} loading={submitting}>
             Agendar clase muestra
           </Button>
-        </div>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <SelectField
+          id="trial-dependent-select"
+          label="Alumno"
+          value={dependentId}
+          onChange={(event) => setDependentId(event.target.value)}
+          disabled={dependentsLoading}
+          hint={
+            dependents.length === 0 && !dependentsLoading
+              ? 'Primero agrega un alumno desde "Inscribir y pagar inscripción".'
+              : undefined
+          }
+        >
+          <option value="">Elige un alumno</option>
+          {dependents.map((dependent) => (
+            <option key={dependent.id} value={dependent.id}>
+              {dependent.fullName}
+            </option>
+          ))}
+        </SelectField>
+
+        <SelectField
+          id="trial-schedule-select"
+          label="Horario"
+          value={scheduleId}
+          onChange={(event) => setScheduleId(event.target.value)}
+          hint={trialDate ? `Fecha propuesta: ${trialDate}` : undefined}
+        >
+          {group.schedules.map((schedule) => (
+            <option key={schedule.id} value={schedule.id}>
+              {DAY_NAMES[schedule.dayOfWeek]} {schedule.startTime.slice(0, 5)}–{schedule.endTime.slice(0, 5)}
+            </option>
+          ))}
+        </SelectField>
+
+        {formError && (
+          <p role="alert" className="flex items-start gap-2 text-pequeno text-alerta">
+            <CircleAlert className="mt-px h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+            {formError}
+          </p>
+        )}
       </div>
-    </div>
+    </ModalDialog>
   );
 }

@@ -2,7 +2,11 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { useMyDependents } from "@/features/dependents/hooks/useMyDependents";
 import { useEnrollDependent } from "@/features/academy/hooks/useEnrollDependent";
+import { CircleAlert, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { ModalDialog } from "@/components/ui/ModalDialog";
+import { SelectField } from "@/components/ui/SelectField";
+import { TextField } from "@/components/ui/TextField";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 
 function formatCents(cents: number | null): string {
@@ -96,96 +100,16 @@ export function EnrollAndPayModal({
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div
-        id="enroll-and-pay-modal"
-        className="flex w-full max-w-md flex-col gap-3 rounded-lg bg-white p-6"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <h2 className="text-lg font-semibold text-brand-primary">Inscribir a {groupName}</h2>
-        <p className="text-sm text-gray-600">
-          Tu solicitud queda pendiente de aprobación por el staff. La cuota de inscripción es de{" "}
-          {formatCents(registrationFeeCents)}. <strong>Este es un pago de prueba</strong>, todavía no
-          procesamos cobros reales — el staff confirmará el pago cuando revise tu solicitud.
-        </p>
-
-        {dependentsLoading ? (
-          <p className="text-sm text-gray-500">Cargando tus alumnos...</p>
-        ) : !showNewStudentForm ? (
-          <div className="flex flex-col gap-1">
-            <label htmlFor="enroll-dependent-select" className="text-xs text-gray-500">
-              Alumno
-            </label>
-            <select
-              id="enroll-dependent-select"
-              value={dependentId}
-              onChange={(event) => setDependentId(event.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-            >
-              <option value="">Elige un alumno</option>
-              {dependents.map((dependent) => (
-                <option key={dependent.id} value={dependent.id}>
-                  {dependent.fullName}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              onClick={() => setShowNewStudentForm(true)}
-              className="self-start text-xs text-brand-primary hover:underline"
-            >
-              Agregar alumno nuevo
-            </button>
-          </div>
-        ) : (
-          <form
-            id="enroll-new-student-form"
-            onSubmit={handleCreateStudent}
-            noValidate
-            className="flex flex-col gap-2 rounded-md border border-gray-200 p-3"
-          >
-            <input
-              id="enroll-new-student-name-input"
-              type="text"
-              placeholder="Nombre completo del alumno"
-              value={newStudentName}
-              onChange={(event) => setNewStudentName(event.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-            />
-            <input
-              id="enroll-new-student-birthdate-input"
-              type="date"
-              value={newStudentBirthDate}
-              onChange={(event) => setNewStudentBirthDate(event.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-            />
-            <div className="flex justify-end gap-2">
-              {dependents.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setShowNewStudentForm(false)}
-                  className="px-3 py-1 text-xs text-gray-600"
-                >
-                  Cancelar
-                </button>
-              )}
-              <button
-                type="submit"
-                disabled={creatingStudent}
-                className="rounded-md bg-brand-primary px-3 py-1 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
-              >
-                {creatingStudent ? "Creando..." : "Crear alumno"}
-              </button>
-            </div>
-          </form>
-        )}
-
-        {formError && <p className="text-sm text-red-600">{formError}</p>}
-
-        <div className="flex justify-end gap-2 pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600">
+    <ModalDialog
+      id="enroll-and-pay-modal"
+      open={open}
+      onClose={onClose}
+      title={`Inscribir a ${groupName}`}
+      footer={
+        <>
+          <Button variant="outline" onClick={onClose}>
             Cancelar
-          </button>
+          </Button>
           <Button
             variant="primary"
             onClick={handleSubmit}
@@ -194,8 +118,83 @@ export function EnrollAndPayModal({
           >
             Pagar inscripción e inscribir
           </Button>
-        </div>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <p className="rounded-control bg-suave p-3 text-pequeno text-texto-suave text-pretty">
+          Tu solicitud queda pendiente de aprobación por el staff. La cuota de inscripción es de{" "}
+          <span className="font-medium text-texto">{formatCents(registrationFeeCents)}</span>.{" "}
+          <strong className="font-medium text-texto">Este es un pago de prueba</strong>, todavía no procesamos cobros
+          reales — el staff confirmará el pago cuando revise tu solicitud.
+        </p>
+
+        {dependentsLoading ? (
+          <p role="status" className="text-pequeno text-texto-suave">
+            Cargando tus alumnos…
+          </p>
+        ) : !showNewStudentForm ? (
+          <div className="flex flex-col gap-2">
+            <SelectField
+              id="enroll-dependent-select"
+              label="Alumno"
+              value={dependentId}
+              onChange={(event) => setDependentId(event.target.value)}
+            >
+              <option value="">Elige un alumno</option>
+              {dependents.map((dependent) => (
+                <option key={dependent.id} value={dependent.id}>
+                  {dependent.fullName}
+                </option>
+              ))}
+            </SelectField>
+            <Button variant="ghost" size="sm" className="self-start" onClick={() => setShowNewStudentForm(true)}>
+              <UserPlus className="h-4 w-4" strokeWidth={1.6} aria-hidden="true" />
+              Agregar alumno nuevo
+            </Button>
+          </div>
+        ) : (
+          <form
+            id="enroll-new-student-form"
+            onSubmit={handleCreateStudent}
+            noValidate
+            className="flex flex-col gap-3 rounded-card border border-borde p-4"
+          >
+            <TextField
+              id="enroll-new-student-name-input"
+              label="Nombre completo del alumno"
+              type="text"
+              autoComplete="off"
+              value={newStudentName}
+              onChange={(event) => setNewStudentName(event.target.value)}
+            />
+            <TextField
+              id="enroll-new-student-birthdate-input"
+              label="Fecha de nacimiento (opcional)"
+              type="date"
+              value={newStudentBirthDate}
+              onChange={(event) => setNewStudentBirthDate(event.target.value)}
+            />
+            <div className="flex justify-end gap-2">
+              {dependents.length > 0 && (
+                <Button type="button" variant="ghost" size="sm" onClick={() => setShowNewStudentForm(false)}>
+                  Cancelar
+                </Button>
+              )}
+              <Button type="submit" variant="soft" size="sm" loading={creatingStudent}>
+                {creatingStudent ? "Creando…" : "Crear alumno"}
+              </Button>
+            </div>
+          </form>
+        )}
+
+        {formError && (
+          <p role="alert" className="flex items-start gap-2 text-pequeno text-alerta">
+            <CircleAlert className="mt-px h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+            {formError}
+          </p>
+        )}
       </div>
-    </div>
+    </ModalDialog>
   );
 }

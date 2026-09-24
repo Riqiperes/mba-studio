@@ -11,9 +11,8 @@
  * - @theme inline los expone como utilidades de Tailwind (bg-superficie,
  *   text-acento...). Los componentes usan SOLO los semanticos, nunca hex.
  *
- * El tema oscuro esta definido pero solo se activa con data-theme="dark";
- * el modo automatico (prefers-color-scheme) se enciende en la tarea 1.11,
- * cuando todas las pantallas usen tokens.
+ * El tema oscuro se activa solo con prefers-color-scheme: dark (o forzado
+ * con data-theme="dark"). Zonas con foto clara usan .tema-claro.
  */
 :root {
   /* Marca (exactos del manual) */
@@ -49,6 +48,31 @@
   --sombra-hoja: 0 -8px 40px rgb(51 37 31 / 0.16);
 
   color-scheme: light;
+}
+
+/* Tema oscuro ("Funcion"): automatico segun el sistema, o forzado con
+   data-theme="dark". data-theme="light" lo desactiva. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --superficie: #1f1917;
+    --superficie-tarjeta: #2b2320;
+    --superficie-suave: #261e1b;
+    --texto: #f0eee9;
+    --texto-suave: #c9b9ae;
+    --acento: #e5bac1;
+    --sobre-acento: #2a1f1c;
+    --acento-suave: #3a2f2b;
+    --borde: #3d322e;
+    --borde-control: #8a7670;
+    --exito: #a9c6ae;
+    --alerta: #f0b48f;
+    --velo: rgb(0 0 0 / 0.55);
+    --sombra-tarjeta: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+    --sombra-nav: 0 -8px 24px rgb(0 0 0 / 0.3);
+    --sombra-hoja: 0 -8px 40px rgb(0 0 0 / 0.5);
+
+    color-scheme: dark;
+  }
 }
 
 :root[data-theme="dark"] {

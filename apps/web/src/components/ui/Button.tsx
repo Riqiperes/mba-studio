@@ -4,9 +4,9 @@ import { buttonClasses } from "@/components/ui/buttonStyles";
 import type { ButtonSize, ButtonVariant } from "@/components/ui/buttonStyles";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  loading?: boolean;
+  variant?: ButtonVariant | undefined;
+  size?: ButtonSize | undefined;
+  loading?: boolean | undefined;
   ref?: Ref<HTMLButtonElement>;
 }
 

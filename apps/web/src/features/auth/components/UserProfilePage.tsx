@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { CircleAlert, CircleCheck } from "lucide-react";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { updateProfile } from "@/features/auth/services/authService";
 import { useMyAcademyEnrollments } from "@/features/academy/hooks/useMyAcademyEnrollments";
@@ -7,6 +8,8 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { SignOutButton } from "@/features/auth/components/SignOutButton";
 import { BackButton } from "@/components/ui/BackButton";
+import { TextField } from "@/components/ui/TextField";
+import { TextAreaField } from "@/components/ui/TextAreaField";
 
 const STATUS_LABELS: Record<string, string> = {
   PENDIENTE: "Pendiente de aprobación",
@@ -15,11 +18,12 @@ const STATUS_LABELS: Record<string, string> = {
   MUESTRA: "Clase muestra solicitada",
 };
 
-const STATUS_CLASSES: Record<string, string> = {
-  PENDIENTE: "bg-yellow-100 text-yellow-800",
-  ACTIVA: "bg-green-100 text-green-800",
-  BAJA: "bg-gray-100 text-gray-600",
-  MUESTRA: "bg-blue-100 text-blue-800",
+// Color del texto y del punto por estado; siempre acompanado de la etiqueta.
+const STATUS_TONES: Record<string, { text: string; dot: string }> = {
+  PENDIENTE: { text: "text-alerta", dot: "bg-alerta" },
+  ACTIVA: { text: "text-exito", dot: "bg-exito" },
+  BAJA: { text: "text-texto-suave", dot: "bg-texto-suave" },
+  MUESTRA: { text: "text-acento", dot: "bg-acento" },
 };
 
 export function UserProfilePage() {
@@ -61,78 +65,83 @@ export function UserProfilePage() {
     }
   }
 
+  const email = session?.user.email ?? "";
+  const initial = (fullName.charAt(0) || email.charAt(0) || "?").toUpperCase();
+
   return (
-    <div id="user-profile-page" className="mx-auto max-w-md px-4 py-6 space-y-6 pb-24">
-      <BackButton />
-      <header className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-brand-primary">Mi perfil</h1>
-        <SignOutButton />
-      </header>
+    <div id="user-profile-page" className="mx-auto max-w-[760px] space-y-6 px-4 py-6 sm:px-8 sm:py-8">
+      <div>
+        <BackButton />
+        <header className="flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-3">
+            <p className="etiqueta">Tu cuenta</p>
+            <h1 className="font-display text-titulo font-medium sm:text-display-l">Mi perfil</h1>
+          </div>
+          <SignOutButton />
+        </header>
+      </div>
 
       <Card>
-        <CardContent className="space-y-4 p-6">
-          <div className="text-center space-y-2">
-            <div className="mx-auto h-20 w-20 rounded-full bg-brand-primary/10 flex items-center justify-center text-3xl font-bold text-brand-primary">
-              {fullName?.charAt(0).toUpperCase() ?? session?.user.email?.charAt(0).toUpperCase() ?? "?"}
-            </div>
-            <p className="text-sm text-gray-500">{session?.user.email}</p>
-            <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
-              {profile?.role ?? "CUSTOMER"}
+        <CardContent className="space-y-6">
+          <div className="flex items-center gap-4">
+            <span
+              aria-hidden="true"
+              className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-acento-suave font-display text-titulo font-medium text-acento"
+            >
+              {initial}
             </span>
+            <div className="min-w-0 space-y-1.5">
+              <p className="truncate text-cuerpo-l font-medium text-texto" title={email}>
+                {email}
+              </p>
+              <span className="inline-flex rounded-chip bg-suave px-2.5 py-0.5 text-pequeno font-medium text-texto">
+                {profile?.role ?? "CUSTOMER"}
+              </span>
+            </div>
           </div>
 
-          <form onSubmit={handleSave} className="space-y-4 pt-4 border-t border-gray-200">
-            <div className="space-y-1">
-              <label htmlFor="profile-name" className="block text-sm font-medium text-gray-700">
-                Nombre completo
-              </label>
-              <input
-                id="profile-name"
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                autoComplete="name"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label htmlFor="profile-phone" className="block text-sm font-medium text-gray-700">
-                Teléfono
-              </label>
-              <input
-                id="profile-phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                autoComplete="tel"
-                placeholder="+52 999 123 4567"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label htmlFor="profile-medical-conditions" className="block text-sm font-medium text-gray-700">
-                Condiciones médicas (opcional)
-              </label>
-              <textarea
-                id="profile-medical-conditions"
-                rows={3}
-                value={medicalConditions}
-                onChange={(e) => setMedicalConditions(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                placeholder="Embarazo, hernia, lesiones, etc. Nos ayuda a cuidarte mejor en clase."
-              />
-            </div>
+          <form onSubmit={handleSave} className="space-y-4 border-t border-borde pt-6">
+            <TextField
+              id="profile-name"
+              label="Nombre completo"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              autoComplete="name"
+            />
+            <TextField
+              id="profile-phone"
+              label="Teléfono"
+              type="tel"
+              inputMode="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              autoComplete="tel"
+              placeholder="+52 999 123 4567"
+            />
+            <TextAreaField
+              id="profile-medical-conditions"
+              label="Condiciones médicas (opcional)"
+              rows={3}
+              value={medicalConditions}
+              onChange={(e) => setMedicalConditions(e.target.value)}
+              placeholder="Embarazo, hernia, lesiones, etc. Nos ayuda a cuidarte mejor en clase."
+            />
 
             {message && (
-              <div className={`rounded-md p-3 text-sm ${
-                message.type === "success"
-                  ? "bg-green-50 text-green-700"
-                  : "bg-red-50 text-red-700"
-              }`}>
+              <p
+                role={message.type === "success" ? "status" : "alert"}
+                className={`flex items-start gap-2 rounded-control bg-suave p-3 text-pequeno ${
+                  message.type === "success" ? "text-exito" : "text-alerta"
+                }`}
+              >
+                {message.type === "success" ? (
+                  <CircleCheck className="mt-px h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                ) : (
+                  <CircleAlert className="mt-px h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                )}
                 {message.text}
-              </div>
+              </p>
             )}
 
             <Button type="submit" variant="primary" size="lg" className="w-full" loading={saving}>
@@ -143,16 +152,16 @@ export function UserProfilePage() {
       </Card>
 
       <Card>
-        <CardContent className="space-y-3 p-6">
-          <h2 className="text-lg font-semibold text-gray-900">Información de la cuenta</h2>
-          <dl className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-gray-500">Rol</dt>
+        <CardContent className="space-y-4">
+          <h2 className="font-display text-subtitulo font-medium">Información de la cuenta</h2>
+          <dl className="divide-y divide-borde text-cuerpo">
+            <div className="flex justify-between gap-4 py-2.5">
+              <dt className="text-texto-suave">Rol</dt>
               <dd className="font-medium capitalize">{profile?.role?.toLowerCase() ?? "customer"}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-gray-500">Usuario desde</dt>
-              <dd className="font-medium">
+            <div className="flex justify-between gap-4 py-2.5">
+              <dt className="text-texto-suave">Usuario desde</dt>
+              <dd className="font-medium tabular-nums">
                 {profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString("es-MX") : "—"}
               </dd>
             </div>
@@ -161,36 +170,39 @@ export function UserProfilePage() {
       </Card>
 
       <Card>
-        <CardContent className="space-y-3 p-6">
-          <h2 className="text-lg font-semibold text-gray-900">Mis alumnos e inscripciones</h2>
+        <CardContent className="space-y-4">
+          <h2 className="font-display text-subtitulo font-medium">Mis alumnos e inscripciones</h2>
           {enrollmentsLoading ? (
-            <p className="text-sm text-gray-500">Cargando...</p>
+            <p role="status" className="text-cuerpo text-texto-suave">
+              Cargando…
+            </p>
           ) : enrollments.length === 0 ? (
-            <p className="text-sm text-gray-500">
+            <p className="text-cuerpo text-texto-suave text-pretty">
               Todavía no has inscrito a ningún alumno. Ve a{" "}
-              <Link to="/academy" className="text-brand-primary hover:underline">
+              <Link to="/academy" className="font-medium text-acento underline decoration-acento/40 underline-offset-4">
                 Academia
               </Link>{" "}
               para inscribir o agendar una clase muestra.
             </p>
           ) : (
-            <ul id="my-academy-enrollments-list" className="space-y-2 text-sm">
-              {enrollments.map((enrollment) => (
-                <li
-                  key={enrollment.id}
-                  className="flex items-center justify-between gap-2 border-b border-gray-100 pb-2 last:border-0"
-                >
-                  <div>
-                    <p className="font-medium text-gray-900">{enrollment.studentName}</p>
-                    <p className="text-xs text-gray-500">{enrollment.groupName}</p>
-                  </div>
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_CLASSES[enrollment.status]}`}
-                  >
-                    {STATUS_LABELS[enrollment.status]}
-                  </span>
-                </li>
-              ))}
+            <ul id="my-academy-enrollments-list" className="divide-y divide-borde">
+              {enrollments.map((enrollment) => {
+                const tone = STATUS_TONES[enrollment.status] ?? { text: "text-texto-suave", dot: "bg-texto-suave" };
+                return (
+                  <li key={enrollment.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
+                    <div>
+                      <p className="font-medium text-texto">{enrollment.studentName}</p>
+                      <p className="text-pequeno text-texto-suave">{enrollment.groupName}</p>
+                    </div>
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full bg-suave px-2.5 py-1 text-pequeno font-medium ${tone.text}`}
+                    >
+                      <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${tone.dot}`} />
+                      {STATUS_LABELS[enrollment.status]}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </CardContent>

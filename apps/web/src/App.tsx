@@ -11,6 +11,7 @@ import { ClassDetailPage } from "@/features/studio/components/ClassDetailPage";
 import { AcademyCatalogPage } from "@/features/academy/components/AcademyCatalogPage";
 import { MyBookingsPage } from "@/pages/MyBookingsPage";
 import { UserProfilePage } from "@/features/auth/components/UserProfilePage";
+import { NotFoundPage } from "@/pages/NotFoundPage";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/classes" element={<ClassesCalendarPage />} />
             <Route path="/classes/:id" element={<ClassDetailPage />} />
             <Route path="/academy" element={<AcademyCatalogPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
           
           {/* Login page - no layout */}

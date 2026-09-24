@@ -6,8 +6,11 @@ import { useMyCredits } from "@/features/credits/hooks/useMyCredits";
 import { BookingCard } from "@/features/bookings/components/BookingCard";
 import { WaitlistCard } from "@/features/bookings/components/WaitlistCard";
 import { CreditsBadge } from "@/features/credits/components/CreditsBadge";
-import { Card, CardContent } from "@/components/ui/Card";
 import { BackButton } from "@/components/ui/BackButton";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { buttonClasses } from "@/components/ui/buttonStyles";
 
 export function MyBookingsPage() {
   const { bookings, waitlist, loading, error, reload } = useMyBookings();
@@ -48,38 +51,42 @@ export function MyBookingsPage() {
   }
 
   return (
-    <div id="my-bookings-page" className="mx-auto max-w-xl px-4 py-6 space-y-8 pb-24">
-      <BackButton />
-      <header className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-brand-primary">Mi horario</h1>
-        <CreditsBadge balance={balance} loading={creditsLoading} />
-      </header>
+    <div id="my-bookings-page" className="mx-auto max-w-[760px] space-y-10 px-4 py-6 sm:px-8 sm:py-8">
+      <div>
+        <BackButton />
+        <header className="flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-3">
+            <p className="etiqueta">Estudio de Pilates</p>
+            <h1 className="font-display text-titulo font-medium sm:text-display-l">Mi horario</h1>
+          </div>
+          <CreditsBadge balance={balance} loading={creditsLoading} />
+        </header>
+      </div>
 
-      {error && (
-        <div className="rounded-md bg-red-50 p-4 text-sm text-red-600">{error}</div>
-      )}
+      {error && <ErrorState message={error} />}
 
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">Mis reservaciones</h2>
-          <Link to="/classes" className="text-sm text-brand-primary hover:underline">
+      <section aria-labelledby="my-bookings-title" className="space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <h2 id="my-bookings-title" className="font-display text-subtitulo font-medium">
+            Mis reservaciones
+          </h2>
+          <Link to="/classes" className={buttonClasses("soft", "sm")}>
             Reservar más
           </Link>
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-12 text-gray-500">Cargando...</div>
+          <LoadingState message="Cargando…" />
         ) : bookings.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center text-center py-8">
-              <span className="mb-3 text-4xl">📅</span>
-              <h3 className="text-lg font-medium text-gray-900">No tienes reservaciones</h3>
-              <p className="mt-1 text-sm text-gray-500">Explora las clases disponibles y reserva tu lugar.</p>
-              <Link to="/classes" className="mt-4">
-                <span className="text-brand-primary hover:underline">Ver horarios</span>
+          <EmptyState
+            title="No tienes reservaciones"
+            description="Explora las clases disponibles y reserva tu lugar."
+            action={
+              <Link to="/classes" className={buttonClasses("primary", "md")}>
+                Ver horarios
               </Link>
-            </CardContent>
-          </Card>
+            }
+          />
         ) : (
           <div className="space-y-3" id="my-bookings-list">
             {bookings.map((booking) => (
@@ -94,11 +101,13 @@ export function MyBookingsPage() {
         )}
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-gray-900">Lista de espera</h2>
+      <section aria-labelledby="my-waitlist-title" className="space-y-4">
+        <h2 id="my-waitlist-title" className="font-display text-subtitulo font-medium">
+          Lista de espera
+        </h2>
 
         {waitlist.length === 0 ? (
-          <p className="text-sm text-gray-500">No estás en ninguna lista de espera.</p>
+          <p className="rounded-card bg-suave px-5 py-4 text-cuerpo text-texto-suave">No estás en ninguna lista de espera.</p>
         ) : (
           <div className="space-y-3" id="my-waitlist-list">
             {waitlist.map((entry) => (
