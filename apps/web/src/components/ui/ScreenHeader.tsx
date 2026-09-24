@@ -3,10 +3,10 @@ import type { ReactNode } from "react";
 interface ScreenHeaderProps {
   title: string;
   /** Etiqueta editorial encima del titulo (mayusculas espaciadas). */
-  eyebrow?: string;
+  eyebrow?: string | undefined;
   /** Entradilla bajo el titulo. */
-  lead?: ReactNode;
-  id?: string;
+  lead?: ReactNode | undefined;
+  id?: string | undefined;
 }
 
 /** Encabezado de pantalla de PROMPT.md: etiqueta, titulo serif y entradilla. */

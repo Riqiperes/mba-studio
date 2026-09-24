@@ -5,11 +5,11 @@ interface ModalDialogProps {
   open: boolean;
   onClose: () => void;
   title: string;
-  description?: string;
+  description?: string | undefined;
   children: ReactNode;
   /** Botones de accion al pie (por ejemplo cancelar / confirmar). */
-  footer?: ReactNode;
-  id?: string;
+  footer?: ReactNode | undefined;
+  id?: string | undefined;
 }
 
 /**

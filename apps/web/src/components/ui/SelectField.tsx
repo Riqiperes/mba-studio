@@ -3,8 +3,8 @@ import type { Ref, SelectHTMLAttributes } from "react";
 
 interface SelectFieldProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label: string;
-  hint?: string;
-  error?: string;
+  hint?: string | undefined;
+  error?: string | undefined;
   ref?: Ref<HTMLSelectElement>;
 }
 

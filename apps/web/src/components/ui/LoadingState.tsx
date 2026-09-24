@@ -2,10 +2,10 @@ import { BrandLogo } from "@/components/ui/BrandLogo";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 interface LoadingStateProps {
-  message?: string;
+  message?: string | undefined;
   /** Ocupa toda la pantalla con el monograma (arranque, RequireAuth). */
   fullScreen?: boolean;
-  id?: string;
+  id?: string | undefined;
 }
 
 export function LoadingState({ message = "Cargando…", fullScreen = false, id }: LoadingStateProps) {

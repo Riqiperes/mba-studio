@@ -3,10 +3,10 @@ import { BrandLogo } from "@/components/ui/BrandLogo";
 
 interface EmptyStateProps {
   title: string;
-  description?: string;
+  description?: string | undefined;
   /** Accion para salir del vacio, por ejemplo un Button o un Link. */
-  action?: ReactNode;
-  id?: string;
+  action?: ReactNode | undefined;
+  id?: string | undefined;
 }
 
 // Estado vacio de PROMPT.md: bloque suave, monograma malva, titulo serif.

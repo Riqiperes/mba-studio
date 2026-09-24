@@ -5,8 +5,8 @@ interface ErrorStateProps {
   /** Que salio mal, en lenguaje del usuario. */
   message: string;
   /** Si existe, se muestra "Reintentar" para recuperarse. */
-  onRetry?: () => void;
-  id?: string;
+  onRetry?: (() => void) | undefined;
+  id?: string | undefined;
 }
 
 // El color de alerta siempre va con icono y texto, nunca solo color.
