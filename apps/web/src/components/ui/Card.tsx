@@ -1,45 +1,31 @@
-import type { HTMLAttributes, ForwardRefExoticComponent, RefAttributes } from "react";
+import type { HTMLAttributes, Ref } from "react";
 
-type CardProps = HTMLAttributes<HTMLDivElement>;
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
+  ref?: Ref<HTMLDivElement>;
+}
 
-export const Card = ((
-  props: CardProps,
-  ref: React.Ref<HTMLDivElement>,
-) => {
-  const { className = "", children, ...rest } = props;
+// Radio exterior 20px (rounded-card) con padding 20-24px: los elementos
+// internos redondeados usan rounded-control (12px) o menos.
+export function Card({ className = "", children, ref, ...rest }: CardProps) {
   return (
-    <div ref={ref} className={`rounded-lg border border-gray-200 bg-white shadow-sm ${className}`} {...rest}>
+    <div ref={ref} className={`rounded-card bg-surface shadow-card ${className}`} {...rest}>
       {children}
     </div>
   );
-}) as ForwardRefExoticComponent<CardProps & RefAttributes<HTMLDivElement>>;
+}
 
-Card.displayName = "Card";
-
-export const CardHeader = ((
-  props: HTMLAttributes<HTMLDivElement>,
-  ref: React.Ref<HTMLDivElement>,
-) => {
-  const { className = "", children, ...rest } = props;
+export function CardHeader({ className = "", children, ref, ...rest }: CardProps) {
   return (
-    <div ref={ref} className={`px-6 py-4 border-b border-gray-100 ${className}`} {...rest}>
+    <div ref={ref} className={`border-b border-gray-100 px-5 py-4 sm:px-6 ${className}`} {...rest}>
       {children}
     </div>
   );
-}) as ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & RefAttributes<HTMLDivElement>>;
+}
 
-CardHeader.displayName = "CardHeader";
-
-export const CardContent = ((
-  props: HTMLAttributes<HTMLDivElement>,
-  ref: React.Ref<HTMLDivElement>,
-) => {
-  const { className = "", children, ...rest } = props;
+export function CardContent({ className = "", children, ref, ...rest }: CardProps) {
   return (
-    <div ref={ref} className={`p-6 ${className}`} {...rest}>
+    <div ref={ref} className={`p-5 sm:p-6 ${className}`} {...rest}>
       {children}
     </div>
   );
-}) as ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & RefAttributes<HTMLDivElement>>;
-
-CardContent.displayName = "CardContent";
+}
