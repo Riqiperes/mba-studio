@@ -7,9 +7,12 @@ Este plan es la fuente de verdad del trabajo de front hasta terminarlo.
 - Rama web: `feat/web-frontend`
 - Rama admin: `feat/admin-frontend` (se crea desde `develop` actualizado al
   terminar web, **no** desde la rama de web)
+- **Guia visual principal: `docs/frontend/PROMPT.md`** (paleta, tipografia,
+  layout y pantallas) + kit de marca `docs/frontend/brand/` (logos, monogramas,
+  motivos y fotos). Manda sobre lo decidido antes en D1-D3.
+- Logos originales del PDF (SVG): `docs/frontend/logos/` (historicos; la app
+  usa el kit de `brand/`)
 - Referencias visuales: `docs/frontend/referencias/`
-- Logos oficiales (SVG): `docs/frontend/logos/` — rosa `#e5bac2` (fondos
-  claros) y crema `#efeee9` (fondos oscuros)
 - Levantar local: `npm run dev:web` (http://localhost:5173) y
   `npm run dev:admin` (http://localhost:5174)
 
@@ -26,10 +29,12 @@ instrucciones:
 
 1. **Leer este plan completo** y `CLAUDE.md`. Revisar la bitacora y los
    estados `[ ]`/`[~]`/`[x]` para saber donde se quedo el trabajo y que
-   falta. Revisar tambien la identidad de marca: la seccion "Identidad de
-   marca" de este plan, los SVG de `docs/frontend/logos/` y, si existe en
-   la maquina, el PDF `docs/frontend/logos MBA.pdf` (solo local, esta en
-   `.gitignore`). Colores, tipografias y logos salen de ahi, no se inventan.
+   falta. Revisar tambien la identidad de marca: **`docs/frontend/PROMPT.md`**
+   (guia visual principal), el kit `docs/frontend/brand/`, la seccion
+   "Identidad de marca" de este plan, los SVG de `docs/frontend/logos/` y, si
+   existe en la maquina, el PDF `docs/frontend/logos MBA.pdf` (solo local,
+   esta en `.gitignore`). Colores, tipografias y logos salen de ahi, no se
+   inventan.
 2. **Verificar la rama**: web se trabaja en `feat/web-frontend`, admin en
    `feat/admin-frontend`. Si hay cambios sin commit de otra cosa, avisar
    antes de continuar.
@@ -42,10 +47,14 @@ instrucciones:
 5. **Marcar la seccion en `[~]`** al empezarla.
 6. **Tocar solo los archivos listados en la seccion** (columna "Archivos").
    Si hace falta otro archivo, se puede, pero se anota en la bitacora.
-7. **No cambiar comportamiento**: services, hooks, rutas, queries, RLS y
-   migraciones no se tocan. Si una mejora visual requiere funcionalidad
-   nueva, se detiene, se pregunta, y si se pospone se anota en
-   `docs/roadmap.md`.
+7. **No cambiar comportamiento ni contenido**: services, hooks, rutas,
+   queries, RLS y migraciones no se tocan. `PROMPT.md` es una guia **visual**:
+   lo que hoy tiene cada pantalla es lo que se entrega. Si `PROMPT.md` pide
+   algo que la app o los datos no tienen (por ejemplo "N lugares
+   disponibles", paquete "MAS ELEGIDO", seccion "Tu proxima clase", textos
+   de "ballet y barre"), se adapta el diseno a lo que existe y no se agrega
+   ni se anota como pendiente. Se mantiene "estudio de Pilates + academia de
+   ballet" y el WhatsApp del codigo (999 107 24 23).
 8. **Reutilizar** los componentes de `src/components/ui/` creados en la
    fase base; no duplicar botones/cards/modales por pantalla.
 9. **Verificar** al terminar cada seccion:
@@ -78,7 +87,45 @@ Reglas de codigo que aplican siempre (resumen de `CLAUDE.md`):
 
 ---
 
-## Identidad de marca (fuente: `logos MBA.pdf` + SVG)
+## Identidad de marca v2 (fuente: `PROMPT.md` + `brand/`, 2026-09-24)
+
+Resumen para trabajar sin releer todo; ante duda manda `PROMPT.md`.
+
+- Sensacion: estudio de danza a media luz; crema, rosas empolvados, toques
+  cafe de madera, bailarina difuminada al fondo. Sereno, ligero, editorial.
+  Sin emojis, sin degradados azul-morado, sin tarjetas con borde de color a
+  la izquierda.
+- Tokens de marca: rosa-502 `#E5BAC1`, rosa-503 `#D09A9A`, nude-7604
+  `#E4D5D3`, arena-9226 `#EBE3D7`, cloud-dancer `#F0EEE9`, grafito
+  `#616160`, tinta `#1D1D1B`; derivados: malva `#9B7575`, vino `#984B5B`,
+  cacao `#72573E`, caramelo `#C49378`.
+- Semanticos claro / oscuro: superficie `#F0EEE9`/`#1F1917`, tarjeta
+  `#FBFAF7`/`#2B2320`, suave `#EBE3D7`/`#261E1B`, texto
+  `#33251F`/`#F0EEE9`, texto-suave `#72573E`/`#C9B9AE`, acento
+  `#984B5B`/`#E5BAC1`, sobre-acento `#FFFFFF`/`#2A1F1C`, acento-suave
+  `#F4DFE2`/`#3A2F2B`, borde `#E4D5D3`/`#3D322E`, exito
+  `#4E6B55`/`#A9C6AE`, alerta `#9A4A1F`/`#F0B48F`.
+- Contrastes medidos (texto): todos los pares pasan AA; el mas bajo es
+  acento sobre acento-suave 4.72:1. `--borde` sobre tarjeta es 1.36:1:
+  solo para separar tarjetas, **no** como unico contorno de un input (los
+  inputs usan un borde mas oscuro, 3:1 minimo). Los rosas (502, 503, nude)
+  nunca como color de texto sobre fondo claro.
+- Tipografia: Fraunces (titulos, serif) + Jost (texto). Escala en
+  `PROMPT.md` (display-l 40/44, titulo 28/34, precio 34/38, etc.).
+- Radios 8 / 14 / 22 / 999. Sombras tarjeta y nav segun `PROMPT.md`.
+- Header 76px con `logo-horizontal-malva.svg` a 44px. Fondo decorativo:
+  `monograma-linea.svg` grande abajo a la izquierda (35%) y
+  `corner-motif-rosa.svg` arriba a la derecha (55%).
+- Tema oscuro: los tokens se definen con valores oscuros desde ya, pero se
+  activa por `prefers-color-scheme` solo cuando todas las pantallas usen
+  tokens (tarea 1.11), para no dejar pantallas a medias.
+- Assets: el kit vive en `docs/frontend/brand/` (fuente) y se copia a
+  `apps/web/public/brand/` solo lo que la app usa.
+  `degradado-rosa.jpg` trae marco gris de escaneo: no se usa.
+  `bailarina-niebla`, `siluetas-barra` y `textura-monograma` miden 287px de
+  ancho: solo para tamanos chicos.
+
+## Identidad de marca v1 (historica: `logos MBA.pdf` + SVG)
 
 Resumen del PDF para que no haga falta abrirlo (solo existe local):
 
@@ -114,11 +161,11 @@ Resumen del PDF para que no haga falta abrirlo (solo existe local):
 
 | # | Decision | Se necesita para | Estado |
 |---|----------|------------------|--------|
-| D1 | Paleta completa a partir del rosa y crema del logo | Fase 0 | [x] "Rosa + crema": fondo `#fdfcf7`, superficie `#ffffff`, crema `#efeee9`, logo `#e5bac2`, acento (botones/enlaces) `#995364` y hover `#7c404e`, acento suave `#fee8ec`, texto `#292825`, texto 2o `#55544f`, borde `#d6d5d0`. Neutros calidos reemplazan `gray-*` de Tailwind |
-| D2 | Tipografias (titulos y texto) | Fase 0 | [x] Jost (Google Fonts) para todo: titulos 500/600, texto 400 |
-| D3 | Que version del logo va en header, login y landing (01/02/03) | Fase 0 | [x] Header 01, login 02, landing 03, favicon = monograma recortado |
+| D1 | Paleta completa a partir del rosa y crema del logo | Fase 0 | [x] Reemplazada el 2026-09-24 por la paleta de `PROMPT.md` (ver "Identidad de marca v2"). Antes: "Rosa + crema": fondo `#fdfcf7`, superficie `#ffffff`, crema `#efeee9`, logo `#e5bac2`, acento (botones/enlaces) `#995364` y hover `#7c404e`, acento suave `#fee8ec`, texto `#292825`, texto 2o `#55544f`, borde `#d6d5d0`. Neutros calidos reemplazan `gray-*` de Tailwind |
+| D2 | Tipografias (titulos y texto) | Fase 0 | [x] Fraunces (titulos) + Jost (texto), segun `PROMPT.md` (antes: solo Jost) |
+| D3 | Que version del logo va en header, login y landing | Fase 0 | [x] Kit `brand/`: header `logo-horizontal-malva`, login `logo-vertical-rosa`, favicon = `monograma-malva`. Los recortes de la 0.2 se borran (confirmado por el usuario) |
 | D4 | `apps/web/src/pages/HomePage.tsx` no esta en ninguna ruta: borrar o reutilizar | Fase 0 | [ ] Por ahora se deja (2026-09-24); decidir antes de cerrar 0.5 |
-| D5 | `features/studio/components/ClassesFilterBar.tsx` no se usa: integrarlo en el calendario o borrarlo | Seccion 1.5 | [ ] |
+| D5 | `features/studio/components/ClassesFilterBar.tsx` no se usa: integrarlo en el calendario o borrarlo | Seccion 1.5 | [x] No se integra: no esta en la pagina hoy y lo que existe es lo que se entrega. Se decide si se borra junto con D4 |
 | D6 | Paginas legales (aviso de privacidad, terminos) dependen de `feat/politicas-privacidad` | Seccion 1.10 | [ ] |
 
 ---
@@ -131,7 +178,9 @@ Resumen del PDF para que no haga falta abrirlo (solo existe local):
 | 0.2 | Logos al proyecto (D3) y favicon | `apps/web/src/assets/`, `apps/web/public/` | [x] |
 | 0.3 | Componentes base: `Button`, `Card`, `BackButton` + nuevos inputs, modal base y estados de carga / vacio / error | `apps/web/src/components/ui/` | [x] |
 | 0.4 | Layout y navegacion: header con logo, `BottomNavigation`, `MainLayout`, pantalla de carga de `RequireAuth` | `layouts/MainLayout.tsx`, `components/ui/BottomNavigation.tsx`, `routes/RequireAuth.tsx` | [x] |
-| 0.5 | Limpieza de archivos huerfanos (D4) | `pages/HomePage.tsx` | [ ] |
+| 0.5 | Limpieza de archivos huerfanos (D4) | `pages/HomePage.tsx` | [ ] Se salta por ahora (2026-09-24) |
+| 0.6 | Ajuste de la base al `PROMPT.md`: tokens v2 (claro + oscuro sin activar), Fraunces, radios/sombras, kit `brand/` en `public/brand/`, favicon, fondo decorativo, header 76px, nav, botones radio 14, iconos Lucide | `apps/web/src/index.css`, `apps/web/index.html`, `apps/web/public/`, `components/ui/*`, `layouts/MainLayout.tsx`, `package.json` (lucide-react) | [~] |
+| 0.7 | Icono `apple-touch-icon` (PNG) para "agregar a inicio" | `apps/web/public/`, `apps/web/index.html` | [ ] Pendiente, se hace al final |
 
 ## Fase 1 — Web (cliente)
 
@@ -147,7 +196,7 @@ Resumen del PDF para que no haga falta abrirlo (solo existe local):
 | 1.8 | Mis reservaciones (reservas, lista de espera, creditos) | `/my-bookings` | `pages/MyBookingsPage.tsx`, `features/bookings/components/BookingCard.tsx`, `WaitlistCard.tsx`, `features/credits/components/CreditsBadge.tsx` | [ ] |
 | 1.9 | Perfil (datos de la cuenta, alumnos e inscripciones, cerrar sesion) | `/profile` | `features/auth/components/UserProfilePage.tsx`, `SignOutButton.tsx` | [ ] |
 | 1.10 | Pagina 404 + pie de pagina con enlaces legales (D6) | `*` | `pages/NotFoundPage.tsx` (nuevo), `App.tsx` (solo agregar la ruta), `layouts/MainLayout.tsx` | [ ] |
-| 1.11 | Cierre de la fase: revision completa movil/escritorio, accesibilidad basica (contraste, foco, textos alternativos), lint/typecheck/build, `CURRENT_STATE.md`, proponer PR a `develop` | — | — | [ ] |
+| 1.11 | Cierre de la fase: activar tema oscuro automatico, revision completa movil/escritorio, accesibilidad basica (contraste, foco, textos alternativos), lint/typecheck/build, `CURRENT_STATE.md`, proponer PR a `develop` | — | — | [ ] |
 
 ## Fase 2.0 — Base visual admin (prerequisito de la Fase 2)
 
