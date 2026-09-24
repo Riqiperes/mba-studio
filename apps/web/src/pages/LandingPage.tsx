@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { ArrowUpRight, CalendarDays, MapPin, MessageCircle, Phone, Ticket } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { getBusiness } from "@/features/studio/services/businessService";
 import type { Business } from "@/features/studio/services/businessService";
-import { Card, CardContent } from "@/components/ui/Card";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { buttonClasses } from "@/components/ui/buttonStyles";
 
 function formatWhatsAppLink(number: string | null): string {
   if (!number) return "";
@@ -15,6 +18,19 @@ function formatPhoneLink(number: string | null): string {
   const cleaned = number.replace(/\D/g, "");
   return `tel:+52${cleaned}`;
 }
+
+function formatMapEmbedUrl(address: string): string {
+  return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+}
+
+function formatDirectionsUrl(address: string): string {
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+}
+
+const QUICK_ACCESS_ITEMS: { to: string; title: string; description: string; Icon: LucideIcon }[] = [
+  { to: "/packages", title: "Paquetes", description: "Opciones y precios", Icon: Ticket },
+  { to: "/classes", title: "Horarios", description: "Clases disponibles", Icon: CalendarDays },
+];
 
 export function LandingPage() {
   const [business, setBusiness] = useState<Business | null>(null);
@@ -30,120 +46,147 @@ export function LandingPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div id="landing-loading" className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary mx-auto mb-4"></div>
-          <p className="text-gray-500">Cargando...</p>
-        </div>
-      </div>
-    );
+    return <LoadingState id="landing-loading" />;
   }
 
+  const businessName = business?.name ?? "MBA MID";
   const whatsappUrl = business?.whatsappNumber ? formatWhatsAppLink(business.whatsappNumber) : "";
   const phoneUrl = business?.phone ? formatPhoneLink(business.phone) : "";
+  const address = business?.address ?? null;
+  const hasLocationInfo = Boolean(address || phoneUrl || whatsappUrl);
 
   return (
-    <div id="landing-page" className="mx-auto flex max-w-md flex-col gap-6 px-4 pt-4 pb-24">
-      {/* 1. Logo */}
-      <section id="landing-logo-section">
-        {business?.logoUrl ? (
-          <div className="flex justify-center pt-4">
-            <img
-              src={business.logoUrl}
-              alt={business.name}
-              className="h-16 w-auto rounded-lg"
-            />
-          </div>
-        ) : (
-          <div className="flex h-24 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 text-sm text-gray-400">
-            Aquí irá logo
-          </div>
-        )}
-      </section>
-
-      {/* 2. Información del negocio */}
-      <section id="landing-info-section" className="text-center space-y-3">
-        {business?.name || business?.description ? (
-          <>
-            <h1 className="text-2xl font-bold text-gray-900">{business?.name ?? "MBA MID"}</h1>
-            {business?.description && (
-              <p className="text-gray-600">{business.description}</p>
-            )}
-          </>
-        ) : (
-          <div className="flex h-20 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 text-sm text-gray-400">
-            Aquí irá información
-          </div>
-        )}
-      </section>
-
-      {/* 3. Mapa de Google (pendiente integrar) */}
-      <section id="landing-map-section">
-        <div className="flex h-40 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 text-sm text-gray-400">
-          Mapa de Google
+    <div id="landing-page" className="mx-auto flex max-w-[980px] flex-col gap-10 px-4 pt-6 sm:gap-12 sm:px-8 sm:pt-8">
+      {/* 1. Banner con la bailarina difuminada */}
+      <section
+        id="landing-hero-section"
+        className="tema-claro relative isolate flex min-h-[420px] overflow-hidden rounded-card border border-borde bg-cloud shadow-card sm:min-h-[340px]"
+      >
+        <img
+          src="/brand/bailarina-difuminada.jpg"
+          alt=""
+          className="absolute inset-y-0 right-0 -z-10 h-full w-full object-cover object-[50%_28%] sm:w-[62%]"
+        />
+        {/* Velo: de abajo hacia arriba en movil, de izquierda a derecha en escritorio */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-[linear-gradient(0deg,var(--cloud-dancer)_0%,var(--cloud-dancer)_42%,transparent_78%)] sm:bg-[linear-gradient(90deg,var(--cloud-dancer)_0%,var(--cloud-dancer)_38%,transparent_60%)]"
+        />
+        <img
+          src="/brand/corner-motif-rosa.svg"
+          alt=""
+          aria-hidden="true"
+          className="absolute top-0 right-0 w-14 opacity-70 sm:w-20"
+        />
+        <div className="mt-auto flex max-w-md flex-col items-start gap-4 p-6 sm:my-auto sm:p-10">
+          <p className="etiqueta text-cacao">Pilates · Ballet</p>
+          <h1 className="font-display text-titulo font-medium text-texto sm:text-[2.75rem] sm:leading-[1.1]">
+            La danza es armonía y ritmo
+          </h1>
+          <p className="text-cuerpo-l text-texto-suave text-pretty">
+            {business?.description ?? `Reserva tu próxima clase en ${businessName}.`}
+          </p>
+          <Link id="landing-hero-cta" to="/classes" className={buttonClasses("primary", "md")}>
+            Ver horarios
+          </Link>
         </div>
       </section>
 
-      {/* 4. Dirección */}
-      {business?.address && (
-        <section id="landing-address-section" className="rounded-lg bg-white p-4 shadow-sm">
-          <h2 className="mb-3 text-lg font-semibold text-gray-900">📍 Ubicación</h2>
-          <address className="text-gray-600 not-italic">{business.address}</address>
+      {/* 2. Accesos rapidos */}
+      <section id="landing-quick-access-section" aria-labelledby="landing-quick-access-title" className="space-y-4">
+        <h2 id="landing-quick-access-title" className="font-display text-subtitulo font-medium">
+          Accesos rápidos
+        </h2>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          {QUICK_ACCESS_ITEMS.map(({ to, title, description, Icon }) => (
+            <Link
+              key={to}
+              to={to}
+              className="group relative flex flex-col gap-4 rounded-card border border-borde bg-tarjeta p-5 shadow-card transition-[translate,box-shadow] duration-200 ease-(--ease-brand) hover:-translate-y-0.5 active:scale-[0.98] sm:p-6"
+            >
+              <span className="grid h-11 w-11 place-items-center rounded-full bg-acento-suave text-acento">
+                <Icon className="h-5 w-5" strokeWidth={1.6} aria-hidden="true" />
+              </span>
+              <ArrowUpRight
+                className="absolute top-5 right-5 h-5 w-5 text-texto-suave transition-[translate,color] duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-acento"
+                strokeWidth={1.6}
+                aria-hidden="true"
+              />
+              <span className="space-y-0.5">
+                <span className="block text-subtitulo font-medium text-texto">{title}</span>
+                <span className="block text-pequeno text-texto-suave">{description}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* 3. Donde estamos: mapa, direccion y contacto */}
+      {hasLocationInfo && (
+        <section
+          id="landing-location-section"
+          aria-labelledby="landing-location-title"
+          className="grid overflow-hidden rounded-card border border-borde bg-tarjeta shadow-card sm:grid-cols-2"
+        >
+          {address ? (
+            <iframe
+              id="landing-map"
+              title={`Mapa: ${address}`}
+              src={formatMapEmbedUrl(address)}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="h-56 w-full border-0 sm:h-full sm:min-h-72"
+            />
+          ) : (
+            <div className="grid h-40 place-items-center bg-suave sm:h-full">
+              <MapPin className="h-8 w-8 text-malva" strokeWidth={1.4} aria-hidden="true" />
+            </div>
+          )}
+          <div className="flex flex-col gap-5 p-6 sm:p-8">
+            <div className="space-y-2">
+              <p className="etiqueta">Visítanos</p>
+              <h2 id="landing-location-title" className="font-display text-titulo font-medium">
+                Dónde estamos
+              </h2>
+            </div>
+            {address && (
+              <address className="flex items-start gap-3 text-cuerpo-l not-italic text-texto">
+                <MapPin className="mt-1 h-5 w-5 shrink-0 text-acento" strokeWidth={1.6} aria-hidden="true" />
+                {address}
+              </address>
+            )}
+            <div className="mt-auto flex flex-wrap gap-3">
+              {whatsappUrl && (
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={buttonClasses("primary", "md")}>
+                  <MessageCircle className="h-[18px] w-[18px]" strokeWidth={1.6} aria-hidden="true" />
+                  WhatsApp
+                </a>
+              )}
+              {phoneUrl && (
+                <a href={phoneUrl} className={buttonClasses("secondary", "md")}>
+                  <Phone className="h-[18px] w-[18px]" strokeWidth={1.6} aria-hidden="true" />
+                  Llamar
+                </a>
+              )}
+              {address && (
+                <a
+                  href={formatDirectionsUrl(address)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={buttonClasses("soft", "md")}
+                >
+                  Cómo llegar
+                </a>
+              )}
+            </div>
+          </div>
         </section>
       )}
 
-      {/* 5. Teléfono / WhatsApp */}
-      <section id="landing-contact-section" className="grid gap-3 sm:grid-cols-2">
-        {business?.phone && (
-          <a
-            href={phoneUrl}
-            className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
-          >
-            <span className="text-xl">📞</span>
-            <span className="font-medium text-gray-700">Llamar</span>
-          </a>
-        )}
-        {whatsappUrl && (
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
-          >
-            <span className="text-xl">💬</span>
-            <span className="font-medium text-gray-700">WhatsApp</span>
-          </a>
-        )}
-      </section>
-
-      {/* 6. Accesos rápidos */}
-      <section id="landing-quick-access-section" className="space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900">Accesos rápidos</h2>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Link to="/packages">
-            <Card className="h-full">
-              <CardContent className="flex flex-col items-center text-center p-6">
-                <span className="mb-3 text-4xl">📦</span>
-                <h3 className="text-lg font-semibold text-brand-primary">Paquetes</h3>
-                <p className="mt-1 text-sm text-gray-500">Ver opciones y precios</p>
-              </CardContent>
-            </Card>
-          </Link>
-          <Link to="/classes">
-            <Card className="h-full">
-              <CardContent className="flex flex-col items-center text-center p-6">
-                <span className="mb-3 text-4xl">📅</span>
-                <h3 className="text-lg font-semibold text-brand-primary">Horarios</h3>
-                <p className="mt-1 text-sm text-gray-500">Clases disponibles</p>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
-      </section>
-
-      <footer className="pt-8 border-t border-gray-200 text-center text-sm text-gray-500">
-        <p>{business?.name ?? "MBA MID"} &copy; {new Date().getFullYear()}</p>
+      <footer className="border-t border-borde pt-6 pb-2 text-center text-pequeno text-texto-suave">
+        <p>
+          {businessName} &copy; {new Date().getFullYear()}
+        </p>
       </footer>
     </div>
   );

@@ -72,6 +72,18 @@
   color-scheme: dark;
 }
 
+/* Zonas que se quedan claras en cualquier tema (banner con foto clara) */
+.tema-claro {
+  --superficie-tarjeta: #fbfaf7;
+  --texto: #33251f;
+  --texto-suave: #72573e;
+  --acento: #984b5b;
+  --sobre-acento: #ffffff;
+  --acento-suave: #f4dfe2;
+  --borde: #e4d5d3;
+  color: var(--texto);
+}
+
 @theme inline {
   /* Tipografia: Fraunces (titulos) + Jost (texto), cargadas en index.html */
   --font-sans: "Jost", "Gotham Pro", system-ui, sans-serif;
