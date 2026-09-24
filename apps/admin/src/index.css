@@ -1,10 +1,390 @@
 @import "tailwindcss";
 
-@theme {
-  --color-brand-primary: #111827;
-  --color-brand-accent: #d97706;
+/*
+ * Tokens de marca (white-label). Valores de docs/frontend/PROMPT.md
+ * ("Identidad de marca v2" en el plan de frontend). Cuando exista
+ * configuracion de negocio en base de datos (docs/white-label.md), estas
+ * variables se sobreescribiran en runtime.
+ *
+ * Dos niveles:
+ * - :root / [data-theme="dark"] guardan los valores (claro / oscuro).
+ * - @theme inline los expone como utilidades de Tailwind (bg-superficie,
+ *   text-acento...). Los componentes usan SOLO los semanticos, nunca hex.
+ *
+ * Mismos tokens que apps/web (docs/frontend/PROMPT.md). El panel es una
+ * herramienta de trabajo: mas densidad, menos decoracion.
+ */
+:root {
+  /* Marca (exactos del manual) */
+  --rosa-502: #e5bac1;
+  --rosa-503: #d09a9a;
+  --nude-7604: #e4d5d3;
+  --arena-9226: #ebe3d7;
+  --cloud-dancer: #f0eee9;
+  --grafito: #616160;
+  --tinta: #1d1d1b;
+  /* Derivados de fotografia */
+  --malva: #9b7575;
+  --vino: #984b5b;
+  --cacao: #72573e;
+  --caramelo: #c49378;
+
+  /* Semanticos (claro). Contrastes medidos en el plan. */
+  --superficie: #f0eee9;
+  --superficie-tarjeta: #fbfaf7;
+  --superficie-suave: #ebe3d7;
+  --texto: #33251f; /* 12.7:1 sobre superficie */
+  --texto-suave: #72573e; /* 5.75:1 */
+  --acento: #984b5b; /* 5.19:1; texto blanco encima 6.01:1 */
+  --sobre-acento: #ffffff;
+  --acento-suave: #f4dfe2; /* acento encima 4.72:1 */
+  --borde: #e4d5d3; /* 1.36:1, solo separa tarjetas */
+  --borde-control: #9b7575; /* 3.87:1, contorno de inputs */
+  --exito: #4e6b55;
+  --alerta: #9a4a1f;
+  --velo: rgb(51 37 31 / 0.4); /* fondo detras de modales */
+  --sombra-tarjeta: 0 1px 2px rgb(51 37 31 / 0.05), 0 8px 24px rgb(114 87 62 / 0.08);
+  --sombra-nav: 0 -8px 24px rgb(114 87 62 / 0.06);
+  --sombra-hoja: 0 -8px 40px rgb(51 37 31 / 0.16);
+
+  color-scheme: light;
 }
 
-body {
-  @apply min-h-screen bg-gray-50 text-gray-900 antialiased;
+/* Tema oscuro: definido, pero en el admin se activa automaticamente
+   (prefers-color-scheme) en la tarea 2.13, cuando todas las pantallas del
+   panel usen tokens. Mientras tanto solo con data-theme="dark". */
+:root[data-theme="dark"] {
+  --superficie: #1f1917;
+  --superficie-tarjeta: #2b2320;
+  --superficie-suave: #261e1b;
+  --texto: #f0eee9;
+  --texto-suave: #c9b9ae;
+  --acento: #e5bac1;
+  --sobre-acento: #2a1f1c;
+  --acento-suave: #3a2f2b;
+  --borde: #3d322e;
+  --borde-control: #8a7670;
+  --exito: #a9c6ae;
+  --alerta: #f0b48f;
+  --velo: rgb(0 0 0 / 0.55);
+  --sombra-tarjeta: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+  --sombra-nav: 0 -8px 24px rgb(0 0 0 / 0.3);
+  --sombra-hoja: 0 -8px 40px rgb(0 0 0 / 0.5);
+
+  color-scheme: dark;
+}
+
+/* Zonas que se quedan claras en cualquier tema (banner con foto clara) */
+.tema-claro {
+  --superficie-tarjeta: #fbfaf7;
+  --texto: #33251f;
+  --texto-suave: #72573e;
+  --acento: #984b5b;
+  --sobre-acento: #ffffff;
+  --acento-suave: #f4dfe2;
+  --borde: #e4d5d3;
+  color: var(--texto);
+}
+
+@theme inline {
+  /* Tipografia: Fraunces (titulos) + Jost (texto), cargadas en index.html */
+  --font-sans: "Jost", "Gotham Pro", system-ui, sans-serif;
+  --font-display: "Fraunces", "Recoleta", Georgia, serif;
+
+  /* Escala de PROMPT.md (tamano / interlineado) */
+  --text-display-xl: 3.5rem;
+  --text-display-xl--line-height: 3.75rem;
+  --text-display-l: 2.5rem;
+  --text-display-l--line-height: 2.75rem;
+  --text-titulo: 1.75rem;
+  --text-titulo--line-height: 2.125rem;
+  --text-precio: 2.125rem;
+  --text-precio--line-height: 2.375rem;
+  --text-subtitulo: 1.25rem;
+  --text-subtitulo--line-height: 1.625rem;
+  --text-cuerpo-l: 1.0625rem;
+  --text-cuerpo-l--line-height: 1.625rem;
+  --text-cuerpo: 0.9375rem;
+  --text-cuerpo--line-height: 1.375rem;
+  --text-pequeno: 0.8125rem;
+  --text-pequeno--line-height: 1.125rem;
+  --text-etiqueta: 0.75rem;
+  --text-etiqueta--line-height: 1rem;
+
+  /* Marca */
+  --color-rosa-502: var(--rosa-502);
+  --color-rosa-503: var(--rosa-503);
+  --color-nude: var(--nude-7604);
+  --color-arena: var(--arena-9226);
+  --color-cloud: var(--cloud-dancer);
+  --color-malva: var(--malva);
+  --color-vino: var(--vino);
+  --color-cacao: var(--cacao);
+  --color-caramelo: var(--caramelo);
+  --color-tinta: var(--tinta);
+
+  /* Semanticos */
+  --color-superficie: var(--superficie);
+  --color-tarjeta: var(--superficie-tarjeta);
+  --color-suave: var(--superficie-suave);
+  --color-texto: var(--texto);
+  --color-texto-suave: var(--texto-suave);
+  --color-acento: var(--acento);
+  --color-sobre-acento: var(--sobre-acento);
+  --color-acento-suave: var(--acento-suave);
+  --color-borde: var(--borde);
+  --color-borde-control: var(--borde-control);
+  --color-exito: var(--exito);
+  --color-alerta: var(--alerta);
+
+  /* Compatibilidad: nombres usados por pantallas aun sin migrar */
+  --color-brand-primary: var(--texto);
+  --color-brand-accent: var(--acento);
+
+  /* Radios 8 (chips), 14 (botones/inputs), 22 (tarjetas/banner) */
+  --radius-chip: 0.5rem;
+  --radius-control: 0.875rem;
+  --radius-card: 1.375rem;
+
+  --shadow-card: var(--sombra-tarjeta);
+  --shadow-nav: var(--sombra-nav);
+  --shadow-sheet: var(--sombra-hoja);
+
+  /* Movimiento: 200ms con ease-out fuerte */
+  --ease-brand: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/*
+ * Neutros calidos (matiz cacao) en lugar de gray-* de Tailwind, para que las
+ * pantallas aun sin migrar hereden el tono. gray-500 como texto: 4.79:1.
+ */
+@theme {
+  --color-gray-50: #fcfaf7;
+  --color-gray-100: #f6f2ee;
+  --color-gray-200: #ece5df;
+  --color-gray-300: #dcd2ca;
+  --color-gray-400: #aea298;
+  --color-gray-500: #73665b;
+  --color-gray-600: #62554a;
+  --color-gray-700: #4b4036;
+  --color-gray-800: #322a22;
+  --color-gray-900: #1f1914;
+  --color-gray-950: #0c0806;
+}
+
+/*
+ * Base movil (skill mobile-native): que se sienta app y no pagina web.
+ * - Sin destello gris/azul al tocar; cada control trae su propio :active.
+ * - Sin inflado de fuente al girar el telefono.
+ * - Sin retraso de 300ms ni seleccion de texto al mantener presionado un
+ *   control (el texto de contenido sigue siendo seleccionable).
+ */
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    @apply min-h-dvh bg-superficie font-sans text-cuerpo text-texto antialiased;
+  }
+
+  button,
+  a,
+  [role="button"],
+  summary,
+  label {
+    touch-action: manipulation;
+  }
+
+  button,
+  [role="button"],
+  [role="tab"] {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--acento);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--acento-suave);
+    color: var(--texto);
+  }
+}
+
+@layer components {
+  /* Etiqueta editorial de PROMPT.md: 12px, mayusculas, tracking .22em */
+  .etiqueta {
+    font-size: var(--text-etiqueta);
+    line-height: var(--text-etiqueta--line-height);
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  /* Campo de formulario nativo (input/select/textarea) del panel.
+     TextField/SelectField lo envuelven con etiqueta; usar directo solo en
+     filtros compactos. Borde malva 3.87:1, foco con anillo solido. */
+  .campo {
+    min-height: 2.75rem;
+    width: 100%;
+    border-radius: var(--radius-control);
+    border: 1px solid var(--borde-control);
+    background: var(--superficie-tarjeta);
+    padding: 0.5rem 0.875rem;
+    font-size: var(--text-cuerpo);
+    color: var(--texto);
+    transition: border-color 200ms, box-shadow 200ms;
+  }
+  .campo:hover {
+    border-color: var(--texto-suave);
+  }
+  .campo:focus {
+    outline: none;
+    border-color: var(--acento);
+    box-shadow: 0 0 0 2px var(--acento);
+  }
+  .campo:disabled {
+    cursor: not-allowed;
+    background: var(--superficie-suave);
+    color: var(--texto-suave);
+  }
+  .campo::placeholder {
+    color: var(--texto-suave);
+  }
+  .campo-compacto {
+    min-height: 2.5rem;
+    padding: 0.25rem 0.625rem;
+  }
+  /* Altura fija en input/select para que no se estiren en filas de filtros */
+  input.campo,
+  select.campo {
+    height: 2.75rem;
+  }
+  input.campo-compacto,
+  select.campo-compacto {
+    height: 2.5rem;
+  }
+  .etiqueta-campo {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: var(--text-pequeno);
+    font-weight: 500;
+    color: var(--texto);
+  }
+
+  /* Tabla base del panel: va dentro de .tabla-contenedor (tarjeta con
+     scroll horizontal en pantallas angostas). */
+  .tabla-contenedor {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--borde);
+    background: var(--superficie-tarjeta);
+    box-shadow: var(--sombra-tarjeta);
+  }
+  .tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-cuerpo);
+  }
+  .tabla thead tr {
+    border-bottom: 1px solid var(--borde);
+    background: var(--superficie-suave);
+    text-align: start;
+  }
+  .tabla th {
+    padding: 0.625rem 1rem;
+    font-size: var(--text-pequeno);
+    font-weight: 500;
+    color: var(--texto-suave);
+    text-align: start;
+    white-space: nowrap;
+  }
+  .tabla td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+  }
+  .tabla tbody tr {
+    border-bottom: 1px solid var(--borde);
+  }
+  .tabla tbody tr:last-child {
+    border-bottom: 0;
+  }
+  @media (hover: hover) {
+    .tabla tbody tr:hover {
+      background: color-mix(in oklab, var(--superficie-suave) 55%, transparent);
+    }
+  }
+
+  /* Modal base (ModalDialog): hoja inferior en movil, centrado en escritorio */
+  dialog.modal-dialog {
+    opacity: 1;
+    translate: 0 0;
+    transition-property: opacity, translate, overlay, display;
+    transition-duration: 240ms;
+    transition-timing-function: var(--ease-brand);
+    transition-behavior: allow-discrete;
+  }
+
+  dialog.modal-dialog:not([open]) {
+    opacity: 0;
+    translate: 0 24px;
+  }
+
+  @starting-style {
+    dialog.modal-dialog[open] {
+      opacity: 0;
+      translate: 0 24px;
+    }
+  }
+
+  dialog.modal-dialog::backdrop {
+    background: transparent;
+    transition-property: background, overlay, display;
+    transition-duration: 240ms;
+    transition-behavior: allow-discrete;
+  }
+
+  dialog.modal-dialog[open]::backdrop {
+    background: var(--velo);
+  }
+
+  @starting-style {
+    dialog.modal-dialog[open]::backdrop {
+      background: transparent;
+    }
+  }
+}
+
+/* Fuera de @layer a proposito: debe ganarle a text-sm en inputs existentes
+   para que iOS no haga zoom al enfocar un campo. */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1em);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

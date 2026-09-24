@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { LogOut } from "lucide-react";
 import { signOut } from "../services/authService";
+import { Button } from "@/components/ui/Button";
 
 export function SignOutButton() {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,14 +18,9 @@ export function SignOutButton() {
   }
 
   return (
-    <button
-      id="sign-out-button"
-      type="button"
-      onClick={handleClick}
-      disabled={isLoading}
-      className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-    >
-      {isLoading ? "Cerrando sesion..." : "Cerrar sesion"}
-    </button>
+    <Button id="sign-out-button" type="button" variant="outline" size="sm" onClick={handleClick} loading={isLoading}>
+      {!isLoading && <LogOut className="h-4 w-4" strokeWidth={1.6} aria-hidden="true" />}
+      {isLoading ? "Cerrando sesión…" : "Cerrar sesión"}
+    </Button>
   );
 }

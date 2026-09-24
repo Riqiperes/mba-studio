@@ -3,6 +3,8 @@ import { Navigate } from "react-router-dom";
 import type { UserRole } from "@mba-studio/shared";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { SignOutButton } from "@/features/auth/components/SignOutButton";
+import { BrandLogo } from "@/components/ui/BrandLogo";
+import { LoadingState } from "@/components/ui/LoadingState";
 
 // Cualquiera de estos roles puede entrar AL PANEL en general -- que rutas
 // especificas ve cada uno lo decide `allowedRoles` por pagina.
@@ -24,11 +26,7 @@ export function RequireAuth({ children, allowedRoles = ["STAFF", "BUSINESS_ADMIN
   const { session, profile, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center text-gray-500">
-        Cargando...
-      </div>
-    );
+    return <LoadingState id="admin-auth-loading" fullScreen message="Cargando el panel…" />;
   }
 
   if (!session) {
@@ -36,11 +34,7 @@ export function RequireAuth({ children, allowedRoles = ["STAFF", "BUSINESS_ADMIN
   }
 
   if (!profile) {
-    return (
-      <div className="flex min-h-screen items-center justify-center text-gray-500">
-        Cargando...
-      </div>
-    );
+    return <LoadingState id="admin-auth-loading" fullScreen message="Cargando el panel…" />;
   }
 
   // El rol real lo decide la base de datos (tabla admin_allowed_emails +
@@ -49,17 +43,10 @@ export function RequireAuth({ children, allowedRoles = ["STAFF", "BUSINESS_ADMIN
   // ese resultado, nunca decide permisos por su cuenta.
   if (!PANEL_ROLES.includes(profile.role)) {
     return (
-      <div
-        id="access-denied"
-        className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center"
-      >
-        <h1 className="text-xl font-semibold text-brand-primary">Sin acceso</h1>
-        <p className="max-w-sm text-gray-600">
-          Tu cuenta ({profile.fullName ?? "sin nombre"}) no tiene permiso para
-          entrar al panel administrativo.
-        </p>
-        <SignOutButton />
-      </div>
+      <AccessDeniedScreen>
+        Tu cuenta ({profile.fullName ?? "sin nombre"}) no tiene permiso para
+        entrar al panel administrativo.
+      </AccessDeniedScreen>
     );
   }
 
@@ -72,16 +59,22 @@ export function RequireAuth({ children, allowedRoles = ["STAFF", "BUSINESS_ADMIN
       return <Navigate to="/instructor/my-classes" replace />;
     }
     return (
-      <div
-        id="access-denied"
-        className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center"
-      >
-        <h1 className="text-xl font-semibold text-brand-primary">Sin acceso</h1>
-        <p className="max-w-sm text-gray-600">Tu rol no tiene permiso para ver esta pagina.</p>
-        <SignOutButton />
-      </div>
+      <AccessDeniedScreen>Tu rol no tiene permiso para ver esta página.</AccessDeniedScreen>
     );
   }
 
   return children;
+}
+
+function AccessDeniedScreen({ children }: { children: ReactNode }) {
+  return (
+    <div id="access-denied" className="flex min-h-dvh items-center justify-center bg-superficie p-6">
+      <div className="flex max-w-sm flex-col items-center gap-4 rounded-card border border-borde bg-tarjeta p-8 text-center shadow-card">
+        <BrandLogo variant="monogram" alt="" className="h-16 opacity-80" />
+        <h1 className="font-display text-titulo font-medium">Sin acceso</h1>
+        <p className="text-cuerpo text-texto-suave text-pretty">{children}</p>
+        <SignOutButton />
+      </div>
+    </div>
+  );
 }

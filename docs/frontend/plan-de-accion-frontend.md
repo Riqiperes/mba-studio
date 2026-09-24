@@ -5,8 +5,9 @@ logica, services y hooks ya existen y funcionan; esta fase es de **UI/UX**.
 Este plan es la fuente de verdad del trabajo de front hasta terminarlo.
 
 - Rama web: `feat/web-frontend`
-- Rama admin: `feat/admin-frontend` (se crea desde `develop` actualizado al
-  terminar web, **no** desde la rama de web)
+- Rama admin: `feat/admin-frontend`, creada desde `feat/web-frontend` el
+  2026-09-24 (decision del usuario: `develop` aun no tiene el plan, `PROMPT.md`
+  ni el kit de marca porque la web no se ha fusionado)
 - **Guia visual principal: `docs/frontend/PROMPT.md`** (paleta, tipografia,
   layout y pantallas) + kit de marca `docs/frontend/brand/` (logos, monogramas,
   motivos y fotos). Manda sobre lo decidido antes en D1-D3.
@@ -204,10 +205,10 @@ Se trabaja en `feat/admin-frontend`. Reutiliza las decisiones D1–D3.
 
 | # | Tarea | Archivos | Estado |
 |---|-------|----------|--------|
-| 2.0.1 | Tokens de marca iguales a web | `apps/admin/src/index.css`, `apps/admin/index.html` | [ ] |
-| 2.0.2 | Logos y favicon | `apps/admin/src/assets/`, `apps/admin/public/` | [ ] |
-| 2.0.3 | Componentes base: botones, inputs, modal base, tabla base, estados de carga / vacio / error | `apps/admin/src/components/ui/` | [ ] |
-| 2.0.4 | Layout: `AdminLayout` (menu lateral / superior), pantalla de carga de `RequireAuth` | `layouts/AdminLayout.tsx`, `routes/RequireAuth.tsx` | [ ] |
+| 2.0.1 | Tokens de marca iguales a web | `apps/admin/src/index.css`, `apps/admin/index.html` | [x] |
+| 2.0.2 | Logos y favicon | `apps/admin/src/assets/`, `apps/admin/public/` | [x] |
+| 2.0.3 | Componentes base: botones, inputs, modal base, tabla base, estados de carga / vacio / error | `apps/admin/src/components/ui/` | [x] |
+| 2.0.4 | Layout: `AdminLayout` (menu lateral / superior), pantalla de carga de `RequireAuth` | `layouts/AdminLayout.tsx`, `routes/RequireAuth.tsx` | [x] |
 
 ## Fase 2 — Admin (panel)
 
@@ -269,3 +270,4 @@ Si se quiere alguna, se agrega primero a `docs/roadmap.md` como tarea aparte:
 | 2026-09-24 | 1.9 hecha (`UserProfilePage.tsx`, `SignOutButton.tsx`; extra `components/ui/TextAreaField.tsx`): tarjeta de perfil con inicial, correo y rol; formulario con `TextField`/`TextAreaField` (mismos ids y datos), mensajes con icono; informacion de la cuenta; inscripciones con estado en punto + texto. La inicial ya no queda vacia cuando el nombre esta en blanco. |
 | 2026-09-24 | 1.10 hecha (`pages/NotFoundPage.tsx` nuevo, `App.tsx` solo la ruta `*` dentro de `MainLayout`): antes una ruta inexistente mostraba pantalla en blanco. Sin pie con enlaces legales (D6). |
 | 2026-09-24 | 1.11 hecha: tema oscuro automatico con `prefers-color-scheme` (`index.css`), logo horizontal rosa en oscuro (`BrandLogo` con `<picture>`), `theme-color` por esquema y `color-scheme` en `index.html`; sin colores sueltos de Tailwind en ninguna pantalla con ruta. Verificado: lint, typecheck y build; capturas claro/oscuro en movil; sin desborde horizontal a 320 y 390 px en las 10 rutas (medido con `scrollWidth`); comparacion con el metodo de `interface-review` de las lineas eliminadas (mismos ids, manejadores, textos y confirmaciones). `docs/CURRENT_STATE.md` actualizado. No se abre PR (lo pidio el usuario). |
+| 2026-09-24 | Se crea `feat/admin-frontend` desde `feat/web-frontend` (ver encabezado). Fase 2.0 hecha. 2.0.1: tokens iguales a web en `apps/admin/src/index.css` (tema oscuro definido pero sin activar hasta 2.13) + clases base del panel `.campo`/`.campo-compacto`/`.etiqueta-campo` y `.tabla-contenedor`/`.tabla` (tabla base); `index.html` con Fraunces + Jost, `viewport-fit=cover` y title. 2.0.2: kit de marca en `apps/admin/public/brand/` y favicon `monograma-malva`. 2.0.3: componentes base copiados de web a `apps/admin/src/components/ui/` (`ModalDialog` con `size` md/lg y `ScreenHeader` compacto con `actions`, propios del panel), `lucide-react` en admin. 2.0.4: `AdminLayout` con header fijo (logo + "Panel"), pestanas con icono segun rol (mismas reglas: instructor, admin de negocio, super admin), nombre y cerrar sesion, enlace "Saltar al contenido" y monograma de fondo discreto; `RequireAuth` con pantalla de carga del monograma y "Sin acceso" en tarjeta (mismos textos e id); `BackButton` con chevron y el mismo `navigate(-1)`. Revisado: lineas eliminadas con equivalente, capturas movil/escritorio con una ruta temporal (ya borrada), lint/typecheck/build web y admin. |

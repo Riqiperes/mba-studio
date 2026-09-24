@@ -1,3 +1,4 @@
+import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // navigate(-1) usa el historial real del navegador (no una ruta fija),
@@ -11,9 +12,10 @@ export function BackButton() {
       id="back-button"
       type="button"
       onClick={() => navigate(-1)}
-      className="mb-3 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+      className="-ms-2 mb-4 inline-flex min-h-10 items-center gap-0.5 rounded-control ps-1 pe-3 text-pequeno font-medium text-texto-suave transition-colors duration-200 hover:bg-suave hover:text-texto active:bg-suave"
     >
-      ← Regresar
+      <ChevronLeft className="h-5 w-5" strokeWidth={1.6} aria-hidden="true" />
+      Regresar
     </button>
   );
 }
