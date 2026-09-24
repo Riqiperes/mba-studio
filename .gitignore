@@ -46,3 +46,6 @@ comandos-para-trabajo.md
 
 # Volcados de fallo de Git Bash
 *.stackdump
+
+# Material de marca fuente (se queda local, ver docs/frontend/referencias/README.md)
+docs/frontend/*.pdf
