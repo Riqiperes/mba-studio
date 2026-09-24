@@ -29,10 +29,10 @@ export function TextField({ label, hint, error, id, className = "", ref, ...rest
         id={inputId}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
-        className={`min-h-12 w-full rounded-control border bg-tarjeta px-4 text-base text-texto transition-[border-color,box-shadow] duration-200 placeholder:text-texto-suave/70 focus:outline-none focus-visible:outline-none focus:ring-4 disabled:cursor-not-allowed disabled:bg-suave disabled:text-texto-suave ${
+        className={`min-h-12 w-full rounded-control border bg-tarjeta px-4 text-base text-texto transition-[border-color,box-shadow] duration-200 placeholder:text-texto-suave focus:outline-none focus-visible:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-suave disabled:text-texto-suave ${
           error
-            ? "border-alerta focus:ring-alerta/15"
-            : "border-borde-control hover:border-texto-suave focus:border-acento focus:ring-acento/15"
+            ? "border-alerta focus:ring-alerta"
+            : "border-borde-control hover:border-texto-suave focus:border-acento focus:ring-acento"
         }`}
         {...rest}
       />

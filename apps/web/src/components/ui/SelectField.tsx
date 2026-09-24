@@ -27,10 +27,10 @@ export function SelectField({ label, hint, error, id, className = "", children, 
           id={selectId}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
-          className={`min-h-12 w-full appearance-none rounded-control border bg-tarjeta ps-4 pe-11 text-base text-texto transition-[border-color,box-shadow] duration-200 focus:outline-none focus-visible:outline-none focus:ring-4 disabled:cursor-not-allowed disabled:bg-suave ${
+          className={`min-h-12 w-full appearance-none rounded-control border bg-tarjeta ps-4 pe-11 text-base text-texto transition-[border-color,box-shadow] duration-200 focus:outline-none focus-visible:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-suave ${
             error
-              ? "border-alerta focus:ring-alerta/15"
-              : "border-borde-control hover:border-texto-suave focus:border-acento focus:ring-acento/15"
+              ? "border-alerta focus:ring-alerta"
+              : "border-borde-control hover:border-texto-suave focus:border-acento focus:ring-acento"
           }`}
           {...rest}
         >

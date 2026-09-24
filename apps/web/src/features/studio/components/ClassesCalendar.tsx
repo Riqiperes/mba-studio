@@ -141,11 +141,11 @@ function WeekDaysRow({
                 </a>
               ) : (
                 <span
-                  aria-label={`${dayLabel}, sin clases`}
                   aria-current={isToday ? "date" : undefined}
                   className={`${baseClasses} ${isToday ? "" : "opacity-45"}`}
                 >
-                  {content}
+                  <span aria-hidden="true" className="contents">{content}</span>
+                  <span className="sr-only">{`${dayLabel}, sin clases`}</span>
                 </span>
               )}
             </li>
