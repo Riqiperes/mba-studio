@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { CalendarClock, CreditCard, MessageCircle, Ticket, Wallet } from "lucide-react";
 import { listActivePackages } from "@/features/packages/services/packagesService";
 import type { PackageCatalogItem } from "@/features/packages/types/Package";
-import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { BackButton } from "@/components/ui/BackButton";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { formatCreditsLabel } from "@/features/packages/utils/packageDisplayLabels";
 
 // Numero de WhatsApp para informes y clases (lada de Mexico 52).
 const WHATSAPP_CONTACT_NUMBER = "529991072423";
@@ -45,65 +49,83 @@ export function PackageDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh] px-4">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary mx-auto mb-4"></div>
-          <p className="text-gray-500">Cargando...</p>
-        </div>
-      </div>
-    );
+    return <LoadingState id="package-detail-loading" message="Cargando paquete…" />;
   }
 
   if (error || !pkg) {
     return (
-      <div className="mx-auto max-w-md px-4 py-12 text-center">
-        <BackButton />
-        <h2 className="mb-2 text-xl font-semibold text-gray-900">No encontrado</h2>
-        <p className="text-gray-500">{error ?? "El paquete no existe"}</p>
+      <div id="package-detail-not-found" className="mx-auto max-w-md px-4 py-6 sm:py-8">
+        <BackButton to="/packages" label="Paquetes" />
+        <EmptyState
+          title="No encontramos este paquete"
+          description={error ?? "El paquete no existe o ya no está disponible."}
+          action={
+            <Link to="/packages" className={buttonClasses("secondary", "md")}>
+              Ver todos los paquetes
+            </Link>
+          }
+        />
       </div>
     );
   }
 
+  const details = [
+    { label: "Créditos", value: formatCreditsLabel(pkg.credits), Icon: Ticket },
+    { label: "Vigencia", value: pkg.validityLabel, Icon: CalendarClock },
+    { label: "Pago", value: "Pago único", Icon: Wallet },
+  ];
+
   return (
-    <div id="package-detail-page" className="mx-auto max-w-md px-4 py-6 space-y-6 pb-24">
-      <BackButton />
+    <div id="package-detail-page" className="mx-auto max-w-[980px] px-4 py-6 sm:px-8 sm:py-8">
+      <BackButton to="/packages" label="Paquetes" />
 
-      <Card>
-        <CardContent className="space-y-6 p-6">
-          <div className="text-center space-y-3">
-            <h1 className="text-2xl font-bold text-brand-primary">{pkg.name}</h1>
-            <p className="text-gray-600">{pkg.description ?? "Sin descripción"}</p>
-          </div>
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px] lg:items-start">
+        <section id="package-detail-info" className="space-y-6">
+          <header className="space-y-3">
+            <p className="etiqueta">Paquete</p>
+            <h1 className="font-display text-titulo font-medium sm:text-display-l">{pkg.name}</h1>
+            <p className="max-w-xl text-cuerpo-l text-texto-suave text-pretty">{pkg.description ?? "Sin descripción"}</p>
+          </header>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="text-center p-4 rounded-lg bg-gray-50">
-              <p className="text-3xl font-bold text-brand-primary">{pkg.credits}</p>
-              <p className="text-sm text-gray-500">Créditos</p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-gray-50">
-              <p className="text-3xl font-bold text-brand-primary">{pkg.priceFormatted}</p>
-              <p className="text-sm text-gray-500">Pago único</p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-gray-50 sm:col-span-2">
-              <p className="font-medium text-gray-900">{pkg.validityLabel}</p>
-              <p className="text-sm text-gray-500">Vigencia</p>
-            </div>
-          </div>
+          <dl className="grid grid-cols-3 gap-2 sm:gap-3">
+            {details.map(({ label, value, Icon }) => (
+              <div key={label} className="flex flex-col items-center gap-2 rounded-card border border-borde bg-tarjeta p-3 text-center shadow-card sm:flex-row sm:gap-3 sm:p-4 sm:text-start">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-acento-suave text-acento">
+                  <Icon className="h-5 w-5" strokeWidth={1.6} aria-hidden="true" />
+                </span>
+                <div>
+                  <dt className="text-pequeno text-texto-suave">{label}</dt>
+                  <dd className="font-medium text-texto">{value}</dd>
+                </div>
+              </div>
+            ))}
+          </dl>
+        </section>
 
-          <div className="space-y-3 pt-4 border-t border-gray-200">
+        <aside
+          id="package-detail-purchase"
+          aria-label="Precio y compra"
+          className="rounded-card border border-borde bg-tarjeta p-6 shadow-card lg:sticky lg:top-[100px]"
+        >
+          <p className="etiqueta">Precio</p>
+          <p className="mt-2 font-display text-precio font-medium tabular-nums">{pkg.priceFormatted}</p>
+          <p className="text-pequeno text-texto-suave">MXN · pago único</p>
+
+          <div className="mt-6 space-y-3 border-t border-borde pt-6">
             <Button variant="primary" size="lg" className="w-full" onClick={handleWhatsApp}>
-              💬 Consultar por WhatsApp
+              <MessageCircle className="h-5 w-5" strokeWidth={1.6} aria-hidden="true" />
+              Consultar por WhatsApp
             </Button>
             <Button variant="outline" size="lg" className="w-full" disabled>
-              💳 Comprar (próximamente)
+              <CreditCard className="h-5 w-5" strokeWidth={1.6} aria-hidden="true" />
+              Comprar (próximamente)
             </Button>
-            <p className="text-center text-xs text-gray-500">
+            <p className="text-center text-pequeno text-texto-suave text-pretty">
               El pago se procesará vía Stripe cuando esté disponible.
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </aside>
+      </div>
     </div>
   );
 }
