@@ -48,16 +48,16 @@ export function ModalDialog({ open, onClose, title, description, children, foote
         // Clic en el fondo (fuera del contenido) cierra el modal
         if (event.target === event.currentTarget) onClose();
       }}
-      className="modal-dialog focus-visible:outline-none m-0 mt-auto w-full max-w-none overscroll-contain rounded-t-card bg-surface p-0 text-ink shadow-sheet sm:m-auto sm:max-w-md sm:rounded-card"
+      className="modal-dialog focus-visible:outline-none m-0 mt-auto w-full max-w-none overscroll-contain rounded-t-card bg-tarjeta p-0 text-texto shadow-sheet sm:m-auto sm:max-w-md sm:rounded-card"
     >
       <div className="flex max-h-[85dvh] flex-col">
         <div className="flex items-start justify-between gap-4 px-5 pt-5 sm:px-6 sm:pt-6">
           <div className="space-y-1">
-            <h2 id={titleId} className="text-lg font-semibold tracking-tight">
+            <h2 id={titleId} className="font-display text-subtitulo font-medium">
               {title}
             </h2>
             {description && (
-              <p id={descriptionId} className="text-sm text-ink-muted text-pretty">
+              <p id={descriptionId} className="text-pequeno text-texto-suave text-pretty">
                 {description}
               </p>
             )}
@@ -66,7 +66,7 @@ export function ModalDialog({ open, onClose, title, description, children, foote
             type="button"
             onClick={onClose}
             aria-label="Cerrar"
-            className="-me-2 -mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-full text-ink-muted transition-colors duration-150 hover:bg-gray-100 hover:text-ink active:bg-gray-200"
+            className="-me-2 -mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-full text-texto-suave transition-colors duration-200 hover:bg-suave hover:text-texto active:bg-suave"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
               <path d="M18 6 6 18M6 6l12 12" />
@@ -75,7 +75,7 @@ export function ModalDialog({ open, onClose, title, description, children, foote
         </div>
         <div className="overflow-y-auto overscroll-contain px-5 py-4 sm:px-6">{children}</div>
         {footer && (
-          <div className="flex flex-col-reverse gap-3 border-t border-gray-100 px-5 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:flex-row sm:justify-end sm:px-6 sm:pb-6">
+          <div className="flex flex-col-reverse gap-3 border-t border-borde px-5 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:flex-row sm:justify-end sm:px-6 sm:pb-6">
             {footer}
           </div>
         )}

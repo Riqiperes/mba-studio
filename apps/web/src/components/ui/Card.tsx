@@ -4,11 +4,11 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
   ref?: Ref<HTMLDivElement>;
 }
 
-// Radio exterior 20px (rounded-card) con padding 20-24px: los elementos
-// internos redondeados usan rounded-control (12px) o menos.
+// Tarjeta de PROMPT.md: fondo tarjeta, borde, radio 22, sombra. Los
+// elementos internos redondeados usan rounded-control (14px) o rounded-chip.
 export function Card({ className = "", children, ref, ...rest }: CardProps) {
   return (
-    <div ref={ref} className={`rounded-card bg-surface shadow-card ${className}`} {...rest}>
+    <div ref={ref} className={`rounded-card border border-borde bg-tarjeta shadow-card ${className}`} {...rest}>
       {children}
     </div>
   );
@@ -16,7 +16,7 @@ export function Card({ className = "", children, ref, ...rest }: CardProps) {
 
 export function CardHeader({ className = "", children, ref, ...rest }: CardProps) {
   return (
-    <div ref={ref} className={`border-b border-gray-100 px-5 py-4 sm:px-6 ${className}`} {...rest}>
+    <div ref={ref} className={`border-b border-borde px-5 py-4 sm:px-6 ${className}`} {...rest}>
       {children}
     </div>
   );

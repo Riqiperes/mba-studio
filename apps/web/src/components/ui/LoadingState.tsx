@@ -13,16 +13,16 @@ export function LoadingState({ message = "Cargando…", fullScreen = false, id }
     <div
       id={id}
       role="status"
-      className={`flex flex-col items-center justify-center gap-4 px-6 text-center text-ink-muted ${
-        fullScreen ? "min-h-dvh bg-page" : "min-h-[40dvh]"
+      className={`flex flex-col items-center justify-center gap-4 px-6 text-center text-texto-suave ${
+        fullScreen ? "min-h-dvh bg-superficie" : "min-h-[40dvh]"
       }`}
     >
       {fullScreen ? (
         <BrandLogo variant="monogram" alt="" className="h-14 animate-pulse" />
       ) : (
-        <LoadingSpinner className="h-6 w-6 text-accent" />
+        <LoadingSpinner className="h-6 w-6 text-acento" />
       )}
-      <p className="text-sm">{message}</p>
+      <p className="text-pequeno">{message}</p>
     </div>
   );
 }

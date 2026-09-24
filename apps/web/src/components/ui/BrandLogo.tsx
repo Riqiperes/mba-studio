@@ -1,18 +1,12 @@
-import logoHorizontal from "@/assets/brand/logo-mba-horizontal-rosa.svg";
-import logoStacked from "@/assets/brand/logo-mba-apilado-rosa.svg";
-import logoArch from "@/assets/brand/logo-mba-arco-rosa.svg";
-import logoMonogram from "@/assets/brand/logo-mba-monograma-rosa.svg";
-
 /*
- * Logos oficiales (docs/frontend/logos/, decision D3):
- * horizontal = header, stacked = login, arch = landing, monogram = cargas.
- * Son la version rosa, para fondos claros.
+ * Logos del kit de marca (docs/frontend/brand/, copiados a public/brand/).
+ * Nunca se redibujan, recolorean ni deforman: solo se escalan.
+ * horizontal = header, vertical = login, monogram = estados vacios y carga.
  */
 const LOGO_SOURCES = {
-  horizontal: logoHorizontal,
-  stacked: logoStacked,
-  arch: logoArch,
-  monogram: logoMonogram,
+  horizontal: "/brand/logo-horizontal-malva.svg",
+  vertical: "/brand/logo-vertical-rosa.svg",
+  monogram: "/brand/monograma-malva.svg",
 } as const;
 
 export type BrandLogoVariant = keyof typeof LOGO_SOURCES;

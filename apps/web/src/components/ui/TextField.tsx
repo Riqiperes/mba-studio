@@ -21,7 +21,7 @@ export function TextField({ label, hint, error, id, className = "", ref, ...rest
 
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
-      <label htmlFor={inputId} className="text-sm font-medium text-ink">
+      <label htmlFor={inputId} className="text-pequeno font-medium text-texto">
         {label}
       </label>
       <input
@@ -29,20 +29,20 @@ export function TextField({ label, hint, error, id, className = "", ref, ...rest
         id={inputId}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
-        className={`min-h-12 w-full rounded-control border bg-surface px-4 text-base text-ink transition-[border-color,box-shadow] duration-150 placeholder:text-gray-400 focus:outline-none focus-visible:outline-none focus:ring-4 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-ink-muted ${
+        className={`min-h-12 w-full rounded-control border bg-tarjeta px-4 text-base text-texto transition-[border-color,box-shadow] duration-200 placeholder:text-texto-suave/70 focus:outline-none focus-visible:outline-none focus:ring-4 disabled:cursor-not-allowed disabled:bg-suave disabled:text-texto-suave ${
           error
-            ? "border-red-600 focus:ring-red-600/15"
-            : "border-line hover:border-gray-400 focus:border-accent focus:ring-accent/15"
+            ? "border-alerta focus:ring-alerta/15"
+            : "border-borde-control hover:border-texto-suave focus:border-acento focus:ring-acento/15"
         }`}
         {...rest}
       />
       {hint && !error && (
-        <p id={hintId} className="text-sm text-ink-muted">
+        <p id={hintId} className="text-pequeno text-texto-suave">
           {hint}
         </p>
       )}
       {error && (
-        <p id={errorId} className="flex items-start gap-1.5 text-sm text-red-700">
+        <p id={errorId} className="flex items-start gap-1.5 text-pequeno text-alerta">
           <svg className="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
             <circle cx="12" cy="12" r="9" />
             <path d="M12 8v4.5M12 16h.01" />
