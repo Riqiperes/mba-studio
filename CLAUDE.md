@@ -158,8 +158,12 @@ produccion y esta protegida (sin push directo); el trabajo nuevo sale de
 ## Rediseno de frontend (en curso)
 
 Todo trabajo visual de `apps/web` y `apps/admin` sigue
-`docs/frontend/plan-de-accion-frontend.md`: leer su "Protocolo de trabajo"
-antes de empezar y marcar cada seccion al terminarla.
+`docs/frontend/plan-de-accion-frontend.md`: leer SIEMPRE el plan completo
+(protocolo, identidad de marca, decisiones y bitacora) para saber en que
+punto va el trabajo y que falta, y revisar los logos de
+`docs/frontend/logos/` (y el PDF `docs/frontend/logos MBA.pdf` si existe
+local) antes de tocar colores, tipografias o logos. Marcar cada seccion al
+terminarla.
 
 ## Documentacion viva
 

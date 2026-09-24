@@ -24,8 +24,12 @@ El usuario pide trabajo con frases como "haz la fase 1 de la 1 a la 4". El
 agente (Claude Code u otro) sigue estos pasos sin necesidad de mas
 instrucciones:
 
-1. **Leer este plan completo** y `CLAUDE.md`. Revisar la bitacora para saber
-   donde se quedo el trabajo.
+1. **Leer este plan completo** y `CLAUDE.md`. Revisar la bitacora y los
+   estados `[ ]`/`[~]`/`[x]` para saber donde se quedo el trabajo y que
+   falta. Revisar tambien la identidad de marca: la seccion "Identidad de
+   marca" de este plan, los SVG de `docs/frontend/logos/` y, si existe en
+   la maquina, el PDF `docs/frontend/logos MBA.pdf` (solo local, esta en
+   `.gitignore`). Colores, tipografias y logos salen de ahi, no se inventan.
 2. **Verificar la rama**: web se trabaja en `feat/web-frontend`, admin en
    `feat/admin-frontend`. Si hay cambios sin commit de otra cosa, avisar
    antes de continuar.
@@ -74,14 +78,46 @@ Reglas de codigo que aplican siempre (resumen de `CLAUDE.md`):
 
 ---
 
+## Identidad de marca (fuente: `logos MBA.pdf` + SVG)
+
+Resumen del PDF para que no haga falta abrirlo (solo existe local):
+
+- Nombre en el logo: **Merida Ballet Academy** (monograma "MBA" entrelazado
+  con forma de zapatillas/lazo). 4 paginas, todas con el logo rosa sobre
+  fondo blanco. El PDF **no** trae guia de tipografias ni paleta extendida:
+  solo el color del logo.
+- Colores oficiales: rosa `#e5bac2` (los SVG 02 y 03 usan `#e5bac1`, misma
+  tinta) para fondos claros y crema `#efeee9` para fondos oscuros.
+- Contraste medido: rosa sobre blanco **1.73:1** y rosa sobre crema
+  **1.49:1**. Sirve para el logo y superficies decorativas, **no** para
+  texto, botones con texto blanco ni bordes de inputs (minimo 4.5:1 texto,
+  3:1 componentes). Para eso se usan tonos mas oscuros derivados del mismo
+  matiz (ver D1).
+- La letra del logo es un rotulado propio (sans geometrica en mayusculas con
+  A y R caligraficas), no una fuente instalable: el logo se usa siempre como
+  SVG, nunca se reescribe con texto.
+- Variantes (PDF -> SVG):
+
+| PDF | SVG | Composicion | Uso sugerido |
+|-----|-----|-------------|--------------|
+| pag. 1 | `logo-mba-*-01.svg` | Monograma a la izquierda + nombre en 3 lineas | Header (horizontal, poco alto) |
+| pag. 2 | `logo-mba-*-02.svg` | Monograma arriba, "MERIDA BALLET" y "ACADEMY" espaciado debajo | Login / landing |
+| pag. 3 | `logo-mba-*-03.svg` | Monograma con el nombre en arco | Landing, sellos, redes |
+| pag. 4 | (sin SVG) | Monograma arriba + nombre en una sola linea | Si se necesita, pedir el SVG |
+
+- Los SVG vienen en lienzo carta (792x612) con mucho margen: al copiarlos a
+  `apps/*/src/assets/` se recorta el `viewBox` al contenido.
+
+---
+
 ## Decisiones pendientes (resolver con el usuario)
 
 | # | Decision | Se necesita para | Estado |
 |---|----------|------------------|--------|
-| D1 | Paleta completa (primario, acento, fondos, texto) a partir del rosa y crema del logo | Fase 0 | [ ] |
-| D2 | Tipografias (titulos y texto) | Fase 0 | [ ] |
-| D3 | Que version del logo va en header, login y landing (01/02/03) | Fase 0 | [ ] |
-| D4 | `apps/web/src/pages/HomePage.tsx` no esta en ninguna ruta: borrar o reutilizar | Fase 0 | [ ] |
+| D1 | Paleta completa a partir del rosa y crema del logo | Fase 0 | [x] "Rosa + crema": fondo `#fdfcf7`, superficie `#ffffff`, crema `#efeee9`, logo `#e5bac2`, acento (botones/enlaces) `#995364` y hover `#7c404e`, acento suave `#fee8ec`, texto `#292825`, texto 2o `#55544f`, borde `#d6d5d0`. Neutros calidos reemplazan `gray-*` de Tailwind |
+| D2 | Tipografias (titulos y texto) | Fase 0 | [x] Jost (Google Fonts) para todo: titulos 500/600, texto 400 |
+| D3 | Que version del logo va en header, login y landing (01/02/03) | Fase 0 | [x] Header 01, login 02, landing 03, favicon = monograma recortado |
+| D4 | `apps/web/src/pages/HomePage.tsx` no esta en ninguna ruta: borrar o reutilizar | Fase 0 | [ ] Por ahora se deja (2026-09-24); decidir antes de cerrar 0.5 |
 | D5 | `features/studio/components/ClassesFilterBar.tsx` no se usa: integrarlo en el calendario o borrarlo | Seccion 1.5 | [ ] |
 | D6 | Paginas legales (aviso de privacidad, terminos) dependen de `feat/politicas-privacidad` | Seccion 1.10 | [ ] |
 
@@ -91,7 +127,7 @@ Reglas de codigo que aplican siempre (resumen de `CLAUDE.md`):
 
 | # | Tarea | Archivos | Estado |
 |---|-------|----------|--------|
-| 0.1 | Tokens de marca: paleta, tipografias, radios, sombras en `@theme` (D1, D2) | `apps/web/src/index.css`, `apps/web/index.html` (fuentes, title, meta theme-color) | [ ] |
+| 0.1 | Tokens de marca: paleta, tipografias, radios, sombras en `@theme` (D1, D2) | `apps/web/src/index.css`, `apps/web/index.html` (fuentes, title, meta theme-color) | [x] |
 | 0.2 | Logos al proyecto (D3) y favicon | `apps/web/src/assets/`, `apps/web/public/` | [ ] |
 | 0.3 | Componentes base: `Button`, `Card`, `BackButton` + nuevos inputs, modal base y estados de carga / vacio / error | `apps/web/src/components/ui/` | [ ] |
 | 0.4 | Layout y navegacion: header con logo, `BottomNavigation`, `MainLayout`, pantalla de carga de `RequireAuth` | `layouts/MainLayout.tsx`, `components/ui/BottomNavigation.tsx`, `routes/RequireAuth.tsx` | [ ] |
@@ -165,3 +201,5 @@ Si se quiere alguna, se agrega primero a `docs/roadmap.md` como tarea aparte:
 | 2026-09-23 | Se crea el plan y la carpeta de referencias. Rama `feat/web-frontend`. |
 | 2026-09-23 | Logos SVG en `docs/frontend/logos/`; PDF fuente fuera de Git. |
 | 2026-09-23 | Plan verificado contra todas las rutas y componentes de `apps/web` y `apps/admin`. Se agregan: protocolo de trabajo, decisiones pendientes, Fase 0 con archivos, Fase 2.0 (base admin), 404 + legales, reservaciones de clase en admin, cierre de fase y "fuera de alcance". |
+| 2026-09-24 | Se agrega "Identidad de marca" (resumen del PDF, variantes de logo, contrastes medidos) y el paso de revisar PDF/logos en el protocolo y `CLAUDE.md`. Decisiones D1, D2, D3 resueltas; D4 se deja abierta. |
+| 2026-09-24 | 0.1 hecha: tokens en `apps/web/src/index.css` (rampa rosa, neutro calido que reemplaza `gray-*`, semanticos `page`/`surface`/`ink`/`line`/`accent`, radios y sombra) y Jost + `theme-color` + title en `apps/web/index.html`. `brand-primary`/`brand-accent` se mantienen como alias (ahora `ink`/`accent`) y se migran por seccion. Pendiente visto en el navegador: en la landing a 390px las tarjetas se salen por la derecha (layout previo, se atiende en 0.4 / 1.1). |
