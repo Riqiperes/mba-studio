@@ -1,36 +1,41 @@
 import { usePackages } from "@/features/packages/hooks/usePackages";
 import { PackageCard } from "@/features/packages/components/PackageCard";
 import { BackButton } from "@/components/ui/BackButton";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
 
 export function PackagesCatalogPage() {
   const { packages, loading, error } = usePackages();
 
   return (
-    <div id="packages-catalog-page" className="mx-auto max-w-5xl p-6">
+    <div id="packages-catalog-page" className="mx-auto max-w-[980px] px-4 py-6 sm:px-8 sm:py-8">
       <BackButton />
-      <header className="mb-8">
-        <h1 className="text-2xl font-semibold text-brand-primary">Nuestros paquetes</h1>
-        <p className="mt-1 text-gray-600">
-          Elige el paquete que mejor se adapte a tu práctica. Todos los precios en MXN.
-        </p>
-      </header>
+      <ScreenHeader
+        eyebrow="Estudio de Pilates"
+        title="Nuestros paquetes"
+        lead="Elige el paquete que mejor se adapte a tu práctica. Todos los precios en MXN."
+      />
 
       {error && (
-        <div id="packages-error" className="mb-6 rounded-md bg-red-50 p-4 text-sm text-red-600">
-          {error}
+        <div className="mb-6">
+          <ErrorState id="packages-error" message={error} />
         </div>
       )}
 
       {loading ? (
-        <div id="packages-loading" className="flex items-center justify-center py-12 text-gray-500">
-          Cargando paquetes...
-        </div>
+        <LoadingState id="packages-loading" message="Cargando paquetes…" />
       ) : packages.length === 0 ? (
-        <div id="packages-empty" className="text-center py-12 text-gray-500">
-          <p>Todavía no hay paquetes disponibles.</p>
-        </div>
+        !error && (
+          <EmptyState
+            id="packages-empty"
+            title="Todavía no hay paquetes disponibles"
+            description="Vuelve pronto para ver las opciones del estudio."
+          />
+        )
       ) : (
-        <div id="packages-grid" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div id="packages-grid" className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           {packages.map((pkg) => (
             <PackageCard key={pkg.id} pkg={pkg} />
           ))}
