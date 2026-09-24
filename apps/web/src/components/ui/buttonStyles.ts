@@ -6,7 +6,7 @@
  * pantalla), secundario (contorno acento) y suave (acento-suave). "outline"
  * es neutro para acciones como Cancelar; "ghost" no tiene fondo.
  */
-export type ButtonVariant = "primary" | "secondary" | "soft" | "outline" | "ghost";
+export type ButtonVariant = "primary" | "secondary" | "soft" | "outline" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -15,6 +15,8 @@ const variantClasses: Record<ButtonVariant, string> = {
   soft: "bg-acento-suave text-acento hover:brightness-[0.97]",
   outline: "border border-borde-control/60 bg-tarjeta text-texto hover:border-borde-control",
   ghost: "text-texto-suave hover:bg-suave hover:text-texto",
+  // Acciones destructivas (cancelar reserva): color de alerta, sin relleno
+  danger: "text-alerta hover:bg-suave",
 };
 
 // Alturas minimas de 40/44/52px para que el area tactil sea comoda.
