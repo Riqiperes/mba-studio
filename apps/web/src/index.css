@@ -2,14 +2,76 @@
 
 /*
  * Tokens de marca (white-label). Estos valores por defecto corresponden a
- * MBA MID; cuando exista configuracion de negocio en base de datos
- * (docs/white-label.md), estos tokens se sobreescribiran en runtime.
+ * MBA MID (Merida Ballet Academy); cuando exista configuracion de negocio en
+ * base de datos (docs/white-label.md), estos tokens se sobreescribiran en
+ * runtime. Origen de la paleta y contrastes medidos:
+ * docs/frontend/plan-de-accion-frontend.md ("Identidad de marca", D1 y D2).
+ *
+ * Los componentes usan solo los tokens semanticos (bg-page, text-ink,
+ * bg-accent...), nunca las primitivas rosa-* directamente. Los gray-* de
+ * Tailwind se reemplazan por un neutro calido del mismo tono que el crema
+ * del logo, para que las pantallas existentes hereden la paleta.
  */
 @theme {
-  --color-brand-primary: #111827;
-  --color-brand-accent: #d97706;
+  /* Tipografia (D2): Jost, cargada en index.html */
+  --font-sans: "Jost", ui-sans-serif, system-ui, sans-serif;
+
+  /* Primitivas: rampa rosa derivada del rosa del logo (mismo matiz) */
+  --color-rosa-50: #fff4f5;
+  --color-rosa-100: #fee8ec;
+  --color-rosa-300: #e5bac2; /* rosa oficial del logo */
+  --color-rosa-600: #995364;
+  --color-rosa-700: #7c404e;
+  --color-crema: #efeee9; /* crema oficial del logo */
+
+  /* Primitivas: neutro calido (sustituye la escala gray de Tailwind) */
+  --color-gray-50: #fbfaf8;
+  --color-gray-100: #f5f4f1;
+  --color-gray-200: #e8e7e3;
+  --color-gray-300: #d6d5d0;
+  --color-gray-400: #a2a19c;
+  --color-gray-500: #73726d;
+  --color-gray-600: #55544f;
+  --color-gray-700: #41413c;
+  --color-gray-800: #292825;
+  --color-gray-900: #191816;
+  --color-gray-950: #080706;
+
+  /* Semanticos: fondos */
+  --color-page: #fdfcf7;
+  --color-surface: #ffffff;
+  --color-surface-brand: var(--color-crema);
+
+  /* Semanticos: texto (sobre page/surface) */
+  --color-ink: var(--color-gray-800); /* 14.4:1 */
+  --color-ink-muted: var(--color-gray-600); /* 7.4:1 */
+
+  /* Semanticos: bordes */
+  --color-line: var(--color-gray-300);
+
+  /* Semanticos: acento = interactivo (botones, enlaces, foco) */
+  --color-accent: var(--color-rosa-600); /* texto blanco encima 5.56:1 */
+  --color-accent-hover: var(--color-rosa-700);
+  --color-accent-soft: var(--color-rosa-100); /* accent encima 4.76:1 */
+
+  /* Semanticos: rosa del logo, solo decorativo (1.73:1 sobre blanco) */
+  --color-brand-logo: var(--color-rosa-300);
+
+  /* Compatibilidad: nombres usados hoy por las pantallas existentes.
+     Se migran a los semanticos de arriba seccion por seccion (Fase 1). */
+  --color-brand-primary: var(--color-ink);
+  --color-brand-accent: var(--color-accent);
+
+  /* Radios y sombras */
+  --radius-control: 0.75rem;
+  --radius-card: 1.25rem;
+  --shadow-card: 0 1px 2px rgb(41 40 37 / 0.04), 0 4px 16px rgb(41 40 37 / 0.06);
 }
 
 body {
-  @apply min-h-screen bg-white text-gray-900 antialiased;
+  @apply min-h-screen bg-page font-sans text-ink antialiased;
+}
+
+::selection {
+  @apply bg-rosa-100 text-ink;
 }
