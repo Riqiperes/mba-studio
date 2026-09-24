@@ -13,6 +13,9 @@ import {
 // el dia 10 de cada mes para todos los grupos, no configurable por grupo.
 const TUITION_DAY_OF_MONTH = 10;
 import { BackButton } from "@/components/ui/BackButton";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { Plus } from "lucide-react";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 
 export function AcademyGroupsPage() {
   const { groups, loading, error, create, update } = useAcademyGroups();
@@ -46,21 +49,21 @@ export function AcademyGroupsPage() {
   return (
     <div id="academy-groups-page" className="mx-auto max-w-4xl p-6">
       <BackButton />
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-brand-primary">Academia</h1>
-        <button
-          type="button"
-          onClick={openCreate}
-          className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-        >
-          Nuevo grupo
-        </button>
-      </div>
+      <ScreenHeader
+        eyebrow="Academia de Ballet"
+        title="Academia"
+        actions={
+          <button type="button" onClick={openCreate} className={buttonClasses("primary", "md")}>
+            <Plus className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
+            Nuevo grupo
+          </button>
+        }
+      />
 
-      {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
-      {loading && <p className="text-sm text-gray-500">Cargando...</p>}
+      {error && <p role="alert" className="mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
+      {loading && <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>}
       {!loading && groups.length === 0 && (
-        <p className="text-sm text-gray-500">Todavia no hay grupos.</p>
+        <p className="vacio">Todavía no hay grupos.</p>
       )}
       {!loading && groups.length > 0 && <AcademyGroupsGrid groups={groups} onEdit={openEdit} />}
 

@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { z } from "zod";
 import type { Instructor } from "../types/Instructor";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { ModalShell } from "@/components/ui/ModalShell";
 
 const schema = z.object({
   fullName: z.string().min(1, "El nombre es obligatorio"),
@@ -90,15 +92,14 @@ export function InstructorFormModal({ open, initialValue, onClose, onSubmit }: P
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+    <ModalShell onClose={onClose} size="sm" bodyClassName="">
       <form
         id="instructor-form-modal"
         onSubmit={handleSubmit}
-        onClick={(event) => event.stopPropagation()}
         noValidate
-        className="flex w-full max-w-sm flex-col gap-3 rounded-lg bg-white p-6"
+        className="flex flex-col gap-3"
       >
-        <h2 className="text-lg font-semibold text-brand-primary">
+        <h2 className="font-display text-subtitulo font-medium text-texto">
           {initialValue ? "Editar instructor" : "Nuevo instructor"}
         </h2>
 
@@ -109,9 +110,9 @@ export function InstructorFormModal({ open, initialValue, onClose, onSubmit }: P
             placeholder="Nombre completo"
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
-          {fieldErrors.fullName && <p className="text-xs text-red-600">{fieldErrors.fullName}</p>}
+          {fieldErrors.fullName && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.fullName}</p>}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -120,7 +121,7 @@ export function InstructorFormModal({ open, initialValue, onClose, onSubmit }: P
             placeholder="Bio (opcional)"
             value={bio}
             onChange={(event) => setBio(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
         </div>
 
@@ -131,26 +132,26 @@ export function InstructorFormModal({ open, initialValue, onClose, onSubmit }: P
             placeholder="URL de foto (opcional)"
             value={photoUrl}
             onChange={(event) => setPhotoUrl(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
-          {fieldErrors.photoUrl && <p className="text-xs text-red-600">{fieldErrors.photoUrl}</p>}
+          {fieldErrors.photoUrl && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.photoUrl}</p>}
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600">
+          <button type="button" onClick={onClose} className={buttonClasses("ghost", "md")}>
             Cancelar
           </button>
           <button
             type="submit"
             disabled={isSaving}
-            className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+            className={buttonClasses("primary", "md")}
           >
             {isSaving ? "Guardando..." : "Guardar"}
           </button>
         </div>
 
-        {formError && <p className="text-sm text-red-600">{formError}</p>}
+        {formError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
       </form>
-    </div>
+    </ModalShell>
   );
 }

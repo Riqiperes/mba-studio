@@ -10,6 +10,8 @@ import type {
   UpdateClassInput,
 } from "../types/StudioClass";
 import { formatDateKey } from "../utils/weekUtils";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { ModalShell } from "@/components/ui/ModalShell";
 
 const DAY_LABELS = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
 
@@ -210,15 +212,14 @@ export function ClassFormModal({
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+    <ModalShell onClose={onClose} size="sm" bodyClassName="">
       <form
         id="class-form-modal"
         onSubmit={handleSubmit}
-        onClick={(event) => event.stopPropagation()}
         noValidate
-        className="flex w-full max-w-sm flex-col gap-3 rounded-lg bg-white p-6"
+        className="flex flex-col gap-3"
       >
-        <h2 className="text-lg font-semibold text-brand-primary">
+        <h2 className="font-display text-subtitulo font-medium text-texto">
           {initialValue ? "Editar clase" : "Nueva clase"}
         </h2>
 
@@ -229,9 +230,9 @@ export function ClassFormModal({
             placeholder="Titulo"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
-          {fieldErrors.title && <p className="text-xs text-red-600">{fieldErrors.title}</p>}
+          {fieldErrors.title && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.title}</p>}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -239,7 +240,7 @@ export function ClassFormModal({
             id="class-instructor-input"
             value={instructorId}
             onChange={(event) => setInstructorId(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           >
             <option value="">Elige un instructor</option>
             {selectableInstructors.map((instructor) => (
@@ -249,13 +250,13 @@ export function ClassFormModal({
               </option>
             ))}
           </select>
-          {fieldErrors.instructorId && <p className="text-xs text-red-600">{fieldErrors.instructorId}</p>}
+          {fieldErrors.instructorId && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.instructorId}</p>}
         </div>
 
         {initialValue ? (
           <>
             <div className="flex flex-col gap-1">
-              <label htmlFor="class-starts-at-input" className="text-xs text-gray-500">
+              <label htmlFor="class-starts-at-input" className="etiqueta-campo">
                 Inicio
               </label>
               <input
@@ -263,12 +264,12 @@ export function ClassFormModal({
                 type="datetime-local"
                 value={startsAt}
                 onChange={(event) => setStartsAt(event.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="campo"
               />
-              {fieldErrors.startsAt && <p className="text-xs text-red-600">{fieldErrors.startsAt}</p>}
+              {fieldErrors.startsAt && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.startsAt}</p>}
             </div>
             <div className="flex flex-col gap-1">
-              <label htmlFor="class-ends-at-input" className="text-xs text-gray-500">
+              <label htmlFor="class-ends-at-input" className="etiqueta-campo">
                 Fin
               </label>
               <input
@@ -276,18 +277,18 @@ export function ClassFormModal({
                 type="datetime-local"
                 value={endsAt}
                 onChange={(event) => setEndsAt(event.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="campo"
               />
-              {fieldErrors.endsAt && <p className="text-xs text-red-600">{fieldErrors.endsAt}</p>}
+              {fieldErrors.endsAt && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.endsAt}</p>}
             </div>
           </>
         ) : (
           <>
             <div className="flex flex-col gap-1">
-              <span className="text-xs text-gray-500">Repetir en estos dias</span>
+              <span className="text-pequeno text-texto-suave">Repetir en estos dias</span>
               <div className="flex flex-wrap gap-2">
                 {DAY_LABELS.map((label, dayIndex) => (
-                  <label key={dayIndex} className="flex items-center gap-1 text-xs">
+                  <label key={dayIndex} className="flex items-center gap-1 text-pequeno">
                     <input
                       type="checkbox"
                       checked={weekdays.includes(dayIndex)}
@@ -297,11 +298,11 @@ export function ClassFormModal({
                   </label>
                 ))}
               </div>
-              {fieldErrors.weekdays && <p className="text-xs text-red-600">{fieldErrors.weekdays}</p>}
+              {fieldErrors.weekdays && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.weekdays}</p>}
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div className="flex flex-col gap-1">
-                <label htmlFor="class-start-time-input" className="text-xs text-gray-500">
+                <label htmlFor="class-start-time-input" className="etiqueta-campo">
                   Hora inicio
                 </label>
                 <input
@@ -309,12 +310,12 @@ export function ClassFormModal({
                   type="time"
                   value={startTime}
                   onChange={(event) => setStartTime(event.target.value)}
-                  className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  className="campo"
                 />
-                {fieldErrors.startTime && <p className="text-xs text-red-600">{fieldErrors.startTime}</p>}
+                {fieldErrors.startTime && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.startTime}</p>}
               </div>
               <div className="flex flex-col gap-1">
-                <label htmlFor="class-end-time-input" className="text-xs text-gray-500">
+                <label htmlFor="class-end-time-input" className="etiqueta-campo">
                   Hora fin
                 </label>
                 <input
@@ -322,13 +323,13 @@ export function ClassFormModal({
                   type="time"
                   value={endTime}
                   onChange={(event) => setEndTime(event.target.value)}
-                  className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  className="campo"
                 />
-                {fieldErrors.endTime && <p className="text-xs text-red-600">{fieldErrors.endTime}</p>}
+                {fieldErrors.endTime && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.endTime}</p>}
               </div>
             </div>
             <div className="flex flex-col gap-1">
-              <label htmlFor="class-weeks-count-input" className="text-xs text-gray-500">
+              <label htmlFor="class-weeks-count-input" className="etiqueta-campo">
                 Repetir N semanas
               </label>
               <input
@@ -338,9 +339,9 @@ export function ClassFormModal({
                 max={52}
                 value={weeksCount}
                 onChange={(event) => setWeeksCount(event.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="campo"
               />
-              {fieldErrors.weeksCount && <p className="text-xs text-red-600">{fieldErrors.weeksCount}</p>}
+              {fieldErrors.weeksCount && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.weeksCount}</p>}
             </div>
           </>
         )}
@@ -353,27 +354,27 @@ export function ClassFormModal({
             placeholder="Cupo maximo"
             value={maxCapacity}
             onChange={(event) => setMaxCapacity(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
-          {fieldErrors.maxCapacity && <p className="text-xs text-red-600">{fieldErrors.maxCapacity}</p>}
+          {fieldErrors.maxCapacity && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.maxCapacity}</p>}
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600">
+          <button type="button" onClick={onClose} className={buttonClasses("ghost", "md")}>
             {skipped.length > 0 ? "Cerrar" : "Cancelar"}
           </button>
           <button
             type="submit"
             disabled={isSaving}
-            className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+            className={buttonClasses("primary", "md")}
           >
             {isSaving ? "Guardando..." : "Guardar"}
           </button>
         </div>
 
-        {formError && <p className="text-sm text-red-600">{formError}</p>}
+        {formError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
         {skipped.length > 0 && (
-          <div className="rounded-md bg-yellow-50 p-2 text-xs text-yellow-800">
+          <div className="rounded-control bg-suave p-2 text-pequeno text-alerta">
             <p className="font-medium">
               Se crearon {createdCount} de {createdCount + skipped.length}. Se saltearon por conflicto de horario:
             </p>
@@ -387,6 +388,6 @@ export function ClassFormModal({
           </div>
         )}
       </form>
-    </div>
+    </ModalShell>
   );
 }

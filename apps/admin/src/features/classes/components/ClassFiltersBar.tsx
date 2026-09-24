@@ -24,7 +24,7 @@ export function ClassFiltersBar({ instructors, filters, onChange }: Props) {
         id="class-filter-instructor"
         value={filters.instructorId ?? ""}
         onChange={(event) => updateInstructorFilter(event.target.value)}
-        className="rounded-md border border-gray-300 px-2 py-1 text-sm"
+        className="campo campo-compacto sm:w-72"
       >
         <option value="">Todos los instructores</option>
         {instructors.map((instructor) => (

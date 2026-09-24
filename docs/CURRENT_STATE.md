@@ -747,6 +747,15 @@ Solo interfaz: servicios, hooks, rutas, RLS y migraciones sin cambios. Plan y bi
 - **Pendiente de la fase**: 0.5 (archivos huérfanos `HomePage.tsx` y `ClassesFilterBar.tsx`) y 0.7 (`apple-touch-icon`). Sin enlaces legales (D6) porque aún no existen esas páginas.
 - **Observado sin cambiar (funcionamiento)**: `/my-bookings` y `/classes/:id` no tienen enlace visible en la app; "Cancelar" en Horarios no pide confirmación (en Mi horario sí); `formatWeekStartKey` usa fecha UTC; el cupo del calendario solo cuenta las reservas propias.
 
+### Rediseño visual de `apps/admin` (Fase 2.0 y Fase 2, rama `feat/admin-frontend`, 2026-09-24)
+
+Solo interfaz: servicios, hooks, rutas, permisos por rol, RLS y migraciones sin cambios. Rama creada desde `feat/web-frontend`. Detalle en la bitácora de `docs/frontend/plan-de-accion-frontend.md`.
+
+- **Sistema visual**: mismos tokens que web en `apps/admin/src/index.css`, más clases base del panel: `.campo`, `.etiqueta-campo`, `.tabla-contenedor`/`.tabla`, `.accion`, `.vacio`. Tema oscuro automático.
+- **Componentes** (`apps/admin/src/components/ui/`): los de web más `ModalShell` (diálogo nativo para los formularios existentes), `HubLinkCard`, `FormMessages` y `ScreenHeader` con acciones.
+- **Layout**: `AdminLayout` con header fijo (logo, pestañas con icono según rol, cerrar sesión) y `RequireAuth` con pantallas de carga y "Sin acceso" en tarjeta.
+- **Accesibilidad**: tarjetas y filas que antes solo abrían con mouse ahora también con teclado; estado de pago con texto además de color.
+
 ## Integraciones configuradas
 
 - **Supabase (desarrollo/staging)**: proyecto `MBA-STUDIO`

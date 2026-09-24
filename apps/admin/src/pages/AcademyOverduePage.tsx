@@ -6,6 +6,7 @@ import { getErrorMessage } from '@/utils/getErrorMessage';
 import { supabase } from '@/lib/supabaseClient';
 import type { OverduePayment } from '@/features/academy/types/AcademyPayment';
 import { BackButton } from '@/components/ui/BackButton';
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 
 export function AcademyOverduePage() {
   const { groups } = useAcademyGroups();
@@ -59,7 +60,7 @@ export function AcademyOverduePage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl p-6 text-sm text-gray-500">
+      <div className="mx-auto max-w-6xl p-6 text-sm text-texto-suave">
         <BackButton />
         Cargando...
       </div>
@@ -67,19 +68,21 @@ export function AcademyOverduePage() {
   }
 
   return (
-    <div id="academy-overdue-page" className="mx-auto max-w-6xl p-6">
+    <div id="academy-overdue-page" className="mx-auto max-w-6xl p-4 sm:p-6">
       <BackButton />
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-brand-primary">Colegiaturas atrasadas</h1>
-        <div className="flex items-center gap-4">
-          <label htmlFor="group-filter" className="text-sm text-gray-500">
+      <ScreenHeader
+        eyebrow="Academia de Ballet"
+        title="Colegiaturas atrasadas"
+        actions={
+        <div className="flex items-center gap-3">
+          <label htmlFor="group-filter" className="text-pequeno whitespace-nowrap text-texto-suave">
             Filtrar por grupo:
           </label>
           <select
             id="group-filter"
             value={selectedGroupId ?? ''}
             onChange={(e) => setSelectedGroupId(e.target.value || undefined)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+            className="campo campo-compacto"
           >
             <option value="">Todos los grupos</option>
             {groups.map((g) => (
@@ -89,44 +92,45 @@ export function AcademyOverduePage() {
             ))}
           </select>
         </div>
-      </div>
+        }
+      />
 
-      {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
 
       {overduePayments.length === 0 ? (
-        <p className="text-sm text-gray-500 text-center py-8">
+        <p className="rounded-card bg-suave py-8 text-center text-cuerpo text-texto-suave">
           No hay pagos atrasados{selectedGroupId ? ' para este grupo' : ''}.
         </p>
       ) : (
-        <div className="overflow-x-auto">
-          <table id="academy-overdue-table" className="w-full border-collapse text-sm">
+        <div className="tabla-contenedor">
+          <table id="academy-overdue-table" className="tabla">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-gray-500">
-                <th className="py-2">Alumno</th>
-                <th className="py-2">Grupo</th>
-                <th className="py-2">Tutor</th>
-                <th className="py-2">Teléfono</th>
-                <th className="py-2">Periodo</th>
-                <th className="py-2">Monto</th>
-                <th className="py-2">Días de atraso</th>
-                <th className="py-2">Acciones</th>
+              <tr>
+                <th>Alumno</th>
+                <th>Grupo</th>
+                <th>Tutor</th>
+                <th>Teléfono</th>
+                <th>Periodo</th>
+                <th>Monto</th>
+                <th>Días de atraso</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {overduePayments.map((payment) => (
-                <tr key={payment.id} className="border-b border-gray-100">
-                  <td className="py-2">{payment.enrollment.dependent.fullName}</td>
-                  <td className="py-2">{payment.enrollment.group.name}</td>
-                  <td className="py-2">{payment.enrollment.dependent.guardianName ?? '-'}</td>
-                  <td className="py-2">{payment.enrollment.dependent.guardianPhone ?? '-'}</td>
-                  <td className="py-2">{formatPeriod(payment.periodStart, payment.periodEnd)}</td>
+                <tr key={payment.id}>
+                  <td>{payment.enrollment.dependent.fullName}</td>
+                  <td>{payment.enrollment.group.name}</td>
+                  <td>{payment.enrollment.dependent.guardianName ?? '-'}</td>
+                  <td>{payment.enrollment.dependent.guardianPhone ?? '-'}</td>
+                  <td>{formatPeriod(payment.periodStart, payment.periodEnd)}</td>
                   <td className="py-2 font-medium">{formatAmount(payment.amountCents)}</td>
-                  <td className="py-2 text-red-600 font-medium">{payment.daysOverdue}</td>
-                  <td className="py-2">
+                  <td className="py-2 text-alerta font-medium">{payment.daysOverdue}</td>
+                  <td>
                     <button
                       type="button"
                       onClick={() => handleOpenPaymentModal(payment)}
-                      className="text-brand-primary hover:underline text-sm"
+                      className="accion text-acento"
                     >
                       Marcar pagado
                     </button>

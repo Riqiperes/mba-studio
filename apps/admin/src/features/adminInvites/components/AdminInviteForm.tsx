@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import type { AdminInviteRole } from "../types/AdminInvite";
+import { buttonClasses } from "@/components/ui/buttonStyles";
 
 const ROLE_LABELS: Record<AdminInviteRole, string> = {
   STAFF: "Staff",
@@ -37,10 +38,10 @@ export function AdminInviteForm({ onSubmit }: Props) {
     <form
       id="admin-invite-form"
       onSubmit={handleSubmit}
-      className="mb-6 flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-white p-4"
+      className="mb-6 flex flex-wrap items-end gap-3 rounded-card border border-borde bg-tarjeta p-4"
     >
       <div className="flex flex-col gap-1">
-        <label htmlFor="admin-invite-email" className="text-xs font-medium text-gray-500">
+        <label htmlFor="admin-invite-email" className="etiqueta-campo">
           Correo
         </label>
         <input
@@ -50,18 +51,18 @@ export function AdminInviteForm({ onSubmit }: Props) {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           placeholder="correo@ejemplo.com"
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="campo"
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor="admin-invite-role" className="text-xs font-medium text-gray-500">
+        <label htmlFor="admin-invite-role" className="etiqueta-campo">
           Rol
         </label>
         <select
           id="admin-invite-role"
           value={role}
           onChange={(event) => setRole(event.target.value as AdminInviteRole)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="campo"
         >
           {(Object.keys(ROLE_LABELS) as AdminInviteRole[]).map((r) => (
             <option key={r} value={r}>
@@ -73,11 +74,11 @@ export function AdminInviteForm({ onSubmit }: Props) {
       <button
         type="submit"
         disabled={isSaving || !email.trim()}
-        className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+        className={buttonClasses("primary", "md")}
       >
         {isSaving ? "Agregando..." : "Agregar admin"}
       </button>
-      {error && <p className="w-full text-xs text-red-600">{error}</p>}
+      {error && <p className="w-full text-pequeno text-alerta">{error}</p>}
     </form>
   );
 }

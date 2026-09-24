@@ -7,8 +7,13 @@ import { useClasses } from "@/features/classes/hooks/useClasses";
 import type { ClassFilters, StudioClass } from "@/features/classes/types/StudioClass";
 import { formatDateKey, getWeekDays, getWeekStart } from "@/features/classes/utils/weekUtils";
 import { useInstructors } from "@/features/instructors/hooks/useInstructors";
+import { Plus } from "lucide-react";
 import { BackButton } from "@/components/ui/BackButton";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { FormMessages } from "@/components/ui/FormMessages";
 import { getErrorMessage } from "@/utils/getErrorMessage";
+import { buttonClasses } from "@/components/ui/buttonStyles";
 
 export function ClassesPage() {
   const [instructorFilter, setInstructorFilter] = useState<ClassFilters>({});
@@ -67,27 +72,24 @@ export function ClassesPage() {
   }
 
   return (
-    <div id="classes-page" className="mx-auto max-w-5xl p-6">
+    <div id="classes-page" className="mx-auto max-w-5xl p-4 sm:p-6">
       <BackButton />
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-brand-primary">Clases</h1>
-        <button
-          type="button"
-          onClick={openCreate}
-          className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-        >
-          Nueva clase
-        </button>
-      </div>
+      <ScreenHeader
+        eyebrow="Estudio"
+        title="Clases"
+        actions={
+          <button type="button" onClick={openCreate} className={buttonClasses("primary", "md")}>
+            <Plus className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
+            Nueva clase
+          </button>
+        }
+      />
 
       <WeekSelector selectedWeekStart={formatDateKey(weekStart)} onChange={(value) => setWeekStart(new Date(`${value}T00:00:00`))} />
       <ClassFiltersBar instructors={instructors} filters={instructorFilter} onChange={setInstructorFilter} />
 
-      {loading && <p className="text-sm text-gray-500">Cargando...</p>}
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      {instructorsError && <p className="text-sm text-red-600">{instructorsError}</p>}
-      {cancelError && <p className="text-sm text-red-600">{cancelError}</p>}
-      {deleteError && <p className="text-sm text-red-600">{deleteError}</p>}
+      {loading && <LoadingState message="Cargando..." />}
+      <FormMessages messages={[error, instructorsError, cancelError, deleteError]} />
       {!loading && !error && (
         <ClassesWeekGrid
           weekStart={weekStart}

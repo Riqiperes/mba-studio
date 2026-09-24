@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react";
 import type { Customer } from "@/features/customers/types/Customer";
 import { getErrorMessage } from "@/utils/getErrorMessage";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { ModalShell } from "@/components/ui/ModalShell";
 
 type Props = {
   open: boolean;
@@ -53,22 +55,21 @@ export function BookCustomerModal({ open, title, submitLabel, customers, onClose
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+    <ModalShell onClose={onClose} size="sm" bodyClassName="">
       <form
         id="book-customer-modal"
         onSubmit={handleSubmit}
-        onClick={(event) => event.stopPropagation()}
         noValidate
-        className="flex w-full max-w-sm flex-col gap-3 rounded-lg bg-white p-6"
+        className="flex flex-col gap-3"
       >
-        <h2 className="text-lg font-semibold text-brand-primary">{title}</h2>
+        <h2 className="font-display text-subtitulo font-medium text-texto">{title}</h2>
 
         <div className="flex flex-col gap-1">
           <select
             id="book-customer-select"
             value={customerId}
             onChange={(event) => setCustomerId(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           >
             <option value="">Elige un cliente</option>
             {customers.map((customer) => (
@@ -80,20 +81,20 @@ export function BookCustomerModal({ open, title, submitLabel, customers, onClose
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600">
+          <button type="button" onClick={onClose} className={buttonClasses("ghost", "md")}>
             Cancelar
           </button>
           <button
             type="submit"
             disabled={isSaving}
-            className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+            className={buttonClasses("primary", "md")}
           >
             {isSaving ? "Guardando..." : submitLabel}
           </button>
         </div>
 
-        {formError && <p className="text-sm text-red-600">{formError}</p>}
+        {formError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
       </form>
-    </div>
+    </ModalShell>
   );
 }

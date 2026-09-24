@@ -1,6 +1,8 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { z } from 'zod';
 import { getErrorMessage } from '@/utils/getErrorMessage';
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { ModalShell } from "@/components/ui/ModalShell";
 
 interface Props {
   enrollmentId: string;
@@ -153,14 +155,10 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div
-        className="flex w-full max-w-md flex-col gap-4 rounded-lg bg-white p-6"
-        onClick={(event) => event.stopPropagation()}
-      >
+    <ModalShell onClose={onClose} size="md" bodyClassName="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-brand-primary">Marcar pago de colegiatura</h2>
-          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <h2 className="font-display text-subtitulo font-medium text-texto">Marcar pago de colegiatura</h2>
+          <button type="button" onClick={onClose} className="text-texto-suave hover:text-texto-suave">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -169,13 +167,13 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
 
         <form onSubmit={handleSubmit} noValidate>
           {formError && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 rounded border border-red-200">
+            <div className="p-3 text-sm text-alerta bg-suave rounded border border-alerta/40">
               {formError}
             </div>
           )}
 
           <div className="mb-4">
-            <label htmlFor="month" className="block text-xs text-gray-500 mb-1">
+            <label htmlFor="month" className="etiqueta-campo">
               Mes *
             </label>
             <input
@@ -183,16 +181,16 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
               type="month"
               value={formData.month}
               onChange={(e) => handleChange('month', e.target.value)}
-              className={`w-full rounded-md border px-3 py-2 text-sm ${
-                fieldErrors.month ? 'border-red-500' : 'border-gray-300'
-              } focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent`}
+              className={`w-full rounded-control border px-3 py-2 text-sm ${
+                fieldErrors.month ? 'border-alerta' : 'border-borde-control'
+              } focus:outline-none focus:ring-2 focus:ring-acento focus:border-transparent`}
             />
-            <p className="mt-1 text-xs text-gray-500">Cualquier mes, incluye meses pasados.</p>
-            {fieldErrors.month && <p className="mt-1 text-xs text-red-600">{fieldErrors.month}</p>}
+            <p className="mt-1 text-pequeno text-texto-suave">Cualquier mes, incluye meses pasados.</p>
+            {fieldErrors.month && <p role="alert" className="mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.month}</p>}
           </div>
 
           <div className="mb-4">
-            <label className="block text-xs text-gray-500 mb-2">Estado *</label>
+            <label className="block text-pequeno text-texto-suave mb-2">Estado *</label>
             <div className="flex gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -200,7 +198,7 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
                   value="PAGADO"
                   checked={formData.status === 'PAGADO'}
                   onChange={() => handleChange('status', 'PAGADO')}
-                  className="h-4 w-4 text-brand-primary border-gray-300 focus:ring-brand-primary"
+                  className="h-4 w-4 accent-(--acento)"
                 />
                 <span className="text-sm font-medium">PAGADO</span>
               </label>
@@ -210,18 +208,18 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
                   value="NO_PAGADO"
                   checked={formData.status === 'NO_PAGADO'}
                   onChange={() => handleChange('status', 'NO_PAGADO')}
-                  className="h-4 w-4 text-brand-primary border-gray-300 focus:ring-brand-primary"
+                  className="h-4 w-4 accent-(--acento)"
                 />
                 <span className="text-sm font-medium">NO_PAGADO</span>
               </label>
             </div>
-            {fieldErrors.status && <p className="mt-1 text-xs text-red-600">{fieldErrors.status}</p>}
+            {fieldErrors.status && <p role="alert" className="mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.status}</p>}
           </div>
 
           {formData.status === 'PAGADO' && (
             <>
               <div className="mb-4">
-                <label htmlFor="amountCents" className="block text-xs text-gray-500 mb-1">
+                <label htmlFor="amountCents" className="etiqueta-campo">
                   Monto (pesos) *
                 </label>
                 <input
@@ -232,13 +230,13 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
                   value={formData.amountCents ?? ''}
                   onChange={(e) => handleChange('amountCents', e.target.value ? parseFloat(e.target.value) : undefined)}
                   placeholder="Ej: 1500"
-                  className={`w-full rounded-md border px-3 py-2 text-sm ${
-                    fieldErrors.amountCents ? 'border-red-500' : 'border-gray-300'
-                  } focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent`}
+                  className={`w-full rounded-control border px-3 py-2 text-sm ${
+                    fieldErrors.amountCents ? 'border-alerta' : 'border-borde-control'
+                  } focus:outline-none focus:ring-2 focus:ring-acento focus:border-transparent`}
                 />
-                {fieldErrors.amountCents && <p className="mt-1 text-xs text-red-600">{fieldErrors.amountCents}</p>}
+                {fieldErrors.amountCents && <p role="alert" className="mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.amountCents}</p>}
                 {basePriceCents != null && discountedCents != null && (
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-pequeno text-texto-suave">
                     Colegiatura base: {formatPesos(basePriceCents)}
                     {(discountPercent ?? 0) > 0 && (
                       <> · Descuento {discountPercent}% → {formatPesos(discountedCents)}</>
@@ -248,27 +246,27 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
               </div>
 
               <div className="mb-4">
-                <label htmlFor="paymentMethod" className="block text-xs text-gray-500 mb-1">
+                <label htmlFor="paymentMethod" className="etiqueta-campo">
                   Método de pago *
                 </label>
                 <select
                   id="paymentMethod"
                   value={formData.paymentMethod ?? ''}
                   onChange={(e) => handleChange('paymentMethod', e.target.value || undefined)}
-                  className={`w-full rounded-md border px-3 py-2 text-sm ${
-                    fieldErrors.paymentMethod ? 'border-red-500' : 'border-gray-300'
-                  } focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent`}
+                  className={`w-full rounded-control border px-3 py-2 text-sm ${
+                    fieldErrors.paymentMethod ? 'border-alerta' : 'border-borde-control'
+                  } focus:outline-none focus:ring-2 focus:ring-acento focus:border-transparent`}
                 >
                   <option value="">Selecciona método</option>
                   <option value="EFECTIVO">Efectivo</option>
                   <option value="TRANSFERENCIA">Transferencia</option>
                   <option value="OTRO">Otro</option>
                 </select>
-                {fieldErrors.paymentMethod && <p className="mt-1 text-xs text-red-600">{fieldErrors.paymentMethod}</p>}
+                {fieldErrors.paymentMethod && <p role="alert" className="mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.paymentMethod}</p>}
               </div>
 
               <div className="mb-4">
-                <label htmlFor="paidAt" className="block text-xs text-gray-500 mb-1">
+                <label htmlFor="paidAt" className="etiqueta-campo">
                   Fecha de pago *
                 </label>
                 <input
@@ -276,15 +274,15 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
                   type="date"
                   value={formData.paidAt ?? ''}
                   onChange={(e) => handleChange('paidAt', e.target.value || undefined)}
-                  className={`w-full rounded-md border px-3 py-2 text-sm ${
-                    fieldErrors.paidAt ? 'border-red-500' : 'border-gray-300'
-                  } focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent`}
+                  className={`w-full rounded-control border px-3 py-2 text-sm ${
+                    fieldErrors.paidAt ? 'border-alerta' : 'border-borde-control'
+                  } focus:outline-none focus:ring-2 focus:ring-acento focus:border-transparent`}
                 />
-                {fieldErrors.paidAt && <p className="mt-1 text-xs text-red-600">{fieldErrors.paidAt}</p>}
+                {fieldErrors.paidAt && <p role="alert" className="mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.paidAt}</p>}
               </div>
 
               <div className="mb-4">
-                <label htmlFor="reference" className="block text-xs text-gray-500 mb-1">
+                <label htmlFor="reference" className="etiqueta-campo">
                   Referencia / Folio (opcional)
                 </label>
                 <input
@@ -293,31 +291,30 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
                   value={formData.reference}
                   onChange={(e) => handleChange('reference', e.target.value)}
                   placeholder="Número de operación, folio, etc."
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                  className="w-full rounded-control border border-borde-control px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-acento focus:border-transparent"
                 />
               </div>
             </>
           )}
 
-          <div className="flex justify-end gap-2 pt-4 border-t border-gray-200">
+          <div className="flex justify-end gap-2 pt-4 border-t border-borde">
             <button
               type="button"
               onClick={onClose}
               disabled={isSaving}
-              className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md disabled:opacity-50"
+              className="px-4 py-2 text-sm text-texto-suave hover:bg-suave rounded-control disabled:opacity-50"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+              className={buttonClasses("primary", "md")}
             >
               {isSaving ? 'Guardando...' : 'Guardar'}
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </ModalShell>
   );
 }

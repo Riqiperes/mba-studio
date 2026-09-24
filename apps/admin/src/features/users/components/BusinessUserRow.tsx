@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { UserRole } from "@mba-studio/shared";
 import type { Instructor } from "@/features/instructors/types/Instructor";
 import type { BusinessUser } from "../types/User";
+import { buttonClasses } from "@/components/ui/buttonStyles";
 
 const ROLE_LABELS: Record<UserRole, string> = {
   CUSTOMER: "Cliente",
@@ -50,14 +51,14 @@ export function BusinessUserRow({ user, instructors, actingRole, onSave }: Props
   }
 
   return (
-    <tr className="border-b border-gray-100 align-top">
-      <td className="py-2">{user.fullName ?? "-"}</td>
-      <td className="py-2">{user.email}</td>
-      <td className="py-2">
+    <tr className="border-b border-borde align-top">
+      <td>{user.fullName ?? "-"}</td>
+      <td>{user.email}</td>
+      <td>
         <select
           value={role}
           onChange={(event) => setRole(event.target.value as UserRole)}
-          className="rounded-md border border-gray-300 px-2 py-1 text-sm"
+          className="campo campo-compacto"
         >
           {availableRoles.map((r) => (
             <option key={r} value={r}>
@@ -66,12 +67,12 @@ export function BusinessUserRow({ user, instructors, actingRole, onSave }: Props
           ))}
         </select>
       </td>
-      <td className="py-2">
+      <td>
         {role === "INSTRUCTOR_ADMIN" ? (
           <select
             value={instructorId}
             onChange={(event) => setInstructorId(event.target.value)}
-            className="rounded-md border border-gray-300 px-2 py-1 text-sm"
+            className="campo campo-compacto"
           >
             <option value="">Elige instructor</option>
             {instructors.map((instructor) => (
@@ -81,19 +82,19 @@ export function BusinessUserRow({ user, instructors, actingRole, onSave }: Props
             ))}
           </select>
         ) : (
-          <span className="text-xs text-gray-400">-</span>
+          <span className="text-pequeno text-texto-suave">-</span>
         )}
       </td>
-      <td className="py-2">
+      <td>
         <button
           type="button"
           onClick={handleSave}
           disabled={!dirty || isSaving || (role === "INSTRUCTOR_ADMIN" && !instructorId)}
-          className="rounded-md bg-brand-primary px-3 py-1 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+          className={buttonClasses("primary", "sm")}
         >
           {isSaving ? "Guardando..." : "Guardar"}
         </button>
-        {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+        {error && <p role="alert" className="mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
       </td>
     </tr>
   );

@@ -3,6 +3,8 @@ import { z } from "zod";
 import type { Instructor } from "@/features/instructors/types/Instructor";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import type { AcademyGroupWithDetails, GroupInput, GroupScheduleInput } from "../types/AcademyGroup";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { ModalShell } from "@/components/ui/ModalShell";
 
 const DAY_LABELS = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
 
@@ -150,15 +152,14 @@ export function AcademyGroupFormModal({
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+    <ModalShell onClose={onClose} size="lg" bodyClassName="">
       <form
         id="academy-group-form-modal"
         onSubmit={handleSubmit}
-        onClick={(event) => event.stopPropagation()}
         noValidate
-        className="flex w-full max-w-lg flex-col gap-3 rounded-lg bg-white p-6"
+        className="flex flex-col gap-3"
       >
-        <h2 className="text-lg font-semibold text-brand-primary">
+        <h2 className="font-display text-subtitulo font-medium text-texto">
           {initialValue ? "Editar grupo" : "Nuevo grupo"}
         </h2>
 
@@ -169,16 +170,16 @@ export function AcademyGroupFormModal({
             placeholder="Nombre del grupo"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
-          {fieldErrors.name && <p className="text-xs text-red-600">{fieldErrors.name}</p>}
+          {fieldErrors.name && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.name}</p>}
         </div>
 
         <select
           id="academy-group-instructor-select"
           value={instructorId}
           onChange={(event) => setInstructorId(event.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="campo"
         >
           <option value="">Sin instructor asignado</option>
           {instructors.map((instructor) => (
@@ -190,7 +191,7 @@ export function AcademyGroupFormModal({
 
         <div className="grid grid-cols-4 gap-2">
           <div className="flex flex-col gap-1">
-            <label htmlFor="academy-group-age-min-input" className="text-xs text-gray-500">
+            <label htmlFor="academy-group-age-min-input" className="etiqueta-campo">
               Edad minima
             </label>
             <input
@@ -200,11 +201,11 @@ export function AcademyGroupFormModal({
               placeholder="Sin limite"
               value={ageMin}
               onChange={(event) => setAgeMin(event.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+              className="campo"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label htmlFor="academy-group-age-max-input" className="text-xs text-gray-500">
+            <label htmlFor="academy-group-age-max-input" className="etiqueta-campo">
               Edad maxima
             </label>
             <input
@@ -214,12 +215,12 @@ export function AcademyGroupFormModal({
               placeholder="Sin limite"
               value={ageMax}
               onChange={(event) => setAgeMax(event.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+              className="campo"
             />
-            {fieldErrors.ageMax && <p className="text-xs text-red-600">{fieldErrors.ageMax}</p>}
+            {fieldErrors.ageMax && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.ageMax}</p>}
           </div>
           <div className="flex flex-col gap-1">
-            <label htmlFor="academy-group-max-capacity-input" className="text-xs text-gray-500">
+            <label htmlFor="academy-group-max-capacity-input" className="etiqueta-campo">
               Cupo maximo
             </label>
             <input
@@ -229,12 +230,12 @@ export function AcademyGroupFormModal({
               max={15}
               value={maxCapacity}
               onChange={(event) => setMaxCapacity(event.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+              className="campo"
             />
-            {fieldErrors.maxCapacity && <p className="text-xs text-red-600">{fieldErrors.maxCapacity}</p>}
+            {fieldErrors.maxCapacity && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.maxCapacity}</p>}
           </div>
           <div className="flex flex-col gap-1">
-            <label htmlFor="academy-group-monthly-tuition-input" className="text-xs text-gray-500">
+            <label htmlFor="academy-group-monthly-tuition-input" className="etiqueta-campo">
               Colegiatura (MXN)
             </label>
             <input
@@ -244,24 +245,24 @@ export function AcademyGroupFormModal({
               step="0.01"
               value={monthlyTuition}
               onChange={(event) => setMonthlyTuition(event.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+              className="campo"
             />
             {fieldErrors.monthlyTuition && (
-              <p className="text-xs text-red-600">{fieldErrors.monthlyTuition}</p>
+              <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.monthlyTuition}</p>
             )}
           </div>
         </div>
-        <p className="-mt-1 text-xs text-gray-400">
+        <p className="-mt-1 text-pequeno text-texto-suave">
           Se cobra el dia 10 de cada mes (fecha fija, no configurable por grupo).
         </p>
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">Horario semanal</span>
+            <span className="text-pequeno text-texto-suave">Horario semanal</span>
             <button
               type="button"
               onClick={addSchedule}
-              className="text-xs text-brand-primary hover:underline"
+              className="accion text-acento"
             >
               Agregar horario
             </button>
@@ -272,7 +273,7 @@ export function AcademyGroupFormModal({
                 <select
                   value={schedule.dayOfWeek}
                   onChange={(event) => updateSchedule(index, { dayOfWeek: Number(event.target.value) })}
-                  className="rounded-md border border-gray-300 px-2 py-1 text-sm"
+                  className="campo campo-compacto"
                 >
                   {DAY_LABELS.map((label, dayIndex) => (
                     <option key={dayIndex} value={dayIndex}>
@@ -284,45 +285,45 @@ export function AcademyGroupFormModal({
                   type="time"
                   value={schedule.startTime}
                   onChange={(event) => updateSchedule(index, { startTime: event.target.value })}
-                  className="rounded-md border border-gray-300 px-2 py-1 text-sm"
+                  className="campo campo-compacto"
                 />
-                <span className="text-xs text-gray-500">a</span>
+                <span className="text-pequeno text-texto-suave">a</span>
                 <input
                   type="time"
                   value={schedule.endTime}
                   onChange={(event) => updateSchedule(index, { endTime: event.target.value })}
-                  className="rounded-md border border-gray-300 px-2 py-1 text-sm"
+                  className="campo campo-compacto"
                 />
                 <button
                   type="button"
                   onClick={() => removeSchedule(index)}
-                  className="text-xs text-gray-500 hover:underline"
+                  className="accion text-texto-suave"
                 >
                   Quitar
                 </button>
               </div>
               {fieldErrors[`schedules.${index}.endTime`] && (
-                <p className="text-xs text-red-600">{fieldErrors[`schedules.${index}.endTime`]}</p>
+                <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors[`schedules.${index}.endTime`]}</p>
               )}
             </div>
           ))}
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600">
+          <button type="button" onClick={onClose} className={buttonClasses("ghost", "md")}>
             Cancelar
           </button>
           <button
             type="submit"
             disabled={isSaving}
-            className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+            className={buttonClasses("primary", "md")}
           >
             {isSaving ? "Guardando..." : "Guardar"}
           </button>
         </div>
 
-        {formError && <p className="text-sm text-red-600">{formError}</p>}
+        {formError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
       </form>
-    </div>
+    </ModalShell>
   );
 }

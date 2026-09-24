@@ -2,6 +2,8 @@ import { useEffect, useState, type FormEvent } from "react";
 import { z } from "zod";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import type { Dependent } from "../types/Dependent";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { ModalShell } from "@/components/ui/ModalShell";
 
 const schema = z.object({
   fullName: z.string().min(1, "El nombre del alumno es obligatorio"),
@@ -126,25 +128,21 @@ export function DependentFormModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center bg-black/40 p-4"
-      onClick={onClose}
-    >
+    <ModalShell onClose={onClose} size="sm" bodyClassName="">
       <form
         id="dependent-form-modal"
         onSubmit={handleSubmit}
-        onClick={(event) => event.stopPropagation()}
         noValidate
-        className="flex w-full max-w-sm flex-col gap-3 rounded-lg bg-white p-6"
+        className="flex flex-col gap-3"
       >
-        <h2 className="text-lg font-semibold text-brand-primary">
+        <h2 className="font-display text-subtitulo font-medium text-texto">
           {initialValue ? "Editar alumno" : "Nuevo alumno"}
         </h2>
 
         {shouldShowGuardian && (
           <>
             <div className="flex flex-col gap-1">
-              <label htmlFor="dependent-guardian-name-input" className="text-xs text-gray-500">
+              <label htmlFor="dependent-guardian-name-input" className="etiqueta-campo">
                 Nombre del tutor *
               </label>
               <input
@@ -153,15 +151,15 @@ export function DependentFormModal({
                 placeholder="Nombre del tutor o padre"
                 value={guardianName}
                 onChange={(event) => setGuardianName(event.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="campo"
               />
               {fieldErrors.guardianName && (
-                <p className="text-xs text-red-600">{fieldErrors.guardianName}</p>
+                <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.guardianName}</p>
               )}
             </div>
 
             <div className="flex flex-col gap-1">
-              <label htmlFor="dependent-guardian-phone-input" className="text-xs text-gray-500">
+              <label htmlFor="dependent-guardian-phone-input" className="etiqueta-campo">
                 Telefono del tutor (opcional)
               </label>
               <input
@@ -170,14 +168,14 @@ export function DependentFormModal({
                 placeholder="Ej. 9991234567"
                 value={guardianPhone}
                 onChange={(event) => setGuardianPhone(event.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="campo"
               />
             </div>
           </>
         )}
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="dependent-fullname-input" className="text-xs text-gray-500">
+          <label htmlFor="dependent-fullname-input" className="etiqueta-campo">
             Nombre del alumno *
           </label>
           <input
@@ -186,13 +184,13 @@ export function DependentFormModal({
             placeholder="Nombre completo"
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
-          {fieldErrors.fullName && <p className="text-xs text-red-600">{fieldErrors.fullName}</p>}
+          {fieldErrors.fullName && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.fullName}</p>}
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="dependent-birthdate-input" className="text-xs text-gray-500">
+          <label htmlFor="dependent-birthdate-input" className="etiqueta-campo">
             Fecha de nacimiento (opcional)
           </label>
           <input
@@ -200,10 +198,10 @@ export function DependentFormModal({
             type="date"
             value={birthDate}
             onChange={(event) => setBirthDate(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
           {fieldErrors.birthDate && (
-            <p className="text-xs text-red-600">{fieldErrors.birthDate}</p>
+            <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.birthDate}</p>
           )}
         </div>
 
@@ -213,7 +211,7 @@ export function DependentFormModal({
               type="button"
               onClick={handleToggleActive}
               disabled={isTogglingActive}
-              className="text-xs text-gray-500 hover:underline disabled:opacity-50"
+              className="accion text-texto-suave"
             >
               {initialValue?.active ? "Desactivar" : "Activar"}
             </button>
@@ -221,21 +219,21 @@ export function DependentFormModal({
             <span />
           )}
           <div className="flex gap-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600">
+            <button type="button" onClick={onClose} className={buttonClasses("ghost", "md")}>
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+              className={buttonClasses("primary", "md")}
             >
               {isSaving ? "Guardando..." : "Guardar"}
             </button>
           </div>
         </div>
 
-        {formError && <p className="text-sm text-red-600">{formError}</p>}
+        {formError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
       </form>
-    </div>
+    </ModalShell>
   );
 }

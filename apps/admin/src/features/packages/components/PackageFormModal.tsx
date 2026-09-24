@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { z } from "zod";
 import type { Package } from "../types/Package";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { ModalShell } from "@/components/ui/ModalShell";
 
 const schema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
@@ -114,15 +116,14 @@ export function PackageFormModal({ open, initialValue, onClose, onSubmit }: Prop
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+    <ModalShell onClose={onClose} size="sm" bodyClassName="">
       <form
         id="package-form-modal"
         onSubmit={handleSubmit}
-        onClick={(event) => event.stopPropagation()}
         noValidate
-        className="flex w-full max-w-sm flex-col gap-3 rounded-lg bg-white p-6"
+        className="flex flex-col gap-3"
       >
-        <h2 className="text-lg font-semibold text-brand-primary">
+        <h2 className="font-display text-subtitulo font-medium text-texto">
           {initialValue ? "Editar paquete" : "Nuevo paquete"}
         </h2>
 
@@ -133,9 +134,9 @@ export function PackageFormModal({ open, initialValue, onClose, onSubmit }: Prop
             placeholder="Nombre"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
-          {fieldErrors.name && <p className="text-xs text-red-600">{fieldErrors.name}</p>}
+          {fieldErrors.name && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.name}</p>}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -144,12 +145,12 @@ export function PackageFormModal({ open, initialValue, onClose, onSubmit }: Prop
             placeholder="Descripcion (opcional)"
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="package-credits-input" className="text-xs text-gray-500">
+          <label htmlFor="package-credits-input" className="etiqueta-campo">
             Creditos
           </label>
           <input
@@ -158,13 +159,13 @@ export function PackageFormModal({ open, initialValue, onClose, onSubmit }: Prop
             min={1}
             value={credits}
             onChange={(event) => setCredits(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
-          {fieldErrors.credits && <p className="text-xs text-red-600">{fieldErrors.credits}</p>}
+          {fieldErrors.credits && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.credits}</p>}
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="package-price-input" className="text-xs text-gray-500">
+          <label htmlFor="package-price-input" className="etiqueta-campo">
             Precio (MXN, pesos)
           </label>
           <input
@@ -173,13 +174,13 @@ export function PackageFormModal({ open, initialValue, onClose, onSubmit }: Prop
             min={0}
             value={price}
             onChange={(event) => setPrice(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
-          {fieldErrors.price && <p className="text-xs text-red-600">{fieldErrors.price}</p>}
+          {fieldErrors.price && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.price}</p>}
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="package-valid-days-input" className="text-xs text-gray-500">
+          <label htmlFor="package-valid-days-input" className="etiqueta-campo">
             Vigencia en dias (vacio = sin vencimiento)
           </label>
           <input
@@ -188,28 +189,28 @@ export function PackageFormModal({ open, initialValue, onClose, onSubmit }: Prop
             min={1}
             value={validDays}
             onChange={(event) => setValidDays(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
           {fieldErrors.validDays && (
-            <p className="text-xs text-red-600">{fieldErrors.validDays}</p>
+            <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.validDays}</p>
           )}
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600">
+          <button type="button" onClick={onClose} className={buttonClasses("ghost", "md")}>
             Cancelar
           </button>
           <button
             type="submit"
             disabled={isSaving}
-            className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+            className={buttonClasses("primary", "md")}
           >
             {isSaving ? "Guardando..." : "Guardar"}
           </button>
         </div>
 
-        {formError && <p className="text-sm text-red-600">{formError}</p>}
+        {formError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
       </form>
-    </div>
+    </ModalShell>
   );
 }

@@ -14,6 +14,9 @@ import type { Dependent } from "@/features/dependents/types/Dependent";
 import { listCurrentMonthPaymentStatus } from "@/features/academy/services/academyTuitionService";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import { BackButton } from "@/components/ui/BackButton";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { Plus } from "lucide-react";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 
 function calculateAge(birthDate: string | null): number | null {
   if (!birthDate) return null;
@@ -83,53 +86,76 @@ export function StudentsPage() {
   }
 
   return (
-    <div id="students-page" className="mx-auto max-w-3xl p-6">
+    <div id="students-page" className="mx-auto max-w-3xl p-4 sm:p-6">
       <BackButton />
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-brand-primary">Alumnos</h1>
-        <button
-          type="button"
-          onClick={openCreate}
-          className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-        >
-          Nuevo alumno
-        </button>
-      </div>
+      <ScreenHeader
+        eyebrow="Academia de Ballet"
+        title="Alumnos"
+        actions={
+          <button type="button" onClick={openCreate} className={buttonClasses("primary", "md")}>
+            <Plus className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
+            Nuevo alumno
+          </button>
+        }
+      />
 
-      {actionError && <p className="mb-4 text-sm text-red-600">{actionError}</p>}
-      {loading && <p className="text-sm text-gray-500">Cargando...</p>}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {actionError && <p role="alert" className="mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{actionError}</p>}
+      {loading && <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>}
+      {error && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
       {!loading && !error && dependents.length === 0 && (
-        <p className="text-sm text-gray-500">Todavia no hay alumnos.</p>
+        <p className="vacio">Todavía no hay alumnos.</p>
       )}
       {!loading && !error && dependents.length > 0 && (
-        <table id="students-table" className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="border-b border-gray-200 text-left text-gray-500">
-              <th className="py-2">Nombre</th>
-              <th className="py-2">Tutor</th>
-              <th className="py-2">Edad</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dependents.map((dependent) => {
-              const paid = paymentStatus.get(dependent.id);
-              return (
-                <tr
-                  key={dependent.id}
-                  onClick={() => openRow(dependent)}
-                  className={`cursor-pointer border-b border-gray-100 hover:opacity-80 ${
-                    paid === true ? "bg-green-50" : paid === false ? "bg-red-50" : ""
-                  }`}
-                >
-                  <td className="py-2">{dependent.fullName}</td>
-                  <td className="py-2">{dependent.guardianName ?? "-"}</td>
-                  <td className="py-2">{calculateAge(dependent.birthDate) ?? "-"}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="tabla-contenedor">
+        <table id="students-table" className="tabla">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Tutor</th>
+                <th>Edad</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dependents.map((dependent) => {
+                const paid = paymentStatus.get(dependent.id);
+                return (
+                  <tr
+                    key={dependent.id}
+                    onClick={() => openRow(dependent)}
+                    className={`cursor-pointer ${
+                      paid === true ? "bg-exito/10" : paid === false ? "bg-alerta/10" : ""
+                    }`}
+                  >
+                    <td>
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          openRow(dependent);
+                        }}
+                        className="text-start font-medium text-texto hover:text-acento"
+                      >
+                        {dependent.fullName}
+                      </button>
+                      {paid !== undefined && (
+                        <span
+                          className={`ms-2 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-tarjeta px-2 py-0.5 text-pequeno font-medium ${
+                            paid ? "text-exito" : "text-alerta"
+                          }`}
+                        >
+                          <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${paid ? "bg-exito" : "bg-alerta"}`} />
+                          {paid ? "Pagado este mes" : "Pendiente este mes"}
+                        </span>
+                      )}
+                    </td>
+                    <td>{dependent.guardianName ?? "-"}</td>
+                    <td>{calculateAge(dependent.birthDate) ?? "-"}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <DependentFormModal

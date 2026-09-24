@@ -14,6 +14,9 @@ import {
 import { listCurrentMonthPaymentStatus } from '@/features/academy/services/academyTuitionService';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 import { BackButton } from '@/components/ui/BackButton';
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
 
 const DAY_ABBREVIATIONS = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
 
@@ -109,23 +112,24 @@ export function AcademyGroupDetailPage() {
   }
 
   if (groupsLoading) {
-    return <div className="mx-auto max-w-3xl p-6 text-sm text-gray-500">Cargando...</div>;
+    return <LoadingState message="Cargando…" />;
   }
 
   if (groupsError || !group) {
     return (
-      <div className="mx-auto max-w-3xl p-6 text-sm">
+      <div className="mx-auto max-w-3xl p-4 text-cuerpo sm:p-6">
         <BackButton />
-        <p className="text-red-600">{groupsError ?? 'Grupo no encontrado.'}</p>
+        <ErrorState message={groupsError ?? 'Grupo no encontrado.'} />
       </div>
     );
   }
 
   return (
-    <div id="academy-group-detail-page" className="mx-auto max-w-3xl p-6">
+    <div id="academy-group-detail-page" className="mx-auto max-w-3xl p-4 sm:p-6">
       <BackButton />
-      <h1 className="mb-1 text-xl font-semibold text-brand-primary">{group.name}</h1>
-      <p className="mb-4 text-sm text-gray-500">
+      <p className="etiqueta mb-2">Academia · Grupo</p>
+      <h1 className="mb-1 font-display text-titulo font-medium text-texto">{group.name}</h1>
+      <p className="mb-4 text-sm text-texto-suave">
         {group.instructorName ?? 'Sin instructor'}
         {' · '}
         {group.schedules.length === 0
@@ -138,61 +142,61 @@ export function AcademyGroupDetailPage() {
               .join(', ')}
       </p>
 
-      {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
-      {actionError && <p className="mb-4 text-sm text-red-600">{actionError}</p>}
+      {error && <p role="alert" className="mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
+      {actionError && <p role="alert" className="mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{actionError}</p>}
 
       {(pendingRequests.length > 0 || pendingLoading) && (
         <div className="mb-6">
-          <h2 className="mb-2 text-lg font-semibold text-brand-primary">Solicitudes pendientes</h2>
-          {pendingError && <p className="mb-2 text-sm text-red-600">{pendingError}</p>}
-          {pendingActionError && <p className="mb-2 text-sm text-red-600">{pendingActionError}</p>}
+          <h2 className="mb-2 text-lg font-semibold text-acento">Solicitudes pendientes</h2>
+          {pendingError && <p role="alert" className="mb-2 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{pendingError}</p>}
+          {pendingActionError && <p role="alert" className="mb-2 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{pendingActionError}</p>}
           {pendingLoading ? (
-            <p className="text-sm text-gray-500">Cargando...</p>
+            <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>
           ) : (
-            <div id="academy-pending-requests-table" className="overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
+            <div id="academy-pending-requests-table" className="tabla-contenedor">
+              <table className="tabla">
                 <thead>
-                  <tr className="border-b border-gray-200 text-left text-gray-500">
-                    <th className="py-2">Alumno</th>
-                    <th className="py-2">Tipo</th>
-                    <th className="py-2">Inscripcion pagada</th>
-                    <th className="py-2">Acciones</th>
+                  <tr>
+                    <th>Alumno</th>
+                    <th>Tipo</th>
+                    <th>Inscripcion pagada</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pendingRequests.map((request) => (
-                    <tr key={request.id} className="border-b border-gray-100">
-                      <td className="py-2">
-                        <p className="font-medium text-gray-900">{request.studentName}</p>
-                        <p className="text-xs text-gray-500">{request.guardianName ?? '-'}</p>
+                    <tr key={request.id}>
+                      <td>
+                        <p className="font-medium text-texto">{request.studentName}</p>
+                        <p className="text-pequeno text-texto-suave">{request.guardianName ?? '-'}</p>
                       </td>
-                      <td className="py-2 text-xs text-gray-600">
+                      <td className="py-2 text-pequeno text-texto-suave">
                         {request.status === 'PENDIENTE'
                           ? 'Inscripcion'
                           : `Clase muestra (${request.scheduleLabel ?? '-'}, ${request.trialDate ?? '-'})`}
                       </td>
-                      <td className="py-2 text-xs">
+                      <td className="py-2 text-pequeno">
                         {request.status === 'PENDIENTE'
                           ? request.registrationFeePaid
                             ? 'Si (pago de prueba)'
                             : 'No'
                           : '-'}
                       </td>
-                      <td className="py-2">
+                      <td>
                         <div className="flex items-center gap-3">
                           {request.status === 'PENDIENTE' ? (
                             <>
                               <button
                                 type="button"
                                 onClick={() => handleApprove(request.id)}
-                                className="text-sm text-brand-primary hover:underline"
+                                className="accion text-acento"
                               >
                                 Aprobar
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleReject(request.id)}
-                                className="text-sm text-red-600 hover:underline"
+                                className="accion text-alerta"
                               >
                                 Rechazar
                               </button>
@@ -201,7 +205,7 @@ export function AcademyGroupDetailPage() {
                             <button
                               type="button"
                               onClick={() => handleMarkTrialAttended(request.id)}
-                              className="text-sm text-brand-primary hover:underline"
+                              className="accion text-acento"
                             >
                               Marcar atendida
                             </button>
@@ -218,29 +222,29 @@ export function AcademyGroupDetailPage() {
       )}
 
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-brand-primary">Alumnos inscritos</h2>
+        <h2 className="font-display text-subtitulo font-medium text-texto">Alumnos inscritos</h2>
         <button
           type="button"
           onClick={() => setModalOpen(true)}
-          className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+          className={buttonClasses("primary", "md")}
         >
           Nuevo alumno
         </button>
       </div>
 
-      {loading && <p className="text-sm text-gray-500">Cargando...</p>}
+      {loading && <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>}
       {!loading && enrollments.length === 0 && (
-        <p className="text-sm text-gray-500">Todavia no hay alumnos inscritos.</p>
+        <p className="vacio">Todavía no hay alumnos inscritos.</p>
       )}
       {!loading && enrollments.length > 0 && (
-        <div className="overflow-x-auto">
-          <table id="academy-enrollments-table" className="w-full border-collapse text-sm">
+        <div className="tabla-contenedor">
+          <table id="academy-enrollments-table" className="tabla">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-gray-500">
-                <th className="py-2">Alumno</th>
-                <th className="py-2">Fecha de inscripcion</th>
-                <th className="py-2">Colegiatura actual</th>
-                <th className="py-2">Acciones</th>
+              <tr>
+                <th>Alumno</th>
+                <th>Fecha de inscripcion</th>
+                <th>Colegiatura actual</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -256,33 +260,43 @@ export function AcademyGroupDetailPage() {
                 return (
                   <tr
                     key={enrollment.id}
-                    className={`border-b border-gray-100 ${
-                      paid === true ? 'bg-green-50' : paid === false ? 'bg-red-50' : ''
-                    }`}
+                    className={paid === true ? 'bg-exito/10' : paid === false ? 'bg-alerta/10' : undefined}
                   >
-                    <td className="py-2">
-                      <p className="font-medium text-gray-900">{enrollment.studentName}</p>
-                      <p className="text-xs text-gray-500">{enrollment.guardianName ?? '-'}</p>
+                    <td>
+                      <p className="font-medium text-texto">{enrollment.studentName}</p>
+                      <p className="text-pequeno text-texto-suave">{enrollment.guardianName ?? '-'}</p>
                     </td>
-                    <td className="py-2">{enrollment.enrollmentDate}</td>
-                    <td className="py-2">
+                    <td>{enrollment.enrollmentDate}</td>
+                    <td>
                       {currentPeriod && tuitionPeriod ? (
-                        <span className="text-xs text-gray-500">
-                          {formatPeriodLabel(currentPeriod.periodStart, currentPeriod.periodEnd)}
+                        <span className="flex flex-col items-start gap-1">
+                          <span className="text-pequeno text-texto-suave">
+                            {formatPeriodLabel(currentPeriod.periodStart, currentPeriod.periodEnd)}
+                          </span>
+                          {paid !== undefined && (
+                            <span
+                              className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-tarjeta px-2 py-0.5 text-pequeno font-medium ${
+                                paid ? 'text-exito' : 'text-alerta'
+                              }`}
+                            >
+                              <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${paid ? 'bg-exito' : 'bg-alerta'}`} />
+                              {paid ? 'Pagada' : 'Pendiente'}
+                            </span>
+                          )}
                         </span>
                       ) : tuitionLoading ? (
-                        <span className="text-xs text-gray-500">Cargando...</span>
+                        <span className="text-pequeno text-texto-suave">Cargando...</span>
                       ) : (
-                        <span className="text-xs text-gray-500">Sin config. de colegiatura</span>
+                        <span className="text-pequeno text-texto-suave">Sin config. de colegiatura</span>
                       )}
                     </td>
-                    <td className="py-2">
+                    <td>
                       <div className="flex items-center gap-3">
                         {currentPeriod && tuitionPeriod && (
                           <button
                             type="button"
                             onClick={() => handleOpenPaymentModal(enrollment.id)}
-                            className="text-sm text-brand-primary hover:underline"
+                            className="accion text-acento"
                           >
                             Marcar pago
                           </button>
@@ -290,7 +304,7 @@ export function AcademyGroupDetailPage() {
                         <button
                           type="button"
                           onClick={() => handleWithdraw(enrollment.id)}
-                          className="text-sm text-red-600 hover:underline"
+                          className="accion text-alerta"
                         >
                           Dar de baja
                         </button>

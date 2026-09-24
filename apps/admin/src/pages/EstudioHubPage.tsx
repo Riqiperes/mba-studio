@@ -1,28 +1,23 @@
-import { Link } from "react-router-dom";
+import { CalendarDays, Ticket, UserRound, Users } from "lucide-react";
 import { BackButton } from "@/components/ui/BackButton";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { HubLinkCard } from "@/components/ui/HubLinkCard";
 
 const ESTUDIO_ITEMS = [
-  { to: "/classes", label: "Clases", icon: "📅" },
-  { to: "/instructors", label: "Instructores", icon: "🧑‍🏫" },
-  { to: "/packages", label: "Paquetes", icon: "📦" },
-  { to: "/customers", label: "Clientes", icon: "👥" },
+  { to: "/classes", label: "Clases", Icon: CalendarDays },
+  { to: "/instructors", label: "Instructores", Icon: UserRound },
+  { to: "/packages", label: "Paquetes", Icon: Ticket },
+  { to: "/customers", label: "Clientes", Icon: Users },
 ];
 
 export function EstudioHubPage() {
   return (
-    <div id="estudio-hub-page" className="mx-auto max-w-3xl p-6">
+    <div id="estudio-hub-page" className="mx-auto max-w-3xl p-4 sm:p-6">
       <BackButton />
-      <h1 className="mb-6 text-xl font-semibold text-brand-primary">Estudio</h1>
-      <div className="grid grid-cols-2 gap-4">
+      <ScreenHeader eyebrow="Estudio de Pilates" title="Estudio" />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         {ESTUDIO_ITEMS.map((item) => (
-          <Link
-            key={item.to}
-            to={item.to}
-            className="flex flex-col items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm hover:border-brand-primary hover:shadow-md"
-          >
-            <span className="text-4xl">{item.icon}</span>
-            <span className="text-base font-medium text-brand-primary">{item.label}</span>
-          </Link>
+          <HubLinkCard key={item.to} to={item.to} label={item.label} Icon={item.Icon} />
         ))}
       </div>
     </div>

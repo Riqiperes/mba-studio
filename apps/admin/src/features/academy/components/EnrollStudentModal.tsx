@@ -4,6 +4,8 @@ import type { Customer } from "@/features/customers/types/Customer";
 import { useDependentsByGuardian } from "@/features/dependents/hooks/useDependents";
 import { createDependent } from "@/features/dependents/services/dependentsService";
 import { getErrorMessage } from "@/utils/getErrorMessage";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { ModalShell } from "@/components/ui/ModalShell";
 
 const newRegisteredStudentSchema = z.object({
   fullName: z.string().min(1, "El nombre es obligatorio"),
@@ -196,22 +198,18 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div
-        className="flex w-full max-w-md flex-col gap-3 rounded-lg bg-white p-6"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <h2 className="text-lg font-semibold text-brand-primary">Inscribir alumno</h2>
+    <ModalShell onClose={onClose} size="md">
+        <h2 className="font-display text-subtitulo font-medium text-texto">Inscribir alumno</h2>
 
         {/* Pestañas de modo */}
-        <div className="flex border-b border-gray-200 text-sm">
+        <div className="flex border-b border-borde text-sm">
           <button
             type="button"
             onClick={() => setTab("registered")}
             className={`border-b-2 px-3 py-2 font-medium ${
               tab === "registered"
-                ? "border-brand-primary text-brand-primary"
-                : "border-transparent text-gray-500 hover:text-gray-700"
+                ? "border-acento text-acento"
+                : "border-transparent text-texto-suave hover:text-texto"
             }`}
           >
             Cliente con cuenta
@@ -221,8 +219,8 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
             onClick={() => setTab("unregistered")}
             className={`border-b-2 px-3 py-2 font-medium ${
               tab === "unregistered"
-                ? "border-brand-primary text-brand-primary"
-                : "border-transparent text-gray-500 hover:text-gray-700"
+                ? "border-acento text-acento"
+                : "border-transparent text-texto-suave hover:text-texto"
             }`}
           >
             Tutor de mostrador (sin cuenta)
@@ -232,14 +230,14 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
         {tab === "registered" ? (
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1">
-              <label htmlFor="enroll-customer-select" className="text-xs text-gray-500">
+              <label htmlFor="enroll-customer-select" className="etiqueta-campo">
                 Cliente
               </label>
               <select
                 id="enroll-customer-select"
                 value={customerId}
                 onChange={(event) => setCustomerId(event.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="campo"
               >
                 <option value="">Elige un cliente</option>
                 {customers.map((c) => (
@@ -252,14 +250,14 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
 
             {customerId && !showNewStudentForm && (
               <div className="flex flex-col gap-1">
-                <label htmlFor="enroll-dependent-select" className="text-xs text-gray-500">
+                <label htmlFor="enroll-dependent-select" className="etiqueta-campo">
                   Alumno
                 </label>
                 <select
                   id="enroll-dependent-select"
                   value={dependentId}
                   onChange={(event) => setDependentId(event.target.value)}
-                  className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  className="campo"
                 >
                   <option value="">Elige un alumno</option>
                   {dependents.map((dependent) => (
@@ -271,7 +269,7 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                 <button
                   type="button"
                   onClick={() => setShowNewStudentForm(true)}
-                  className="self-start text-xs text-brand-primary hover:underline"
+                  className="accion self-start text-acento"
                 >
                   Crear alumno nuevo
                 </button>
@@ -283,7 +281,7 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                 id="enroll-new-student-form"
                 onSubmit={handleCreateRegisteredStudent}
                 noValidate
-                className="flex flex-col gap-2 rounded-md border border-gray-200 p-3"
+                className="flex flex-col gap-2 rounded-control border border-borde p-3"
               >
                 <div className="flex flex-col gap-1">
                   <input
@@ -292,9 +290,9 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                     placeholder="Nombre completo del alumno"
                     value={newStudentName}
                     onChange={(event) => setNewStudentName(event.target.value)}
-                    className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                    className="campo"
                   />
-                  {fieldErrors.fullName && <p className="text-xs text-red-600">{fieldErrors.fullName}</p>}
+                  {fieldErrors.fullName && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.fullName}</p>}
                 </div>
                 <div className="flex flex-col gap-1">
                   <input
@@ -302,24 +300,24 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                     type="date"
                     value={newStudentBirthDate}
                     onChange={(event) => setNewStudentBirthDate(event.target.value)}
-                    className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                    className="campo"
                   />
                   {fieldErrors.birthDate && (
-                    <p className="text-xs text-red-600">{fieldErrors.birthDate}</p>
+                    <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.birthDate}</p>
                   )}
                 </div>
                 <div className="flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => setShowNewStudentForm(false)}
-                    className="px-3 py-1 text-xs text-gray-600"
+                    className="px-3 py-1 text-pequeno text-texto-suave"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="rounded-md bg-brand-primary px-3 py-1 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+                    className={buttonClasses("primary", "sm")}
                   >
                     {isSaving ? "Creando..." : "Crear alumno"}
                   </button>
@@ -328,7 +326,7 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
             )}
 
             <div className="flex flex-col gap-1">
-              <label htmlFor="enroll-date-input" className="text-xs text-gray-500">
+              <label htmlFor="enroll-date-input" className="etiqueta-campo">
                 Fecha de inscripcion
               </label>
               <input
@@ -336,19 +334,19 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                 type="date"
                 value={enrollmentDate}
                 onChange={(event) => setEnrollmentDate(event.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="campo"
               />
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600">
+              <button type="button" onClick={onClose} className={buttonClasses("ghost", "md")}>
                 Cancelar
               </button>
               <button
                 type="button"
                 onClick={handleSubmitRegistered}
                 disabled={isSaving || !dependentId}
-                className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+                className={buttonClasses("primary", "md")}
               >
                 {isSaving ? "Inscribiendo..." : "Inscribir"}
               </button>
@@ -362,7 +360,7 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
             className="flex flex-col gap-3"
           >
             <div className="flex flex-col gap-1">
-              <label htmlFor="unreg-guardian-name" className="text-xs text-gray-500">
+              <label htmlFor="unreg-guardian-name" className="etiqueta-campo">
                 Nombre del tutor *
               </label>
               <input
@@ -371,15 +369,15 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                 placeholder="Nombre del padre o tutor"
                 value={unregGuardianName}
                 onChange={(event) => setUnregGuardianName(event.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="campo"
               />
               {fieldErrors.guardianName && (
-                <p className="text-xs text-red-600">{fieldErrors.guardianName}</p>
+                <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.guardianName}</p>
               )}
             </div>
 
             <div className="flex flex-col gap-1">
-              <label htmlFor="unreg-guardian-phone" className="text-xs text-gray-500">
+              <label htmlFor="unreg-guardian-phone" className="etiqueta-campo">
                 Telefono del tutor (para WhatsApp)
               </label>
               <input
@@ -388,15 +386,15 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                 placeholder="Ej. 9991234567"
                 value={unregGuardianPhone}
                 onChange={(event) => setUnregGuardianPhone(event.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="campo"
               />
               {fieldErrors.guardianPhone && (
-                <p className="text-xs text-red-600">{fieldErrors.guardianPhone}</p>
+                <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.guardianPhone}</p>
               )}
             </div>
 
             <div className="flex flex-col gap-1">
-              <label htmlFor="unreg-student-name" className="text-xs text-gray-500">
+              <label htmlFor="unreg-student-name" className="etiqueta-campo">
                 Nombre del alumno *
               </label>
               <input
@@ -405,15 +403,15 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                 placeholder="Nombre del alumno"
                 value={unregStudentName}
                 onChange={(event) => setUnregStudentName(event.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="campo"
               />
               {fieldErrors.studentName && (
-                <p className="text-xs text-red-600">{fieldErrors.studentName}</p>
+                <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.studentName}</p>
               )}
             </div>
 
             <div className="flex flex-col gap-1">
-              <label htmlFor="unreg-student-birthdate" className="text-xs text-gray-500">
+              <label htmlFor="unreg-student-birthdate" className="etiqueta-campo">
                 Fecha de nacimiento del alumno
               </label>
               <input
@@ -421,15 +419,15 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                 type="date"
                 value={unregStudentBirthDate}
                 onChange={(event) => setUnregStudentBirthDate(event.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="campo"
               />
               {fieldErrors.birthDate && (
-                <p className="text-xs text-red-600">{fieldErrors.birthDate}</p>
+                <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.birthDate}</p>
               )}
             </div>
 
             <div className="flex flex-col gap-1">
-              <label htmlFor="unreg-enrollment-date" className="text-xs text-gray-500">
+              <label htmlFor="unreg-enrollment-date" className="etiqueta-campo">
                 Fecha de inscripcion *
               </label>
               <input
@@ -437,21 +435,21 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                 type="date"
                 value={enrollmentDate}
                 onChange={(event) => setEnrollmentDate(event.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="campo"
               />
               {fieldErrors.enrollmentDate && (
-                <p className="text-xs text-red-600">{fieldErrors.enrollmentDate}</p>
+                <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.enrollmentDate}</p>
               )}
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600">
+              <button type="button" onClick={onClose} className={buttonClasses("ghost", "md")}>
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={isSaving}
-                className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+                className={buttonClasses("primary", "md")}
               >
                 {isSaving ? "Inscribiendo..." : "Inscribir alumno"}
               </button>
@@ -459,9 +457,8 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
           </form>
         )}
 
-        {formError && <p className="text-sm text-red-600">{formError}</p>}
-      </div>
-    </div>
+        {formError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
+      </ModalShell>
   );
 }
 
