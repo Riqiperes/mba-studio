@@ -155,6 +155,12 @@ produccion y esta protegida (sin push directo); el trabajo nuevo sale de
 - No dejar `TODO`/`FIXME`/`HACK` sin explicar por que existen; si algo se
   pospone, documentarlo en `docs/roadmap.md`.
 
+## Rediseno de frontend (en curso)
+
+Todo trabajo visual de `apps/web` y `apps/admin` sigue
+`docs/frontend/plan-de-accion-frontend.md`: leer su "Protocolo de trabajo"
+antes de empezar y marcar cada seccion al terminarla.
+
 ## Documentacion viva
 
 `docs/CURRENT_STATE.md` refleja el estado real del proyecto y se actualiza
