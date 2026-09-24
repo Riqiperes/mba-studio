@@ -53,7 +53,7 @@ export function LandingPage() {
   const whatsappUrl = business?.whatsappNumber ? formatWhatsAppLink(business.whatsappNumber) : "";
   const phoneUrl = business?.phone ? formatPhoneLink(business.phone) : "";
   const address = business?.address ?? null;
-  const hasLocationInfo = Boolean(address || phoneUrl || whatsappUrl);
+  const hasContactInfo = Boolean(address || phoneUrl || whatsappUrl);
 
   return (
     <div id="landing-page" className="mx-auto flex max-w-[980px] flex-col gap-10 px-4 pt-6 sm:gap-12 sm:px-8 sm:pt-8">
@@ -121,9 +121,9 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* 3. Donde estamos: mapa, direccion y contacto */}
-      {hasLocationInfo && (
-        <section
+      {/* 3. Donde estamos: mapa, direccion y contacto. Siempre visible; sin
+          datos del negocio muestra el lugar reservado del mapa como antes. */}
+      <section
           id="landing-location-section"
           aria-labelledby="landing-location-title"
           className="grid overflow-hidden rounded-card border border-borde bg-tarjeta shadow-card sm:grid-cols-2"
@@ -138,8 +138,12 @@ export function LandingPage() {
               className="h-56 w-full border-0 sm:h-full sm:min-h-72"
             />
           ) : (
-            <div className="grid h-40 place-items-center bg-suave sm:h-full">
+            <div
+              id="landing-map-placeholder"
+              className="flex h-48 flex-col items-center justify-center gap-2 bg-suave text-texto-suave sm:h-full sm:min-h-72"
+            >
               <MapPin className="h-8 w-8 text-malva" strokeWidth={1.4} aria-hidden="true" />
+              <span className="text-pequeno">Mapa de Google</span>
             </div>
           )}
           <div className="flex flex-col gap-5 p-6 sm:p-8">
@@ -154,6 +158,9 @@ export function LandingPage() {
                 <MapPin className="mt-1 h-5 w-5 shrink-0 text-acento" strokeWidth={1.6} aria-hidden="true" />
                 {address}
               </address>
+            )}
+            {!hasContactInfo && (
+              <p className="text-cuerpo text-texto-suave">Aquí irán la dirección y los datos de contacto.</p>
             )}
             <div className="mt-auto flex flex-wrap gap-3">
               {whatsappUrl && (
@@ -181,7 +188,6 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-      )}
 
       <footer className="border-t border-borde pt-6 pb-2 text-center text-pequeno text-texto-suave">
         <p>

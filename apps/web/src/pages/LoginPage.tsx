@@ -42,9 +42,12 @@ export function LoginPage() {
           </Link>
 
           <div className="rounded-card border border-borde bg-tarjeta p-6 shadow-card sm:p-8">
-            <h1 className="mb-6 text-center font-display text-titulo font-medium">
-              {isRegister ? "Crea tu cuenta" : "Inicia sesión"}
-            </h1>
+            <div className="mb-6 space-y-1 text-center">
+              <h1 className="font-display text-titulo font-medium">MBA MID</h1>
+              <p className="text-cuerpo text-texto-suave">
+                {isRegister ? "Crea tu cuenta para continuar" : "Inicia sesión para continuar"}
+              </p>
+            </div>
 
             <GoogleSignInButton redirectTo={redirectTo} />
 
