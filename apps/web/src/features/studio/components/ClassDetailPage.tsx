@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { CalendarDays, Clock, MessageCircle, Smartphone, User, Users } from "lucide-react";
 import { listUpcomingClasses } from "@/features/studio/services/studioClassesService";
 import type { StudioClassWithInstructor } from "@/features/studio/types/StudioClass";
-import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { BackButton } from "@/components/ui/BackButton";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { buttonClasses } from "@/components/ui/buttonStyles";
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("es-MX", {
@@ -63,104 +66,90 @@ export function ClassDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh] px-4">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary mx-auto mb-4"></div>
-          <p className="text-gray-500">Cargando...</p>
-        </div>
-      </div>
-    );
+    return <LoadingState id="class-detail-loading" message="Cargando clase…" />;
   }
 
   if (error || !cls) {
     return (
-      <div className="mx-auto max-w-md px-4 py-12 text-center">
-        <BackButton />
-        <h2 className="mb-2 text-xl font-semibold text-gray-900">No encontrada</h2>
-        <p className="text-gray-500">{error ?? "La clase no existe"}</p>
+      <div id="class-detail-not-found" className="mx-auto max-w-md px-4 py-6 sm:py-8">
+        <BackButton to="/classes" label="Horarios" />
+        <EmptyState
+          title="No encontramos esta clase"
+          description={error ?? "La clase no existe o ya no está disponible."}
+          action={
+            <Link to="/classes" className={buttonClasses("secondary", "md")}>
+              Ver horario de clases
+            </Link>
+          }
+        />
       </div>
     );
   }
 
-  const statusColor = cls.status === "SCHEDULED"
-    ? "bg-green-100 text-green-800"
-    : cls.status === "CANCELLED"
-    ? "bg-red-100 text-red-800"
-    : "bg-gray-100 text-gray-800";
+  const isScheduled = cls.status === "SCHEDULED";
+  const statusLabel = isScheduled ? "Programada" : cls.status === "CANCELLED" ? "Cancelada" : "Terminada";
+
+  const details = [
+    { label: "Fecha", value: formatDate(cls.startsAt), Icon: CalendarDays },
+    { label: "Horario", value: `${formatTime(cls.startsAt)} – ${formatTime(cls.endsAt)}`, Icon: Clock },
+    ...(cls.instructorName ? [{ label: "Instructor", value: cls.instructorName, Icon: User }] : []),
+    { label: "Cupo máximo", value: `${cls.maxCapacity} personas`, Icon: Users },
+  ];
 
   return (
-    <div id="class-detail-page" className="mx-auto max-w-md px-4 py-6 space-y-6 pb-24">
-      <BackButton />
+    <div id="class-detail-page" className="mx-auto max-w-[980px] px-4 py-6 sm:px-8 sm:py-8">
+      <BackButton to="/classes" label="Horarios" />
 
-      <Card>
-        <CardContent className="space-y-6 p-6">
-          <div className="text-center space-y-3">
-            <h1 className="text-2xl font-bold text-brand-primary">{cls.title}</h1>
-            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${statusColor}`}>
-              {cls.status === "SCHEDULED" ? "Programada" : cls.status}
-            </span>
-          </div>
+      <div className="grid gap-6 lg:grid-cols-[1fr_380px] lg:items-start">
+        <section id="class-detail-info" className="space-y-6">
+          <header className="space-y-3">
+            <p className="etiqueta">Estudio de Pilates</p>
+            <h1 className="font-display text-titulo font-medium sm:text-display-l">{cls.title}</h1>
+            <p className="inline-flex items-center gap-1.5 rounded-full bg-suave px-3 py-1 text-pequeno font-medium text-texto">
+              <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${isScheduled ? "bg-exito" : "bg-alerta"}`} />
+              {statusLabel}
+            </p>
+          </header>
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">📅</span>
-                <div>
-                  <p className="text-sm text-gray-500">Fecha</p>
-                  <p className="font-medium text-gray-900">{formatDate(cls.startsAt)}</p>
+          <dl className="divide-y divide-borde rounded-card border border-borde bg-tarjeta shadow-card sm:grid sm:grid-cols-2 sm:gap-3 sm:divide-y-0 sm:border-0 sm:bg-transparent sm:shadow-none">
+            {details.map(({ label, value, Icon }) => (
+              <div key={label} className="flex items-center gap-3 p-4 sm:rounded-card sm:border sm:border-borde sm:bg-tarjeta sm:shadow-card">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-acento-suave text-acento">
+                  <Icon className="h-5 w-5" strokeWidth={1.6} aria-hidden="true" />
+                </span>
+                <div className="min-w-0">
+                  <dt className="text-pequeno text-texto-suave">{label}</dt>
+                  <dd className="font-medium text-texto first-letter:uppercase">{value}</dd>
                 </div>
               </div>
-            </div>
+            ))}
+          </dl>
+        </section>
 
-            <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">🕐</span>
-                <div>
-                  <p className="text-sm text-gray-500">Horario</p>
-                  <p className="font-medium text-gray-900">
-                    {formatTime(cls.startsAt)} – {formatTime(cls.endsAt)}
-                  </p>
-                </div>
-              </div>
-            </div>
+        <aside
+          id="class-detail-booking"
+          aria-label="Reservar"
+          className="rounded-card border border-borde bg-tarjeta p-6 shadow-card lg:sticky lg:top-[100px]"
+        >
+          <p className="etiqueta">Reserva tu lugar</p>
+          <p className="mt-2 font-display text-precio font-medium tabular-nums">{formatTime(cls.startsAt)}</p>
+          <p className="text-pequeno text-texto-suave first-letter:uppercase">{formatDate(cls.startsAt)}</p>
 
-            {cls.instructorName && (
-              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">👤</span>
-                  <div>
-                    <p className="text-sm text-gray-500">Instructor</p>
-                    <p className="font-medium text-gray-900">{cls.instructorName}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">👥</span>
-                <div>
-                  <p className="text-sm text-gray-500">Cupo máximo</p>
-                  <p className="font-medium text-gray-900">{cls.maxCapacity} personas</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3 pt-4 border-t border-gray-200">
+          <div className="mt-6 space-y-3 border-t border-borde pt-6">
             <Button variant="primary" size="lg" className="w-full" onClick={handleWhatsApp}>
-              💬 Reservar por WhatsApp
+              <MessageCircle className="h-5 w-5" strokeWidth={1.6} aria-hidden="true" />
+              Reservar por WhatsApp
             </Button>
             <Button variant="outline" size="lg" className="w-full" disabled>
-              📱 Reservar en app (próximamente)
+              <Smartphone className="h-5 w-5" strokeWidth={1.6} aria-hidden="true" />
+              Reservar en app (próximamente)
             </Button>
-            <p className="text-center text-xs text-gray-500">
+            <p className="text-center text-pequeno text-texto-suave text-pretty">
               La reservación consumirá 1 crédito de tu paquete.
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </aside>
+      </div>
     </div>
   );
 }
