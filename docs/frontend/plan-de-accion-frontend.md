@@ -22,6 +22,44 @@ Estados: `[ ]` pendiente · `[~]` en progreso · `[x]` hecho · `[-]` descartado
 
 ---
 
+## PENDIENTES PARA CERRAR EL FRONT AL 100% (empezar aqui)
+
+Estado al 2026-09-24: Fases 0, 1, 2.0 y 2 terminadas (web en
+`feat/web-frontend`, admin en `feat/admin-frontend`, ambas subidas, sin PR).
+Solo falta lo de esta lista. Marcar cada punto al resolverlo y anotarlo en la
+bitacora.
+
+**1. Tareas del plan que se dejaron para el final**
+
+- [ ] 0.5 Decidir si se borran los archivos sin uso: `apps/web/src/pages/HomePage.tsx` (D4) y `apps/web/src/features/studio/components/ClassesFilterBar.tsx` (D5).
+- [ ] 0.7 Icono `apple-touch-icon` (PNG 180x180) para "agregar a pantalla de inicio" en iPhone (web y admin).
+
+**2. Pruebas que faltan**
+
+- [ ] Probar en un telefono real (iPhone y Android): zoom al escribir, muesca/area segura, sensacion al tocar, hoja de los modales, tema oscuro.
+- [ ] Probar la web con sesion y datos reales: reservar, cancelar, lista de espera, creditos, inscripcion y clase muestra de Academia, perfil.
+- [ ] Probar el panel con un usuario admin real y datos: clases, reservaciones, clientes, alumnos, grupos, colegiaturas, usuarios, admins y vista de instructor.
+
+**3. Integracion y publicacion (decide el usuario)**
+
+- [ ] Abrir PR de `feat/web-frontend` a `develop` (y despues `feat/admin-frontend`, que sale de la de web).
+- [ ] Publicar web y admin en Cloudflare Pages.
+
+**4. Funcionamiento detectado sin cambiar (decidir si entra; no es diseno)**
+
+- [ ] "Mis reservaciones" (`/my-bookings`) y el detalle de clase (`/classes/:id`) no tienen enlace visible en la web.
+- [ ] "Cancelar" una reserva desde Horarios no pide confirmacion (en Mi horario si).
+- [ ] `formatWeekStartKey` usa fecha UTC: despues de las 6 pm la semana "de hoy" puede correrse un dia.
+- [ ] El cupo del calendario de la web solo cuenta las reservas propias, no las de todos.
+- [ ] Varios formularios de los modales del admin usan el placeholder como unica etiqueta del campo.
+
+**5. Opcionales**
+
+- [ ] Boton para cambiar entre modo claro y oscuro (hoy sigue la configuracion del sistema; ya existe `data-theme` para forzarlo).
+- [ ] Enlaces a paginas legales (D6) cuando la rama `feat/politicas-privacidad` tenga esas paginas.
+
+---
+
 ## Protocolo de trabajo (leer SIEMPRE antes de empezar)
 
 El usuario pide trabajo con frases como "haz la fase 1 de la 1 a la 4". El
