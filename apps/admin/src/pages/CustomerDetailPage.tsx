@@ -34,23 +34,32 @@ export function CustomerDetailPage() {
   const { balance, loading: creditsLoading, error: creditsError, grant } = useCustomerCredits(customerId);
   const [creditsModalOpen, setCreditsModalOpen] = useState(false);
   const [balanceChanged, setBalanceChanged] = useState(false);
-  const isFirstBalance = useRef(true);
+  const previousBalance = useRef<number | null>(null);
+  const hasBalanceBaseline = useRef(false);
 
   async function handleGrantCredits(amount: number, notes?: string | null) {
     await grant(amount, notes);
   }
 
   // Destaca el saldo solo cuando cambia por una accion (otorgar creditos),
-  // nunca en la primera carga de la pagina.
+  // nunca en la primera carga: `balance` arranca en null y se resuelve al
+  // valor real en un segundo render, asi que la base se fija ahi (la
+  // primera vez que hay un numero real), no en el primer render.
   useEffect(() => {
-    if (isFirstBalance.current) {
-      isFirstBalance.current = false;
-      return;
+    if (creditsLoading || balance === null) return undefined;
+    if (!hasBalanceBaseline.current) {
+      hasBalanceBaseline.current = true;
+      previousBalance.current = balance;
+      return undefined;
     }
-    setBalanceChanged(true);
-    const timeout = setTimeout(() => setBalanceChanged(false), 900);
-    return () => clearTimeout(timeout);
-  }, [balance]);
+    if (balance !== previousBalance.current) {
+      previousBalance.current = balance;
+      setBalanceChanged(true);
+      const timeout = setTimeout(() => setBalanceChanged(false), 900);
+      return () => clearTimeout(timeout);
+    }
+    return undefined;
+  }, [balance, creditsLoading]);
 
   useEffect(() => {
     if (!customer) return;
