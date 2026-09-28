@@ -54,7 +54,7 @@ export function PackageDetailPage() {
 
   if (error || !pkg) {
     return (
-      <div id="package-detail-not-found" className="mx-auto max-w-md px-4 py-6 sm:py-8">
+      <div id="package-detail-not-found" className="entra mx-auto max-w-md px-4 py-6 sm:py-8">
         <BackButton to="/packages" label="Paquetes" />
         <EmptyState
           title="No encontramos este paquete"
@@ -76,7 +76,7 @@ export function PackageDetailPage() {
   ];
 
   return (
-    <div id="package-detail-page" className="mx-auto max-w-[980px] px-4 py-6 sm:px-8 sm:py-8">
+    <div id="package-detail-page" className="entra mx-auto max-w-[980px] px-4 py-6 sm:px-8 sm:py-8">
       <BackButton to="/packages" label="Paquetes" />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px] lg:items-start">

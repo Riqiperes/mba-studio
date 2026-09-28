@@ -56,7 +56,7 @@ export function LandingPage() {
   const hasContactInfo = Boolean(address || phoneUrl || whatsappUrl);
 
   return (
-    <div id="landing-page" className="mx-auto flex max-w-[980px] flex-col gap-10 px-4 pt-6 sm:gap-12 sm:px-8 sm:pt-8">
+    <div id="landing-page" className="entra mx-auto flex max-w-[980px] flex-col gap-10 px-4 pt-6 sm:gap-12 sm:px-8 sm:pt-8">
       {/* 1. Banner con la bailarina difuminada */}
       <section
         id="landing-hero-section"

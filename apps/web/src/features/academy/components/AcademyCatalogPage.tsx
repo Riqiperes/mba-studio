@@ -50,14 +50,16 @@ export function AcademyCatalogPage() {
         <LoadingState id="academy-loading" message="Cargando grupos…" />
       ) : groups.length === 0 ? (
         !error && (
-          <EmptyState
-            id="academy-empty"
-            title="Todavía no hay grupos de Academia disponibles"
-            description="Vuelve pronto para ver los grupos y sus horarios."
-          />
+          <div className="entra">
+            <EmptyState
+              id="academy-empty"
+              title="Todavía no hay grupos de Academia disponibles"
+              description="Vuelve pronto para ver los grupos y sus horarios."
+            />
+          </div>
         )
       ) : (
-        <section aria-labelledby="academy-groups-title" className="space-y-4">
+        <section aria-labelledby="academy-groups-title" className="entra space-y-4">
           <h2 id="academy-groups-title" className="font-display text-subtitulo font-medium">
             Grupos
           </h2>

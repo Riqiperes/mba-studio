@@ -71,7 +71,7 @@ export function ClassDetailPage() {
 
   if (error || !cls) {
     return (
-      <div id="class-detail-not-found" className="mx-auto max-w-md px-4 py-6 sm:py-8">
+      <div id="class-detail-not-found" className="entra mx-auto max-w-md px-4 py-6 sm:py-8">
         <BackButton to="/classes" label="Horarios" />
         <EmptyState
           title="No encontramos esta clase"
@@ -97,7 +97,7 @@ export function ClassDetailPage() {
   ];
 
   return (
-    <div id="class-detail-page" className="mx-auto max-w-[980px] px-4 py-6 sm:px-8 sm:py-8">
+    <div id="class-detail-page" className="entra mx-auto max-w-[980px] px-4 py-6 sm:px-8 sm:py-8">
       <BackButton to="/classes" label="Horarios" />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_380px] lg:items-start">
