@@ -755,6 +755,7 @@ Solo interfaz: servicios, hooks, rutas, permisos por rol, RLS y migraciones sin 
 - **Componentes** (`apps/admin/src/components/ui/`): los de web más `ModalShell` (diálogo nativo para los formularios existentes), `HubLinkCard`, `FormMessages` y `ScreenHeader` con acciones.
 - **Layout**: `AdminLayout` con header fijo (logo, pestañas con icono según rol, cerrar sesión) y `RequireAuth` con pantallas de carga y "Sin acceso" en tarjeta.
 - **Accesibilidad**: tarjetas y filas que antes solo abrían con mouse ahora también con teclado; estado de pago con texto además de color.
+- **Animaciones (2026-09-27)**: entrada del contenido al terminar de cargar y de las alertas (70 lugares), fila nueva en tablas con fade, semana de Clases (`WeekSelector` + `ClassesWeekGrid`) con deslizamiento direccional (etiqueta + grilla juntas), saldo de créditos que destaca solo cuando cambia por una acción real (bug corregido: no debía destellar en la primera carga y sí lo hacía). Sin sincronizar todavía con los commits nuevos de `feat/web-frontend` (ver pendiente en `docs/frontend/plan-de-accion-frontend.md`).
 
 ## Integraciones configuradas
 
