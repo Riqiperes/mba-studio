@@ -746,6 +746,7 @@ Solo interfaz: servicios, hooks, rutas, RLS y migraciones sin cambios. Plan y bi
 - **Móvil**: `viewport-fit=cover` y áreas seguras, sin destello al tocar, `touch-action: manipulation`, inputs de 16px en pantallas táctiles, `theme-color` por esquema; sin desborde horizontal a 320 y 390 px en todas las rutas.
 - **Pendiente de la fase**: 0.5 (archivos huérfanos `HomePage.tsx` y `ClassesFilterBar.tsx`) y 0.7 (`apple-touch-icon`). Sin enlaces legales (D6) porque aún no existen esas páginas.
 - **Observado sin cambiar (funcionamiento)**: `/my-bookings` y `/classes/:id` no tienen enlace visible en la app; "Cancelar" en Horarios no pide confirmación (en Mi horario sí); `formatWeekStartKey` usa fecha UTC; el cupo del calendario solo cuenta las reservas propias.
+- **Animaciones (2026-09-27)**: entrada del contenido al terminar de cargar y de las alertas, "solicitud enviada" de Academia más expresiva (único momento de "delight"), semana de Horarios (`WeekSelector` + `ClassesCalendar`) con deslizamiento direccional, saldo de créditos que destaca solo cuando cambia por una acción real (reservar/cancelar), nunca en la carga inicial. Detalle en la bitácora de `docs/frontend/plan-de-accion-frontend.md`.
 
 ## Integraciones configuradas
 
