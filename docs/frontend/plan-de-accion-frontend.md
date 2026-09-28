@@ -24,29 +24,51 @@ Estados: `[ ]` pendiente · `[~]` en progreso · `[x]` hecho · `[-]` descartado
 
 ## PENDIENTES PARA CERRAR EL FRONT AL 100% (empezar aqui)
 
-Estado al 2026-09-24: Fases 0, 1, 2.0 y 2 terminadas (web en
-`feat/web-frontend`, admin en `feat/admin-frontend`, ambas subidas, sin PR).
-Solo falta lo de esta lista. Marcar cada punto al resolverlo y anotarlo en la
-bitacora.
+Estado al 2026-09-27: Fases 0, 1, 2.0 y 2 terminadas, mas un pase de
+animaciones sobre ambas (ver bitacora 2026-09-27). Web en
+`feat/web-frontend` (subida a origin), admin en `feat/admin-frontend`
+(commits locales, sin subir a origin todavia). Sin PR a `develop` en
+ninguna de las dos. Solo falta lo de esta lista. Marcar cada punto al
+resolverlo y anotarlo en la bitacora.
 
-**1. Tareas del plan que se dejaron para el final**
+**0. Aprobacion del equipo (bloquea el resto de esta lista)**
+
+- [ ] Mostrar el diseño + las animaciones al equipo de trabajo, junto con
+      esta lista completa de pendientes (puntos 1 a 5), para que la
+      revisen y digan que cambiar antes de continuar.
+- [ ] Si piden cambios al diseño o a las animaciones: aplicarlos y volver
+      a mostrar antes de seguir.
+- [ ] Recien cuando el equipo apruebe el diseño tal cual esta (o con los
+      cambios ya aplicados): continuar con el punto 3 (el merge de
+      sincronizacion y los PR) y cerrar las decisiones de los puntos 1, 4
+      y 5 con lo que el equipo haya dicho.
+
+**1. Tareas del plan que se dejaron para el final** *(decide el equipo, ver punto 0)*
 
 - [ ] 0.5 Decidir si se borran los archivos sin uso: `apps/web/src/pages/HomePage.tsx` (D4) y `apps/web/src/features/studio/components/ClassesFilterBar.tsx` (D5).
 - [ ] 0.7 Icono `apple-touch-icon` (PNG 180x180) para "agregar a pantalla de inicio" en iPhone (web y admin).
 
 **2. Pruebas que faltan**
 
-- [ ] Probar en un telefono real (iPhone y Android): zoom al escribir, muesca/area segura, sensacion al tocar, hoja de los modales, tema oscuro.
+- [ ] Probar en un telefono real (iPhone y Android): zoom al escribir, muesca/area segura, sensacion al tocar, hoja de los modales, tema oscuro y las animaciones nuevas (carga, alertas, semana de Clases, saldo de creditos).
 - [ ] Probar la web con sesion y datos reales: reservar, cancelar, lista de espera, creditos, inscripcion y clase muestra de Academia, perfil.
 - [ ] Probar el panel con un usuario admin real y datos: clases, reservaciones, clientes, alumnos, grupos, colegiaturas, usuarios, admins y vista de instructor.
 
-**3. Integracion y publicacion (decide el usuario)**
+**3. Integracion y publicacion** *(bloqueado hasta que el punto 0 este resuelto)*
 
-- [ ] Antes de abrir el PR de `feat/admin-frontend`: traer con `git merge feat/web-frontend` los commits nuevos que solo tiene esa rama (animaciones de la fase 1, ver bitacora 2026-09-27), para que admin quede con la ultima version de web. `feat/admin-frontend` se creo desde `feat/web-frontend` el 2026-09-24 y no se ha vuelto a sincronizar desde entonces.
+- [ ] **No hacer todavia.** Cuando el equipo apruebe el diseño: traer con
+      `git merge feat/web-frontend` (estando en `feat/admin-frontend`) los
+      commits nuevos que solo tiene esa rama (animaciones de la fase 1, ver
+      bitacora 2026-09-27), para que admin quede con la ultima version de
+      web. `feat/admin-frontend` se creo desde `feat/web-frontend` el
+      2026-09-24 y no se ha vuelto a sincronizar desde entonces. Este merge
+      no toca `develop` ni `main`, solo une las dos ramas de front entre si;
+      siguen existiendo las mismas 2 ramas (web y admin), no se crea una
+      tercera.
 - [ ] Abrir PR de `feat/web-frontend` a `develop` (y despues `feat/admin-frontend`, que sale de la de web).
 - [ ] Publicar web y admin en Cloudflare Pages.
 
-**4. Funcionamiento detectado sin cambiar (decidir si entra; no es diseno)**
+**4. Funcionamiento detectado sin cambiar (decidir si entra; no es diseno)** *(decide el equipo, ver punto 0)*
 
 - [ ] "Mis reservaciones" (`/my-bookings`) y el detalle de clase (`/classes/:id`) no tienen enlace visible en la web.
 - [ ] "Cancelar" una reserva desde Horarios no pide confirmacion (en Mi horario si).
@@ -54,7 +76,7 @@ bitacora.
 - [ ] El cupo del calendario de la web solo cuenta las reservas propias, no las de todos.
 - [ ] Varios formularios de los modales del admin usan el placeholder como unica etiqueta del campo.
 
-**5. Opcionales**
+**5. Opcionales** *(decide el equipo, ver punto 0)*
 
 - [ ] Boton para cambiar entre modo claro y oscuro (hoy sigue la configuracion del sistema; ya existe `data-theme` para forzarlo).
 - [ ] Enlaces a paginas legales (D6) cuando la rama `feat/politicas-privacidad` tenga esas paginas.
