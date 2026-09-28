@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useParams } from "react-router-dom";
 import { DependentFormModal, type DependentFormInput } from "@/features/dependents/components/DependentFormModal";
 import { DependentsTable } from "@/features/dependents/components/DependentsTable";
@@ -33,10 +33,24 @@ export function CustomerDetailPage() {
 
   const { balance, loading: creditsLoading, error: creditsError, grant } = useCustomerCredits(customerId);
   const [creditsModalOpen, setCreditsModalOpen] = useState(false);
+  const [balanceChanged, setBalanceChanged] = useState(false);
+  const isFirstBalance = useRef(true);
 
   async function handleGrantCredits(amount: number, notes?: string | null) {
     await grant(amount, notes);
   }
+
+  // Destaca el saldo solo cuando cambia por una accion (otorgar creditos),
+  // nunca en la primera carga de la pagina.
+  useEffect(() => {
+    if (isFirstBalance.current) {
+      isFirstBalance.current = false;
+      return;
+    }
+    setBalanceChanged(true);
+    const timeout = setTimeout(() => setBalanceChanged(false), 900);
+    return () => clearTimeout(timeout);
+  }, [balance]);
 
   useEffect(() => {
     if (!customer) return;
@@ -127,7 +141,7 @@ export function CustomerDetailPage() {
   }
 
   return (
-    <div id="customer-detail-page" className="mx-auto max-w-3xl p-4 sm:p-6">
+    <div id="customer-detail-page" className="entra mx-auto max-w-3xl p-4 sm:p-6">
       <BackButton />
       <p className="etiqueta mb-2">Estudio · Cliente</p>
       <h1 className="mb-4 font-display text-titulo font-medium text-texto">
@@ -206,7 +220,7 @@ export function CustomerDetailPage() {
           {isSavingCustomer ? "Guardando..." : "Guardar"}
         </button>
       </form>
-      {editError && <p role="alert" className="mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{editError}</p>}
+      {editError && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{editError}</p>}
 
       <div className="mb-4 flex items-center justify-between">
         <h2 className="font-display text-subtitulo font-medium text-texto">Creditos</h2>
@@ -221,7 +235,11 @@ export function CustomerDetailPage() {
       {creditsLoading && <p className="mb-6 text-sm text-texto-suave">Cargando...</p>}
       {creditsError && <p className="mb-6 text-sm text-alerta">{creditsError}</p>}
       {!creditsLoading && !creditsError && (
-        <p className="mb-6 text-2xl font-semibold text-acento">{balance}</p>
+        <p
+          className={`mb-6 inline-block px-2 text-2xl font-semibold text-acento ${balanceChanged ? "destaca-cambio" : ""}`}
+        >
+          {balance}
+        </p>
       )}
 
       <GrantCreditsModal
@@ -242,8 +260,8 @@ export function CustomerDetailPage() {
       </div>
 
       {dependentsLoading && <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>}
-      {dependentsError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{dependentsError}</p>}
-      {dependentActionError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{dependentActionError}</p>}
+      {dependentsError && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{dependentsError}</p>}
+      {dependentActionError && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{dependentActionError}</p>}
       {!dependentsLoading && !dependentsError && (
         <DependentsTable
           dependents={dependents}

@@ -60,12 +60,16 @@ export function AcademyGroupsPage() {
         }
       />
 
-      {error && <p role="alert" className="mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
+      {error && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
       {loading && <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>}
       {!loading && groups.length === 0 && (
-        <p className="vacio">Todavía no hay grupos.</p>
+        <p className="entra vacio">Todavía no hay grupos.</p>
       )}
-      {!loading && groups.length > 0 && <AcademyGroupsGrid groups={groups} onEdit={openEdit} />}
+      {!loading && groups.length > 0 && (
+        <div className="entra">
+          <AcademyGroupsGrid groups={groups} onEdit={openEdit} />
+        </div>
+      )}
 
       <AcademyGroupFormModal
         open={modalOpen}

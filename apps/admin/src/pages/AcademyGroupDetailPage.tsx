@@ -125,7 +125,7 @@ export function AcademyGroupDetailPage() {
   }
 
   return (
-    <div id="academy-group-detail-page" className="mx-auto max-w-3xl p-4 sm:p-6">
+    <div id="academy-group-detail-page" className="entra mx-auto max-w-3xl p-4 sm:p-6">
       <BackButton />
       <p className="etiqueta mb-2">Academia · Grupo</p>
       <h1 className="mb-1 font-display text-titulo font-medium text-texto">{group.name}</h1>
@@ -142,18 +142,18 @@ export function AcademyGroupDetailPage() {
               .join(', ')}
       </p>
 
-      {error && <p role="alert" className="mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
-      {actionError && <p role="alert" className="mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{actionError}</p>}
+      {error && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
+      {actionError && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{actionError}</p>}
 
       {(pendingRequests.length > 0 || pendingLoading) && (
         <div className="mb-6">
           <h2 className="mb-2 text-lg font-semibold text-acento">Solicitudes pendientes</h2>
-          {pendingError && <p role="alert" className="mb-2 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{pendingError}</p>}
-          {pendingActionError && <p role="alert" className="mb-2 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{pendingActionError}</p>}
+          {pendingError && <p role="alert" className="alerta-entra mb-2 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{pendingError}</p>}
+          {pendingActionError && <p role="alert" className="alerta-entra mb-2 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{pendingActionError}</p>}
           {pendingLoading ? (
             <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>
           ) : (
-            <div id="academy-pending-requests-table" className="tabla-contenedor">
+            <div id="academy-pending-requests-table" className="entra tabla-contenedor">
               <table className="tabla">
                 <thead>
                   <tr>
@@ -237,7 +237,7 @@ export function AcademyGroupDetailPage() {
         <p className="vacio">Todavía no hay alumnos inscritos.</p>
       )}
       {!loading && enrollments.length > 0 && (
-        <div className="tabla-contenedor">
+        <div className="entra tabla-contenedor">
           <table id="academy-enrollments-table" className="tabla">
             <thead>
               <tr>

@@ -112,7 +112,7 @@ export function InstructorFormModal({ open, initialValue, onClose, onSubmit }: P
             onChange={(event) => setFullName(event.target.value)}
             className="campo"
           />
-          {fieldErrors.fullName && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.fullName}</p>}
+          {fieldErrors.fullName && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.fullName}</p>}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -134,7 +134,7 @@ export function InstructorFormModal({ open, initialValue, onClose, onSubmit }: P
             onChange={(event) => setPhotoUrl(event.target.value)}
             className="campo"
           />
-          {fieldErrors.photoUrl && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.photoUrl}</p>}
+          {fieldErrors.photoUrl && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.photoUrl}</p>}
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
@@ -150,7 +150,7 @@ export function InstructorFormModal({ open, initialValue, onClose, onSubmit }: P
           </button>
         </div>
 
-        {formError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
+        {formError && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
       </form>
     </ModalShell>
   );

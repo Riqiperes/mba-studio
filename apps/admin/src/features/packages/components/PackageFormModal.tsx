@@ -136,7 +136,7 @@ export function PackageFormModal({ open, initialValue, onClose, onSubmit }: Prop
             onChange={(event) => setName(event.target.value)}
             className="campo"
           />
-          {fieldErrors.name && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.name}</p>}
+          {fieldErrors.name && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.name}</p>}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -161,7 +161,7 @@ export function PackageFormModal({ open, initialValue, onClose, onSubmit }: Prop
             onChange={(event) => setCredits(event.target.value)}
             className="campo"
           />
-          {fieldErrors.credits && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.credits}</p>}
+          {fieldErrors.credits && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.credits}</p>}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -176,7 +176,7 @@ export function PackageFormModal({ open, initialValue, onClose, onSubmit }: Prop
             onChange={(event) => setPrice(event.target.value)}
             className="campo"
           />
-          {fieldErrors.price && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.price}</p>}
+          {fieldErrors.price && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.price}</p>}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -192,7 +192,7 @@ export function PackageFormModal({ open, initialValue, onClose, onSubmit }: Prop
             className="campo"
           />
           {fieldErrors.validDays && (
-            <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.validDays}</p>
+            <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.validDays}</p>
           )}
         </div>
 
@@ -209,7 +209,7 @@ export function PackageFormModal({ open, initialValue, onClose, onSubmit }: Prop
           </button>
         </div>
 
-        {formError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
+        {formError && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
       </form>
     </ModalShell>
   );

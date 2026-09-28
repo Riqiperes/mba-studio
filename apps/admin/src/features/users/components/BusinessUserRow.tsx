@@ -94,7 +94,7 @@ export function BusinessUserRow({ user, instructors, actingRole, onSave }: Props
         >
           {isSaving ? "Guardando..." : "Guardar"}
         </button>
-        {error && <p role="alert" className="mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
+        {error && <p role="alert" className="alerta-entra mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
       </td>
     </tr>
   );

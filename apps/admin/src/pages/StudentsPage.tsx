@@ -99,14 +99,14 @@ export function StudentsPage() {
         }
       />
 
-      {actionError && <p role="alert" className="mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{actionError}</p>}
+      {actionError && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{actionError}</p>}
       {loading && <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>}
-      {error && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
+      {error && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
       {!loading && !error && dependents.length === 0 && (
-        <p className="vacio">Todavía no hay alumnos.</p>
+        <p className="entra vacio">Todavía no hay alumnos.</p>
       )}
       {!loading && !error && dependents.length > 0 && (
-        <div className="tabla-contenedor">
+        <div className="entra tabla-contenedor">
         <table id="students-table" className="tabla">
             <thead>
               <tr>

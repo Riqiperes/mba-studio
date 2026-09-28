@@ -292,7 +292,7 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                     onChange={(event) => setNewStudentName(event.target.value)}
                     className="campo"
                   />
-                  {fieldErrors.fullName && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.fullName}</p>}
+                  {fieldErrors.fullName && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.fullName}</p>}
                 </div>
                 <div className="flex flex-col gap-1">
                   <input
@@ -303,7 +303,7 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                     className="campo"
                   />
                   {fieldErrors.birthDate && (
-                    <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.birthDate}</p>
+                    <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.birthDate}</p>
                   )}
                 </div>
                 <div className="flex justify-end gap-2">
@@ -372,7 +372,7 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                 className="campo"
               />
               {fieldErrors.guardianName && (
-                <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.guardianName}</p>
+                <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.guardianName}</p>
               )}
             </div>
 
@@ -389,7 +389,7 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                 className="campo"
               />
               {fieldErrors.guardianPhone && (
-                <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.guardianPhone}</p>
+                <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.guardianPhone}</p>
               )}
             </div>
 
@@ -406,7 +406,7 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                 className="campo"
               />
               {fieldErrors.studentName && (
-                <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.studentName}</p>
+                <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.studentName}</p>
               )}
             </div>
 
@@ -422,7 +422,7 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                 className="campo"
               />
               {fieldErrors.birthDate && (
-                <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.birthDate}</p>
+                <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.birthDate}</p>
               )}
             </div>
 
@@ -438,7 +438,7 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                 className="campo"
               />
               {fieldErrors.enrollmentDate && (
-                <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.enrollmentDate}</p>
+                <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.enrollmentDate}</p>
               )}
             </div>
 
@@ -457,7 +457,7 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
           </form>
         )}
 
-        {formError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
+        {formError && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
       </ModalShell>
   );
 }

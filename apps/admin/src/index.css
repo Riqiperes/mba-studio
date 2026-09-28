@@ -384,6 +384,74 @@
       background: color-mix(in oklab, var(--superficie-suave) 55%, transparent);
     }
   }
+  /* Fila nueva (alta) entra con fade en vez de aparecer de golpe */
+  .tabla tbody tr {
+    opacity: 1;
+    transition: opacity 200ms var(--ease-brand), background-color 200ms;
+  }
+  @starting-style {
+    .tabla tbody tr {
+      opacity: 0;
+    }
+  }
+
+  /* Entrada del bloque que reemplaza al estado de carga (evita el salto
+     brusco carga -> datos/vacio/error). Se aplica al contenedor que se
+     monta cuando `loading` pasa a false. */
+  .entra {
+    opacity: 1;
+    translate: 0 0;
+    transition: opacity 200ms var(--ease-brand), translate 200ms var(--ease-brand);
+  }
+  @starting-style {
+    .entra {
+      opacity: 0;
+      translate: 0 4px;
+    }
+  }
+
+  /* Entrada de un mensaje de alerta (error de validacion o de una accion) */
+  .alerta-entra {
+    opacity: 1;
+    translate: 0 0;
+    transition: opacity 160ms var(--ease-brand), translate 160ms var(--ease-brand);
+  }
+  @starting-style {
+    .alerta-entra {
+      opacity: 0;
+      translate: 0 -4px;
+    }
+  }
+
+  /* Semana del calendario de Clases: entra desde el lado de donde viene
+     (--dir: 1 = avanza, -1 = retrocede; la fija ClassesPage). Se aplica a
+     la etiqueta de semana del selector y a la grilla, para que se sientan
+     como un solo calendario deslizando. */
+  .semana-entra {
+    opacity: 1;
+    translate: 0 0;
+    transition: opacity 240ms var(--ease-brand), translate 240ms var(--ease-brand);
+  }
+  @starting-style {
+    .semana-entra {
+      opacity: 0;
+      translate: calc(var(--dir, 1) * 20px) 0;
+    }
+  }
+
+  /* Aviso de que un dato cambio (ej. saldo de creditos tras otorgar) */
+  @keyframes destaca-cambio {
+    from {
+      background-color: var(--acento-suave);
+    }
+    to {
+      background-color: transparent;
+    }
+  }
+  .destaca-cambio {
+    border-radius: var(--radius-chip);
+    animation: destaca-cambio 900ms var(--ease-brand);
+  }
 
   /* Modal base (ModalDialog): hoja inferior en movil, centrado en escritorio */
   dialog.modal-dialog {

@@ -33,8 +33,12 @@ export function AdminInvitesPage() {
       <AdminInviteForm onSubmit={add} />
 
       {loading && <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>}
-      {error && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
-      {!loading && !error && <AdminInvitesTable invites={invites} onRemove={handleRemove} />}
+      {error && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
+      {!loading && !error && (
+        <div className="entra">
+          <AdminInvitesTable invites={invites} onRemove={handleRemove} />
+        </div>
+      )}
     </div>
   );
 }

@@ -47,7 +47,7 @@ export function GoogleSignInButton() {
         {isLoading ? "Conectando con Google…" : "Continuar con Google"}
       </Button>
       {error && (
-        <p role="alert" className="text-center text-pequeno text-alerta">
+        <p role="alert" className="alerta-entra text-center text-pequeno text-alerta">
           {error}
         </p>
       )}

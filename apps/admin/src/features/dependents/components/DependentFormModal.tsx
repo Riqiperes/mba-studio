@@ -154,7 +154,7 @@ export function DependentFormModal({
                 className="campo"
               />
               {fieldErrors.guardianName && (
-                <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.guardianName}</p>
+                <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.guardianName}</p>
               )}
             </div>
 
@@ -186,7 +186,7 @@ export function DependentFormModal({
             onChange={(event) => setFullName(event.target.value)}
             className="campo"
           />
-          {fieldErrors.fullName && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.fullName}</p>}
+          {fieldErrors.fullName && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.fullName}</p>}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -201,7 +201,7 @@ export function DependentFormModal({
             className="campo"
           />
           {fieldErrors.birthDate && (
-            <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.birthDate}</p>
+            <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.birthDate}</p>
           )}
         </div>
 
@@ -232,7 +232,7 @@ export function DependentFormModal({
           </div>
         </div>
 
-        {formError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
+        {formError && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
       </form>
     </ModalShell>
   );

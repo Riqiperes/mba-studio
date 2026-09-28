@@ -95,7 +95,7 @@ export function CustomerCreateModal({ open, onClose, onSubmit }: Props) {
             onChange={(event) => setFullName(event.target.value)}
             className="campo"
           />
-          {nameError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{nameError}</p>}
+          {nameError && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{nameError}</p>}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -152,7 +152,7 @@ export function CustomerCreateModal({ open, onClose, onSubmit }: Props) {
           </button>
         </div>
 
-        {formError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
+        {formError && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
       </form>
     </ModalShell>
   );

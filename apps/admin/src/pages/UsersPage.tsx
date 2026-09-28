@@ -25,9 +25,9 @@ export function UsersPage() {
       />
 
       {loading && <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>}
-      {error && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
+      {error && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
       {!loading && !error && (
-        <div className="tabla-contenedor">
+        <div className="entra tabla-contenedor">
         <table id="users-table" className="tabla">
             <thead>
               <tr>

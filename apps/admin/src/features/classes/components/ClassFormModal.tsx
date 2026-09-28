@@ -232,7 +232,7 @@ export function ClassFormModal({
             onChange={(event) => setTitle(event.target.value)}
             className="campo"
           />
-          {fieldErrors.title && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.title}</p>}
+          {fieldErrors.title && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.title}</p>}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -250,7 +250,7 @@ export function ClassFormModal({
               </option>
             ))}
           </select>
-          {fieldErrors.instructorId && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.instructorId}</p>}
+          {fieldErrors.instructorId && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.instructorId}</p>}
         </div>
 
         {initialValue ? (
@@ -266,7 +266,7 @@ export function ClassFormModal({
                 onChange={(event) => setStartsAt(event.target.value)}
                 className="campo"
               />
-              {fieldErrors.startsAt && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.startsAt}</p>}
+              {fieldErrors.startsAt && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.startsAt}</p>}
             </div>
             <div className="flex flex-col gap-1">
               <label htmlFor="class-ends-at-input" className="etiqueta-campo">
@@ -279,7 +279,7 @@ export function ClassFormModal({
                 onChange={(event) => setEndsAt(event.target.value)}
                 className="campo"
               />
-              {fieldErrors.endsAt && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.endsAt}</p>}
+              {fieldErrors.endsAt && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.endsAt}</p>}
             </div>
           </>
         ) : (
@@ -298,7 +298,7 @@ export function ClassFormModal({
                   </label>
                 ))}
               </div>
-              {fieldErrors.weekdays && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.weekdays}</p>}
+              {fieldErrors.weekdays && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.weekdays}</p>}
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div className="flex flex-col gap-1">
@@ -312,7 +312,7 @@ export function ClassFormModal({
                   onChange={(event) => setStartTime(event.target.value)}
                   className="campo"
                 />
-                {fieldErrors.startTime && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.startTime}</p>}
+                {fieldErrors.startTime && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.startTime}</p>}
               </div>
               <div className="flex flex-col gap-1">
                 <label htmlFor="class-end-time-input" className="etiqueta-campo">
@@ -325,7 +325,7 @@ export function ClassFormModal({
                   onChange={(event) => setEndTime(event.target.value)}
                   className="campo"
                 />
-                {fieldErrors.endTime && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.endTime}</p>}
+                {fieldErrors.endTime && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.endTime}</p>}
               </div>
             </div>
             <div className="flex flex-col gap-1">
@@ -341,7 +341,7 @@ export function ClassFormModal({
                 onChange={(event) => setWeeksCount(event.target.value)}
                 className="campo"
               />
-              {fieldErrors.weeksCount && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.weeksCount}</p>}
+              {fieldErrors.weeksCount && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.weeksCount}</p>}
             </div>
           </>
         )}
@@ -356,7 +356,7 @@ export function ClassFormModal({
             onChange={(event) => setMaxCapacity(event.target.value)}
             className="campo"
           />
-          {fieldErrors.maxCapacity && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.maxCapacity}</p>}
+          {fieldErrors.maxCapacity && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.maxCapacity}</p>}
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
@@ -372,7 +372,7 @@ export function ClassFormModal({
           </button>
         </div>
 
-        {formError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
+        {formError && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
         {skipped.length > 0 && (
           <div className="rounded-control bg-suave p-2 text-pequeno text-alerta">
             <p className="font-medium">

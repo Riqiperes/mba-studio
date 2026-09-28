@@ -68,7 +68,7 @@ export function AcademyOverduePage() {
   }
 
   return (
-    <div id="academy-overdue-page" className="mx-auto max-w-6xl p-4 sm:p-6">
+    <div id="academy-overdue-page" className="entra mx-auto max-w-6xl p-4 sm:p-6">
       <BackButton />
       <ScreenHeader
         eyebrow="Academia de Ballet"
@@ -95,7 +95,7 @@ export function AcademyOverduePage() {
         }
       />
 
-      {error && <p role="alert" className="mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
+      {error && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
 
       {overduePayments.length === 0 ? (
         <p className="rounded-card bg-suave py-8 text-center text-cuerpo text-texto-suave">

@@ -172,7 +172,7 @@ export function AcademyGroupFormModal({
             onChange={(event) => setName(event.target.value)}
             className="campo"
           />
-          {fieldErrors.name && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.name}</p>}
+          {fieldErrors.name && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.name}</p>}
         </div>
 
         <select
@@ -217,7 +217,7 @@ export function AcademyGroupFormModal({
               onChange={(event) => setAgeMax(event.target.value)}
               className="campo"
             />
-            {fieldErrors.ageMax && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.ageMax}</p>}
+            {fieldErrors.ageMax && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.ageMax}</p>}
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="academy-group-max-capacity-input" className="etiqueta-campo">
@@ -232,7 +232,7 @@ export function AcademyGroupFormModal({
               onChange={(event) => setMaxCapacity(event.target.value)}
               className="campo"
             />
-            {fieldErrors.maxCapacity && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.maxCapacity}</p>}
+            {fieldErrors.maxCapacity && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.maxCapacity}</p>}
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="academy-group-monthly-tuition-input" className="etiqueta-campo">
@@ -248,7 +248,7 @@ export function AcademyGroupFormModal({
               className="campo"
             />
             {fieldErrors.monthlyTuition && (
-              <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.monthlyTuition}</p>
+              <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.monthlyTuition}</p>
             )}
           </div>
         </div>
@@ -303,7 +303,7 @@ export function AcademyGroupFormModal({
                 </button>
               </div>
               {fieldErrors[`schedules.${index}.endTime`] && (
-                <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors[`schedules.${index}.endTime`]}</p>
+                <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors[`schedules.${index}.endTime`]}</p>
               )}
             </div>
           ))}
@@ -322,7 +322,7 @@ export function AcademyGroupFormModal({
           </button>
         </div>
 
-        {formError && <p role="alert" className="flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
+        {formError && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{formError}</p>}
       </form>
     </ModalShell>
   );

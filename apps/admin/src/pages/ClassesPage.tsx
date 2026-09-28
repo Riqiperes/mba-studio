@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { ClassFiltersBar } from "@/features/classes/components/ClassFiltersBar";
 import { ClassFormModal } from "@/features/classes/components/ClassFormModal";
 import { ClassesWeekGrid } from "@/features/classes/components/ClassesWeekGrid";
@@ -18,6 +18,13 @@ import { buttonClasses } from "@/components/ui/buttonStyles";
 export function ClassesPage() {
   const [instructorFilter, setInstructorFilter] = useState<ClassFilters>({});
   const [weekStart, setWeekStart] = useState<Date>(() => getWeekStart(new Date()));
+  const [weekDirection, setWeekDirection] = useState<1 | -1>(1);
+
+  function handleWeekChange(value: string) {
+    const next = new Date(`${value}T00:00:00`);
+    setWeekDirection(next.getTime() >= weekStart.getTime() ? 1 : -1);
+    setWeekStart(next);
+  }
 
   const filters = useMemo<ClassFilters>(() => {
     const days = getWeekDays(weekStart);
@@ -85,20 +92,26 @@ export function ClassesPage() {
         }
       />
 
-      <WeekSelector selectedWeekStart={formatDateKey(weekStart)} onChange={(value) => setWeekStart(new Date(`${value}T00:00:00`))} />
+      <WeekSelector selectedWeekStart={formatDateKey(weekStart)} onChange={handleWeekChange} direction={weekDirection} />
       <ClassFiltersBar instructors={instructors} filters={instructorFilter} onChange={setInstructorFilter} />
 
       {loading && <LoadingState message="Cargando..." />}
       <FormMessages messages={[error, instructorsError, cancelError, deleteError]} />
       {!loading && !error && (
-        <ClassesWeekGrid
-          weekStart={weekStart}
-          classes={classes}
-          instructors={instructors}
-          onEdit={openEdit}
-          onCancel={handleCancel}
-          onDelete={handleDelete}
-        />
+        <div
+          key={formatDateKey(weekStart)}
+          className="semana-entra"
+          style={{ "--dir": weekDirection } as CSSProperties}
+        >
+          <ClassesWeekGrid
+            weekStart={weekStart}
+            classes={classes}
+            instructors={instructors}
+            onEdit={openEdit}
+            onCancel={handleCancel}
+            onDelete={handleDelete}
+          />
+        </div>
       )}
 
       <ClassFormModal

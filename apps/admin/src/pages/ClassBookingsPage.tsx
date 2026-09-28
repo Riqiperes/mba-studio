@@ -77,7 +77,7 @@ export function ClassBookingsPage() {
   }
 
   return (
-    <div id="class-bookings-page" className="mx-auto max-w-3xl p-4 sm:p-6">
+    <div id="class-bookings-page" className="entra mx-auto max-w-3xl p-4 sm:p-6">
       <BackButton />
       <p className="etiqueta mb-2">Estudio · Clase</p>
       <h1 className="mb-1 font-display text-titulo font-medium text-texto">{studioClass.title}</h1>
@@ -85,8 +85,8 @@ export function ClassBookingsPage() {
         Cupo: {bookings.length}/{studioClass.maxCapacity}
       </p>
 
-      {error && <p role="alert" className="mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
-      {actionError && <p role="alert" className="mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{actionError}</p>}
+      {error && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
+      {actionError && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{actionError}</p>}
 
       <div className="mb-4 flex items-center justify-between">
         <h2 className="font-display text-subtitulo font-medium text-texto">Reservados</h2>
@@ -105,7 +105,7 @@ export function ClassBookingsPage() {
         <p className="mb-6 vacio">Todavía no hay reservaciones.</p>
       )}
       {!loading && bookings.length > 0 && (
-        <div className="tabla-contenedor mb-6">
+        <div className="entra tabla-contenedor mb-6">
           <table id="bookings-table" className="tabla">
             <thead>
               <tr>

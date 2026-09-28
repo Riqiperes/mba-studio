@@ -12,7 +12,7 @@ interface ErrorStateProps {
 // El color de alerta siempre va con icono y texto, nunca solo color.
 export function ErrorState({ message, onRetry, id }: ErrorStateProps) {
   return (
-    <div id={id} role="alert" className="flex flex-col items-center gap-3 rounded-card border border-alerta/25 bg-tarjeta px-6 py-8 text-center">
+    <div id={id} role="alert" className="alerta-entra flex flex-col items-center gap-3 rounded-card border border-alerta/25 bg-tarjeta px-6 py-8 text-center">
       <CircleAlert className="h-7 w-7 text-alerta" strokeWidth={1.6} aria-hidden="true" />
       <p className="max-w-xs text-cuerpo text-texto text-pretty">{message}</p>
       {onRetry && (

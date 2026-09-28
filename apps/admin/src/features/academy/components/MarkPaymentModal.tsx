@@ -186,7 +186,7 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
               } focus:outline-none focus:ring-2 focus:ring-acento focus:border-transparent`}
             />
             <p className="mt-1 text-pequeno text-texto-suave">Cualquier mes, incluye meses pasados.</p>
-            {fieldErrors.month && <p role="alert" className="mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.month}</p>}
+            {fieldErrors.month && <p role="alert" className="alerta-entra mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.month}</p>}
           </div>
 
           <div className="mb-4">
@@ -213,7 +213,7 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
                 <span className="text-sm font-medium">NO_PAGADO</span>
               </label>
             </div>
-            {fieldErrors.status && <p role="alert" className="mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.status}</p>}
+            {fieldErrors.status && <p role="alert" className="alerta-entra mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.status}</p>}
           </div>
 
           {formData.status === 'PAGADO' && (
@@ -234,7 +234,7 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
                     fieldErrors.amountCents ? 'border-alerta' : 'border-borde-control'
                   } focus:outline-none focus:ring-2 focus:ring-acento focus:border-transparent`}
                 />
-                {fieldErrors.amountCents && <p role="alert" className="mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.amountCents}</p>}
+                {fieldErrors.amountCents && <p role="alert" className="alerta-entra mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.amountCents}</p>}
                 {basePriceCents != null && discountedCents != null && (
                   <p className="mt-1 text-pequeno text-texto-suave">
                     Colegiatura base: {formatPesos(basePriceCents)}
@@ -262,7 +262,7 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
                   <option value="TRANSFERENCIA">Transferencia</option>
                   <option value="OTRO">Otro</option>
                 </select>
-                {fieldErrors.paymentMethod && <p role="alert" className="mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.paymentMethod}</p>}
+                {fieldErrors.paymentMethod && <p role="alert" className="alerta-entra mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.paymentMethod}</p>}
               </div>
 
               <div className="mb-4">
@@ -278,7 +278,7 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
                     fieldErrors.paidAt ? 'border-alerta' : 'border-borde-control'
                   } focus:outline-none focus:ring-2 focus:ring-acento focus:border-transparent`}
                 />
-                {fieldErrors.paidAt && <p role="alert" className="mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.paidAt}</p>}
+                {fieldErrors.paidAt && <p role="alert" className="alerta-entra mt-1 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.paidAt}</p>}
               </div>
 
               <div className="mb-4">
