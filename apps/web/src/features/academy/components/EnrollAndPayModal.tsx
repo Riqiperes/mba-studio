@@ -104,9 +104,10 @@ export function EnrollAndPayModal({
       >
         <h2 className="text-lg font-semibold text-brand-primary">Inscribir a {groupName}</h2>
         <p className="text-sm text-gray-600">
-          Tu solicitud queda pendiente de aprobación por el staff. La cuota de inscripción es de{" "}
-          {formatCents(registrationFeeCents)} y se paga ahora mismo con Stripe. Al continuar te
-          llevaremos a la pantalla segura de pago.
+          La cuota de inscripción es de {formatCents(registrationFeeCents)} y se paga ahora mismo
+          con Stripe (si el grupo tiene colegiatura mensual, se incluye en el mismo pago). Si hay
+          cupo disponible tu inscripción se activa al instante; si ya no hay lugar, te
+          reembolsamos automáticamente. Al continuar te llevaremos a la pantalla segura de pago.
         </p>
 
         {dependentsLoading ? (

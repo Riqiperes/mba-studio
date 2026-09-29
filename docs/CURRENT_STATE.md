@@ -715,7 +715,7 @@ otro negocio (Studio packages, bookings, Academia) implementado todavia.
   - Ya reservado → badge "Reservado" + "Cancelar" (RPC `cancel_booking`, devuelve crédito)
 - **Mi horario** (`/my-bookings`): lista de reservaciones activas con botón cancelar, lista de espera con posición FIFO y botón salir, badge de créditos (`💎 N`).
 - **Perfil** (`/profile`): ver/editar nombre y teléfono, muestra email, rol, fecha de registro, botón cerrar sesión.
-- **Academia** (`/academy`): catálogo público de grupos con inscripción propia — "Pagar inscripción e inscribir" (crea alumno inline si hace falta, INSERT con `status='PENDIENTE'` y `registration_fee_paid=false`, luego redirige a Stripe Checkout hosted para cobrar la cuota — **Stripe test mode, migración `030_academy_registration_stripe.sql`**; el pago solo lo confirma `stripe-webhook`, nunca el frontend) y "Agendar clase muestra" (`status='MUESTRA'`, sin costo); WhatsApp queda como alternativa secundaria. `/profile` gana la sección "Mis alumnos e inscripciones" con el estado de cada solicitud, más un banner de confirmación tras volver de Stripe (`?pago=exitoso`/`?pago=cancelado`).
+- **Academia** (`/academy`): catálogo público de grupos con inscripción propia — "Pagar inscripción e inscribir" (crea alumno inline si hace falta, INSERT con `status='PENDIENTE'` y `registration_fee_paid=false`, luego redirige a Stripe Checkout hosted para cobrar la cuota — **Stripe test mode, migraciones `030_academy_registration_stripe.sql` y `031_academy_tuition_stripe_auto_activation.sql`**; si el grupo tiene colegiatura configurada, la misma sesión de pago arranca una suscripción mensual recurrente) y "Agendar clase muestra" (`status='MUESTRA'`, sin costo); WhatsApp queda como alternativa secundaria. El pago solo lo confirma `stripe-webhook`, nunca el frontend: si hay cupo la inscripción se activa al instante (`ACTIVA`), si no se reembolsa automáticamente (`RECHAZADA`). `/profile` gana la sección "Mis alumnos e inscripciones" con el estado de cada solicitud (incluye `RECHAZADA`), más un banner tras volver de Stripe (`?pago=procesando`/`?pago=cancelado`) que ya no promete éxito incondicional, porque el resultado real lo decide el webhook después del redirect.
 - **Navegación inferior fija** (mobile-first): Inicio, Paquetes, Horarios, Academia, Usuario.
 - **Auth**: Google OAuth + email/password, `RequireAuth` con carga de perfil, `signOut` en contexto.
 - **Créditos**: balance visible en nav y páginas, se actualiza tras reservar/cancelar.
@@ -747,18 +747,40 @@ otro negocio (Studio packages, bookings, Academia) implementado todavia.
   dashboard, no disponible en este entorno). Plan (dos proyectos, Root
   directory = raiz del repo, preview deployments automaticos por commit,
   rama de produccion = `main`) documentado ahi mismo.
-- **Stripe (test mode)**: `supabase/functions/stripe-checkout/` y
-  `supabase/functions/stripe-webhook/` implementadas (cobro de la cuota de
-  inscripción de Academia, ver `docs/payments.md`). Claves de test
-  obtenidas (`sk_test_...`, `pk_test_...`) — `VITE_STRIPE_PUBLIC_KEY` ya en
-  `apps/web/.env` (sin uso en código, checkout es hosted). Pendiente: 1)
-  cargar `STRIPE_SECRET_KEY` como secret de Supabase Edge Functions
-  (dashboard, no CLI — el `supabase` CLI de esta máquina está logueado a
-  otra cuenta), 2) desplegar ambas funciones, 3) crear el webhook endpoint
-  en el dashboard de Stripe apuntando a la función desplegada y cargar el
-  `STRIPE_WEBHOOK_SECRET` resultante, 4) probar con una tarjeta de test.
-  Sin probar en vivo todavía. Google OAuth: documentado en `docs/` pero sin
-  credenciales reales todavia.
+- **Stripe (test mode)**: cuota de inscripción de Academia probada de
+  extremo a extremo en desarrollo (pago de prueba con tarjeta
+  `4242 4242 4242 4242`, solicitud aprobada en `apps/admin`) usando las
+  versiones "autocontenidas" de `stripe-checkout`/`stripe-webhook` pegadas
+  directo en el Dashboard de Supabase (ver `docs/stripe-test-deploy.md`).
+  Ampliado el 2026-09-28 (migración
+  `031_academy_tuition_stripe_auto_activation.sql`) con: colegiatura
+  mensual recurrente via Stripe Subscriptions (grupos con
+  `academy_tuition_periods` activo, cobro el día 1 de cada mes),
+  activación automática de la inscripción sin esperar al staff cuando hay
+  cupo (reembolso automático + estado `RECHAZADA` si ya no hay lugar), y
+  una tercera función `stripe-cancel-subscription` (cancela la suscripción
+  al dar de baja a un alumno en `apps/admin`, para no seguir cobrando).
+  Ver `docs/payments.md` para el diseño completo.
+  **Pendiente antes de volver a probar** (el código de las 3 funciones
+  cambió sustancialmente desde la última prueba, hay que re-pegarlas en el
+  Dashboard con las versiones nuevas de `docs/stripe-test-deploy.md`):
+  1) re-desplegar las 3 funciones (`stripe-checkout`, `stripe-webhook`,
+  `stripe-cancel-subscription` — esta última es nueva, con JWT verification
+  activado); 2) agregar los eventos `invoice.paid` e
+  `invoice.payment_failed` al webhook endpoint ya existente en el
+  dashboard de Stripe (antes solo escuchaba `checkout.session.completed`);
+  3) configurar `academy_tuition_periods` para los grupos de Ballet
+  ($900 MXN/mes) vía SQL Editor o la UI de admin si ya existe; 4) probar
+  de nuevo con tarjeta de test, confirmando activación instantánea con
+  cupo disponible. Claves de test ya cargadas (`sk_test_...` como secret
+  de Supabase, `pk_test_...` en `apps/web/.env`, sin uso en código —
+  checkout es hosted). Se obtuvo también una clave `sk_live_...` de
+  producción — **guardada aparte, sin usar**, hasta que el sitio esté
+  publicado en Cloudflare Pages y listo para cobros reales (ver bloqueador
+  de Cloudflare Pages arriba). El `supabase` CLI de esta máquina sigue
+  logueado a otra cuenta, por eso el despliegue es manual vía Dashboard.
+  Google OAuth: documentado en `docs/` pero sin credenciales reales
+  todavia.
 - **WhatsApp / Notifications (primeras Edge Functions reales del repo)**:
   `supabase/functions/_shared/whatsapp/` (interfaz `WhatsAppProvider` +
   `MockWhatsAppProvider` + `getWhatsAppProvider()` por `WHATSAPP_PROVIDER`),

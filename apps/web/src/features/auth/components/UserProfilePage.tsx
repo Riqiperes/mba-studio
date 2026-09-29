@@ -13,6 +13,7 @@ const STATUS_LABELS: Record<string, string> = {
   ACTIVA: "Activa",
   BAJA: "Inactiva",
   MUESTRA: "Clase muestra solicitada",
+  RECHAZADA: "Rechazada (sin cupo, reembolsado)",
 };
 
 const STATUS_CLASSES: Record<string, string> = {
@@ -20,6 +21,7 @@ const STATUS_CLASSES: Record<string, string> = {
   ACTIVA: "bg-green-100 text-green-800",
   BAJA: "bg-gray-100 text-gray-600",
   MUESTRA: "bg-blue-100 text-blue-800",
+  RECHAZADA: "bg-red-100 text-red-700",
 };
 
 export function UserProfilePage() {
@@ -31,7 +33,7 @@ export function UserProfilePage() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const { enrollments, loading: enrollmentsLoading } = useMyAcademyEnrollments();
   const [searchParams] = useSearchParams();
-  const paymentSucceeded = searchParams.get("pago") === "exitoso";
+  const paymentProcessing = searchParams.get("pago") === "procesando";
 
   useEffect(() => {
     if (profile) {
@@ -71,10 +73,11 @@ export function UserProfilePage() {
         <SignOutButton />
       </header>
 
-      {paymentSucceeded && (
-        <div id="registration-payment-success" className="rounded-md bg-green-50 p-4 text-sm text-green-700">
-          ¡Pago recibido! Tu inscripción se actualizará en "Mis alumnos e inscripciones" en unos
-          segundos.
+      {paymentProcessing && (
+        <div id="registration-payment-processing" className="rounded-md bg-blue-50 p-4 text-sm text-blue-700">
+          ¡Pago recibido! Estamos confirmando tu inscripción: si hay cupo se activa al instante, y
+          si ya no hay lugar te reembolsamos automáticamente. Revisa el estado en "Mis alumnos e
+          inscripciones" en unos segundos.
         </div>
       )}
 

@@ -125,6 +125,17 @@ export async function withdrawEnrollment(id: string): Promise<void> {
     .eq("id", id);
 
   if (error) throw error;
+
+  // Best-effort: cancela la suscripcion de Stripe si el alumno tenia
+  // colegiatura automatica, para no seguir cobrandole. No revierte la
+  // baja si esto falla -- solo se loguea para que el staff lo revise en
+  // el dashboard de Stripe si hace falta.
+  const { error: cancelError } = await supabase.functions.invoke("stripe-cancel-subscription", {
+    body: { enrollmentId: id },
+  });
+  if (cancelError) {
+    console.error("[academy] stripe-cancel-subscription fallo", cancelError);
+  }
 }
 
 export async function countPendingAcademyRequests(): Promise<number> {

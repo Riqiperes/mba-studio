@@ -1,5 +1,5 @@
 export type PaymentStatus = 'PAGADO' | 'NO_PAGADO';
-export type PaymentMethod = 'EFECTIVO' | 'TRANSFERENCIA' | 'OTRO';
+export type PaymentMethod = 'EFECTIVO' | 'TRANSFERENCIA' | 'OTRO' | 'STRIPE';
 
 export type AcademyPayment = {
   id: string;

@@ -24,9 +24,13 @@ export type Database = {
           id: string
           registration_fee_paid: boolean
           registration_fee_paid_at: string | null
+          registration_fee_refunded_at: string | null
+          registration_fee_stripe_payment_intent_id: string | null
           registration_fee_stripe_session_id: string | null
           schedule_id: string | null
           status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           trial_date: string | null
           updated_at: string
         }
@@ -39,9 +43,13 @@ export type Database = {
           id?: string
           registration_fee_paid?: boolean
           registration_fee_paid_at?: string | null
+          registration_fee_refunded_at?: string | null
+          registration_fee_stripe_payment_intent_id?: string | null
           registration_fee_stripe_session_id?: string | null
           schedule_id?: string | null
           status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           trial_date?: string | null
           updated_at?: string
         }
@@ -54,9 +62,13 @@ export type Database = {
           id?: string
           registration_fee_paid?: boolean
           registration_fee_paid_at?: string | null
+          registration_fee_refunded_at?: string | null
+          registration_fee_stripe_payment_intent_id?: string | null
           registration_fee_stripe_session_id?: string | null
           schedule_id?: string | null
           status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           trial_date?: string | null
           updated_at?: string
         }

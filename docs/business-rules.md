@@ -66,8 +66,23 @@ Falta de pago sostenida / solicitud del alumno -> Baja
 - **Fecha limite de pago: dia 10 de cada mes** (primeros 10 dias del mes).
 - Pasado el dia 10 sin pago registrado, se genera alerta de pago atrasado.
 - **Recargo del 10%** sobre el monto de la colegiatura cuando se paga
-  despues del dia 10.
-- Una baja cambia el estado de la inscripcion y detiene las alertas futuras.
+  despues del dia 10. (Pendiente de implementar en codigo -- ver roadmap.)
+- Una baja cambia el estado de la inscripcion y detiene las alertas futuras
+  (y cancela la suscripcion de Stripe si la tenia, ver mas abajo).
+
+### Colegiatura automatica via Stripe (grupos con `academy_tuition_periods`)
+
+- Si un grupo tiene colegiatura configurada, el mismo pago de inscripcion
+  arranca una suscripcion recurrente que cobra a **todos los alumnos el
+  dia 1 de cada mes** (antes del vencimiento del dia 10 -- decision de
+  negocio para simplificar el cobro, no busca replicar el vencimiento
+  exacto). El recargo del 10% por pago tardio no aplica a este flujo (se
+  cobra automaticamente, no puede "atrasarse" salvo que la tarjeta falle).
+- Si la tarjeta falla un mes, esa colegiatura queda `NO_PAGADO` igual que
+  un pago manual atrasado, y cae en la misma vista de "Atrasados" del
+  staff.
+- El cobro manual (efectivo/transferencia) sigue disponible en paralelo
+  para quien prefiera pagar asi en persona -- ver `docs/payments.md`.
 
 ## Descuentos por referido (Academia - Ballet)
 

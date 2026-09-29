@@ -1,4 +1,4 @@
-export type MyAcademyEnrollmentStatus = "PENDIENTE" | "ACTIVA" | "BAJA" | "MUESTRA";
+export type MyAcademyEnrollmentStatus = "PENDIENTE" | "ACTIVA" | "BAJA" | "MUESTRA" | "RECHAZADA";
 
 export type MyAcademyEnrollment = {
   id: string;
