@@ -128,10 +128,12 @@ export function PackageFormModal({ open, initialValue, onClose, onSubmit }: Prop
         </h2>
 
         <div className="flex flex-col gap-1">
+          <label htmlFor="package-name-input" className="etiqueta-campo">
+            Nombre
+          </label>
           <input
             id="package-name-input"
             type="text"
-            placeholder="Nombre"
             value={name}
             onChange={(event) => setName(event.target.value)}
             className="campo"
@@ -140,9 +142,11 @@ export function PackageFormModal({ open, initialValue, onClose, onSubmit }: Prop
         </div>
 
         <div className="flex flex-col gap-1">
+          <label htmlFor="package-description-input" className="etiqueta-campo">
+            Descripción (opcional)
+          </label>
           <textarea
             id="package-description-input"
-            placeholder="Descripcion (opcional)"
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             className="campo"

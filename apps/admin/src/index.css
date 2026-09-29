@@ -73,6 +73,14 @@
 
     color-scheme: dark;
   }
+
+  :root:not([data-theme="light"]) select.campo {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9b9ae' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+}
+
+:root[data-theme="dark"] select.campo {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9b9ae' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 }
 
 :root[data-theme="dark"] {
@@ -305,6 +313,51 @@
     font-size: var(--text-pequeno);
     font-weight: 500;
     color: var(--texto);
+  }
+
+  /* select.campo: sin la flecha nativa del navegador, con el chevron de
+     marca (mismo trazo que SelectField) para que no se vea "del sistema". */
+  select.campo {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2372573e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    padding-right: 2.25rem;
+  }
+
+  /* Quita las flechas nativas de los campos numericos: se ven "del
+     navegador" y no coinciden con el resto de los controles de la marca. */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  /* El icono nativo de reloj/calendario no se puede recolorear entre
+     navegadores; se atenua para que no choque con el resto del campo. */
+  input[type="time"]::-webkit-calendar-picker-indicator,
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+  input[type="month"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+  }
+  input[type="time"]:hover::-webkit-calendar-picker-indicator,
+  input[type="date"]:hover::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]:hover::-webkit-calendar-picker-indicator,
+  input[type="month"]:hover::-webkit-calendar-picker-indicator {
+    opacity: 1;
+  }
+
+  /* Checkboxes y radios nativos: color de marca en vez del azul/gris del
+     sistema. */
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--acento);
   }
 
   /* Accion en linea (tablas, tarjetas): texto con area tactil de 40px.

@@ -104,10 +104,12 @@ export function InstructorFormModal({ open, initialValue, onClose, onSubmit }: P
         </h2>
 
         <div className="flex flex-col gap-1">
+          <label htmlFor="instructor-fullname-input" className="etiqueta-campo">
+            Nombre completo
+          </label>
           <input
             id="instructor-fullname-input"
             type="text"
-            placeholder="Nombre completo"
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
             className="campo"
@@ -116,9 +118,11 @@ export function InstructorFormModal({ open, initialValue, onClose, onSubmit }: P
         </div>
 
         <div className="flex flex-col gap-1">
+          <label htmlFor="instructor-bio-input" className="etiqueta-campo">
+            Bio (opcional)
+          </label>
           <textarea
             id="instructor-bio-input"
-            placeholder="Bio (opcional)"
             value={bio}
             onChange={(event) => setBio(event.target.value)}
             className="campo"
@@ -126,10 +130,12 @@ export function InstructorFormModal({ open, initialValue, onClose, onSubmit }: P
         </div>
 
         <div className="flex flex-col gap-1">
+          <label htmlFor="instructor-photo-input" className="etiqueta-campo">
+            URL de foto (opcional)
+          </label>
           <input
             id="instructor-photo-input"
             type="text"
-            placeholder="URL de foto (opcional)"
             value={photoUrl}
             onChange={(event) => setPhotoUrl(event.target.value)}
             className="campo"

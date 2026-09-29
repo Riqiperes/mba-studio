@@ -253,9 +253,7 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
                   id="paymentMethod"
                   value={formData.paymentMethod ?? ''}
                   onChange={(e) => handleChange('paymentMethod', e.target.value || undefined)}
-                  className={`w-full rounded-control border px-3 py-2 text-sm ${
-                    fieldErrors.paymentMethod ? 'border-alerta' : 'border-borde-control'
-                  } focus:outline-none focus:ring-2 focus:ring-acento focus:border-transparent`}
+                  className={`campo ${fieldErrors.paymentMethod ? 'border-alerta' : ''}`}
                 >
                   <option value="">Selecciona método</option>
                   <option value="EFECTIVO">Efectivo</option>

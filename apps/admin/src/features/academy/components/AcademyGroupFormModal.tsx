@@ -164,10 +164,12 @@ export function AcademyGroupFormModal({
         </h2>
 
         <div className="flex flex-col gap-1">
+          <label htmlFor="academy-group-name-input" className="etiqueta-campo">
+            Nombre del grupo
+          </label>
           <input
             id="academy-group-name-input"
             type="text"
-            placeholder="Nombre del grupo"
             value={name}
             onChange={(event) => setName(event.target.value)}
             className="campo"
@@ -175,19 +177,24 @@ export function AcademyGroupFormModal({
           {fieldErrors.name && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.name}</p>}
         </div>
 
-        <select
-          id="academy-group-instructor-select"
-          value={instructorId}
-          onChange={(event) => setInstructorId(event.target.value)}
-          className="campo"
-        >
-          <option value="">Sin instructor asignado</option>
-          {instructors.map((instructor) => (
-            <option key={instructor.id} value={instructor.id}>
-              {instructor.fullName}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="academy-group-instructor-select" className="etiqueta-campo">
+            Instructor
+          </label>
+          <select
+            id="academy-group-instructor-select"
+            value={instructorId}
+            onChange={(event) => setInstructorId(event.target.value)}
+            className="campo"
+          >
+            <option value="">Sin instructor asignado</option>
+            {instructors.map((instructor) => (
+              <option key={instructor.id} value={instructor.id}>
+                {instructor.fullName}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className="grid grid-cols-4 gap-2">
           <div className="flex flex-col gap-1">

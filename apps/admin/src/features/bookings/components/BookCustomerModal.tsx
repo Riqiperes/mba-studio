@@ -65,6 +65,9 @@ export function BookCustomerModal({ open, title, submitLabel, customers, onClose
         <h2 className="font-display text-subtitulo font-medium text-texto">{title}</h2>
 
         <div className="flex flex-col gap-1">
+          <label htmlFor="book-customer-select" className="etiqueta-campo">
+            Cliente
+          </label>
           <select
             id="book-customer-select"
             value={customerId}

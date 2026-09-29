@@ -284,10 +284,12 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                 className="flex flex-col gap-2 rounded-control border border-borde p-3"
               >
                 <div className="flex flex-col gap-1">
+                  <label htmlFor="enroll-new-student-name-input" className="etiqueta-campo">
+                    Nombre completo del alumno
+                  </label>
                   <input
                     id="enroll-new-student-name-input"
                     type="text"
-                    placeholder="Nombre completo del alumno"
                     value={newStudentName}
                     onChange={(event) => setNewStudentName(event.target.value)}
                     className="campo"
@@ -295,6 +297,9 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
                   {fieldErrors.fullName && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.fullName}</p>}
                 </div>
                 <div className="flex flex-col gap-1">
+                  <label htmlFor="enroll-new-student-birthdate-input" className="etiqueta-campo">
+                    Fecha de nacimiento (opcional)
+                  </label>
                   <input
                     id="enroll-new-student-birthdate-input"
                     type="date"

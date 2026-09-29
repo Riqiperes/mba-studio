@@ -97,9 +97,11 @@ export function GrantCreditsModal({ open, onClose, onSubmit }: Props) {
         </div>
 
         <div className="flex flex-col gap-1">
+          <label htmlFor="grant-credits-notes-input" className="etiqueta-campo">
+            Nota (opcional)
+          </label>
           <textarea
             id="grant-credits-notes-input"
-            placeholder="Nota (opcional)"
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
             className="campo"

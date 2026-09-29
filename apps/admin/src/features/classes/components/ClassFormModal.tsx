@@ -12,6 +12,8 @@ import type {
 import { formatDateKey } from "../utils/weekUtils";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { ModalShell } from "@/components/ui/ModalShell";
+import { TextField } from "@/components/ui/TextField";
+import { SelectField } from "@/components/ui/SelectField";
 
 const DAY_LABELS = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
 
@@ -223,76 +225,62 @@ export function ClassFormModal({
           {initialValue ? "Editar clase" : "Nueva clase"}
         </h2>
 
-        <div className="flex flex-col gap-1">
-          <input
-            id="class-title-input"
-            type="text"
-            placeholder="Titulo"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            className="campo"
-          />
-          {fieldErrors.title && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.title}</p>}
-        </div>
+        <TextField
+          id="class-title-input"
+          label="Título"
+          type="text"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          error={fieldErrors.title}
+        />
 
-        <div className="flex flex-col gap-1">
-          <select
-            id="class-instructor-input"
-            value={instructorId}
-            onChange={(event) => setInstructorId(event.target.value)}
-            className="campo"
-          >
-            <option value="">Elige un instructor</option>
-            {selectableInstructors.map((instructor) => (
-              <option key={instructor.id} value={instructor.id}>
-                {instructor.fullName}
-                {!instructor.active ? " (inactivo)" : ""}
-              </option>
-            ))}
-          </select>
-          {fieldErrors.instructorId && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.instructorId}</p>}
-        </div>
+        <SelectField
+          id="class-instructor-input"
+          label="Instructor"
+          value={instructorId}
+          onChange={(event) => setInstructorId(event.target.value)}
+          error={fieldErrors.instructorId}
+        >
+          <option value="">Elige un instructor</option>
+          {selectableInstructors.map((instructor) => (
+            <option key={instructor.id} value={instructor.id}>
+              {instructor.fullName}
+              {!instructor.active ? " (inactivo)" : ""}
+            </option>
+          ))}
+        </SelectField>
 
         {initialValue ? (
           <>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="class-starts-at-input" className="etiqueta-campo">
-                Inicio
-              </label>
-              <input
-                id="class-starts-at-input"
-                type="datetime-local"
-                value={startsAt}
-                onChange={(event) => setStartsAt(event.target.value)}
-                className="campo"
-              />
-              {fieldErrors.startsAt && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.startsAt}</p>}
-            </div>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="class-ends-at-input" className="etiqueta-campo">
-                Fin
-              </label>
-              <input
-                id="class-ends-at-input"
-                type="datetime-local"
-                value={endsAt}
-                onChange={(event) => setEndsAt(event.target.value)}
-                className="campo"
-              />
-              {fieldErrors.endsAt && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.endsAt}</p>}
-            </div>
+            <TextField
+              id="class-starts-at-input"
+              label="Inicio"
+              type="datetime-local"
+              value={startsAt}
+              onChange={(event) => setStartsAt(event.target.value)}
+              error={fieldErrors.startsAt}
+            />
+            <TextField
+              id="class-ends-at-input"
+              label="Fin"
+              type="datetime-local"
+              value={endsAt}
+              onChange={(event) => setEndsAt(event.target.value)}
+              error={fieldErrors.endsAt}
+            />
           </>
         ) : (
           <>
-            <div className="flex flex-col gap-1">
-              <span className="text-pequeno text-texto-suave">Repetir en estos dias</span>
-              <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-pequeno font-medium text-texto">Repetir en estos días</span>
+              <div className="flex flex-wrap gap-3">
                 {DAY_LABELS.map((label, dayIndex) => (
-                  <label key={dayIndex} className="flex items-center gap-1 text-pequeno">
+                  <label key={dayIndex} className="flex items-center gap-1.5 text-pequeno text-texto">
                     <input
                       type="checkbox"
                       checked={weekdays.includes(dayIndex)}
                       onChange={() => toggleWeekday(dayIndex)}
+                      className="h-4 w-4 rounded-sm border-borde-control accent-(--acento)"
                     />
                     {label}
                   </label>
@@ -301,63 +289,45 @@ export function ClassFormModal({
               {fieldErrors.weekdays && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.weekdays}</p>}
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <div className="flex flex-col gap-1">
-                <label htmlFor="class-start-time-input" className="etiqueta-campo">
-                  Hora inicio
-                </label>
-                <input
-                  id="class-start-time-input"
-                  type="time"
-                  value={startTime}
-                  onChange={(event) => setStartTime(event.target.value)}
-                  className="campo"
-                />
-                {fieldErrors.startTime && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.startTime}</p>}
-              </div>
-              <div className="flex flex-col gap-1">
-                <label htmlFor="class-end-time-input" className="etiqueta-campo">
-                  Hora fin
-                </label>
-                <input
-                  id="class-end-time-input"
-                  type="time"
-                  value={endTime}
-                  onChange={(event) => setEndTime(event.target.value)}
-                  className="campo"
-                />
-                {fieldErrors.endTime && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.endTime}</p>}
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="class-weeks-count-input" className="etiqueta-campo">
-                Repetir N semanas
-              </label>
-              <input
-                id="class-weeks-count-input"
-                type="number"
-                min={1}
-                max={52}
-                value={weeksCount}
-                onChange={(event) => setWeeksCount(event.target.value)}
-                className="campo"
+              <TextField
+                id="class-start-time-input"
+                label="Hora inicio"
+                type="time"
+                value={startTime}
+                onChange={(event) => setStartTime(event.target.value)}
+                error={fieldErrors.startTime}
               />
-              {fieldErrors.weeksCount && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.weeksCount}</p>}
+              <TextField
+                id="class-end-time-input"
+                label="Hora fin"
+                type="time"
+                value={endTime}
+                onChange={(event) => setEndTime(event.target.value)}
+                error={fieldErrors.endTime}
+              />
             </div>
+            <TextField
+              id="class-weeks-count-input"
+              label="Repetir N semanas"
+              type="number"
+              min={1}
+              max={52}
+              value={weeksCount}
+              onChange={(event) => setWeeksCount(event.target.value)}
+              error={fieldErrors.weeksCount}
+            />
           </>
         )}
 
-        <div className="flex flex-col gap-1">
-          <input
-            id="class-capacity-input"
-            type="number"
-            min={1}
-            placeholder="Cupo maximo"
-            value={maxCapacity}
-            onChange={(event) => setMaxCapacity(event.target.value)}
-            className="campo"
-          />
-          {fieldErrors.maxCapacity && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{fieldErrors.maxCapacity}</p>}
-        </div>
+        <TextField
+          id="class-capacity-input"
+          label="Cupo máximo"
+          type="number"
+          min={1}
+          value={maxCapacity}
+          onChange={(event) => setMaxCapacity(event.target.value)}
+          error={fieldErrors.maxCapacity}
+        />
 
         <div className="flex justify-end gap-2 pt-2">
           <button type="button" onClick={onClose} className={buttonClasses("ghost", "md")}>
