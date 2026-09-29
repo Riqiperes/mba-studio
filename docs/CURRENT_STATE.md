@@ -747,6 +747,15 @@ Solo interfaz: servicios, hooks, rutas, RLS y migraciones sin cambios. Plan y bi
 - **Pendiente de la fase**: 0.5 (archivos huérfanos `HomePage.tsx` y `ClassesFilterBar.tsx`) y 0.7 (`apple-touch-icon`). Sin enlaces legales (D6) porque aún no existen esas páginas.
 - **Observado sin cambiar (funcionamiento)**: `/my-bookings` y `/classes/:id` no tienen enlace visible en la app; "Cancelar" en Horarios no pide confirmación (en Mi horario sí); `formatWeekStartKey` usa fecha UTC; el cupo del calendario solo cuenta las reservas propias.
 - **Animaciones (2026-09-27)**: entrada del contenido al terminar de cargar y de las alertas, "solicitud enviada" de Academia más expresiva (único momento de "delight"), semana de Horarios (`WeekSelector` + `ClassesCalendar`) con deslizamiento direccional, saldo de créditos que destaca solo cuando cambia por una acción real (reservar/cancelar), nunca en la carga inicial. Detalle en la bitácora de `docs/frontend/plan-de-accion-frontend.md`.
+- **Correcciones (2026-09-29)**: el monograma dentro del recuadro de la
+  bailarina en Inicio se quitó (el de la esquina de la página, fijo en
+  `MainLayout`, se queda); Horarios (`ClassesCalendar`) muestra una
+  columna por día en escritorio (con scroll horizontal si hay muchos
+  días) en vez de apilar los días hacia abajo, sin cambios en móvil. Los
+  4 formularios de `apps/web` (perfil, login/password, clase muestra,
+  inscripción+pago) ya usaban `TextField`/`SelectField`/`TextAreaField`
+  con etiquetas visibles, así que no necesitaron cambios (a diferencia de
+  `apps/admin`, ver su propio `CURRENT_STATE.md` en esa rama).
 
 ## Integraciones configuradas
 
