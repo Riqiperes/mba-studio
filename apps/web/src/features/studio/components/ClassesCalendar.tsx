@@ -62,16 +62,20 @@ export function ClassesCalendar({
           description="Prueba la semana siguiente o escríbenos por WhatsApp."
         />
       ) : (
-        <div id="classes-calendar" className="space-y-8">
+        <div id="classes-calendar" className="space-y-8 sm:flex sm:space-y-0 sm:gap-4 sm:overflow-x-auto sm:pb-2">
           {sortedDates.map((dateKey) => {
             const dayClasses = classesByDate.get(dateKey)!;
             const firstClass = dayClasses[0]!;
             return (
-              <section key={dateKey} aria-labelledby={`classes-date-${dateKey}`} className="scroll-mt-28 space-y-3">
+              <section
+                key={dateKey}
+                aria-labelledby={`classes-date-${dateKey}`}
+                className="scroll-mt-28 space-y-3 sm:min-w-[260px] sm:flex-1"
+              >
                 <h2 id={`classes-date-${dateKey}`} className="etiqueta">
                   {formatDate(firstClass.startsAt)}
                 </h2>
-                <ul className="grid gap-3 lg:grid-cols-2">
+                <ul className="grid gap-3">
                   {dayClasses.map((cls) => (
                     <li key={cls.id}>
                       <ClassRow
@@ -165,7 +169,7 @@ function ClassRow({ cls, action }: { cls: ClassWithBookingState; action: ReactNo
   return (
     <article
       id={`class-card-${cls.id}`}
-      className="grid grid-cols-[64px_1fr] items-center gap-x-4 gap-y-3 rounded-card border border-borde bg-tarjeta p-4 shadow-card sm:grid-cols-[72px_1fr_auto] sm:p-5"
+      className="grid grid-cols-[64px_1fr] items-center gap-x-4 gap-y-3 rounded-card border border-borde bg-tarjeta p-4 shadow-card sm:p-5"
     >
       <p className="flex flex-col items-center border-e border-borde pe-4 text-center leading-none">
         <span className="font-display text-[1.375rem] font-medium tabular-nums text-texto">{time}</span>
@@ -179,7 +183,7 @@ function ClassRow({ cls, action }: { cls: ClassWithBookingState; action: ReactNo
           {getStatusLabel(cls.status)} · Cupo de {cls.maxCapacity}
         </p>
       </div>
-      <div className="col-start-2 flex flex-wrap items-center gap-2 sm:col-start-3 sm:flex-col sm:items-end">{action}</div>
+      <div className="col-start-2 flex flex-wrap items-center gap-2">{action}</div>
     </article>
   );
 }

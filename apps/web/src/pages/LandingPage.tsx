@@ -72,12 +72,6 @@ export function LandingPage() {
           aria-hidden="true"
           className="absolute inset-0 -z-10 bg-[linear-gradient(0deg,var(--cloud-dancer)_0%,var(--cloud-dancer)_42%,transparent_78%)] sm:bg-[linear-gradient(90deg,var(--cloud-dancer)_0%,var(--cloud-dancer)_38%,transparent_60%)]"
         />
-        <img
-          src="/brand/corner-motif-rosa.svg"
-          alt=""
-          aria-hidden="true"
-          className="absolute top-0 right-0 w-14 opacity-70 sm:w-20"
-        />
         <div className="mt-auto flex max-w-md flex-col items-start gap-4 p-6 sm:my-auto sm:p-10">
           <p className="etiqueta text-cacao">Pilates · Ballet</p>
           <h1 className="font-display text-titulo font-medium text-texto sm:text-[2.75rem] sm:leading-[1.1]">
