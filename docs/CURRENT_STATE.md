@@ -3,7 +3,26 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-09-23 (crear clientes de Studio sin cuenta desde `apps/admin`):
+Ultima actualizacion: 2026-09-29 (`apps/admin`: header que no se remonta + formularios con etiquetas y controles de marca):
+- **`RequireAuth` + `App.tsx`**: cada ruta envolvia su propio `<AdminLayout>`,
+  asi que el header (con el logo) se desmontaba y volvia a montar en cada
+  navegacion -- causa real de que el logo del header "a veces" no cargara.
+  Ahora `RequireAuth` monta `AdminLayout` una sola vez como layout padre
+  (`<Outlet />`) y el chequeo de rol por pagina se separo en `RequireRole`.
+- **Formularios de `apps/admin`**: se agregaron etiquetas visibles donde
+  solo habia placeholder (`ClassFormModal` "Titulo"/"Cupo maximo",
+  instructor sin nombre, y lo mismo en `AcademyGroupFormModal`,
+  `InstructorFormModal`, `PackageFormModal`, `GrantCreditsModal`,
+  `ClassFiltersBar`, `BookCustomerModal`, `EnrollStudentModal`).
+  `ClassFormModal` ("Nueva clase") pasa a `TextField`/`SelectField` como
+  referencia para el resto. `index.css` gano reglas globales para que
+  todo campo `.campo` (select, number, date/time, checkbox/radio) siga la
+  marca en vez del estilo del navegador, en claro y oscuro.
+- Pendiente equivalente en `apps/web` (rama `feat/web-frontend`): banner de
+  inicio y horario en columnas ya corregidos ahi; sus 4 formularios ya
+  usaban `TextField`/`SelectField`/`TextAreaField` y no necesitaron cambios.
+
+Ultima actualizacion anterior: 2026-09-23 (crear clientes de Studio sin cuenta desde `apps/admin`):
 - **Boton "Nuevo cliente" en `/customers`** (`CustomersPage`) abre
   `CustomerCreateModal` (nombre obligatorio; telefono, condiciones medicas y
   notas opcionales) para clientes que pagan/reservan en mostrador y no usan
