@@ -18,9 +18,22 @@ Ultima actualizacion: 2026-09-29 (`apps/admin`: header que no se remonta + formu
   referencia para el resto. `index.css` gano reglas globales para que
   todo campo `.campo` (select, number, date/time, checkbox/radio) siga la
   marca en vez del estilo del navegador, en claro y oscuro.
-- Pendiente equivalente en `apps/web` (rama `feat/web-frontend`): banner de
-  inicio y horario en columnas ya corregidos ahi; sus 4 formularios ya
-  usaban `TextField`/`SelectField`/`TextAreaField` y no necesitaron cambios.
+- Equivalente en `apps/web` (rama `feat/web-frontend`): banner de inicio
+  corregido ahi tambien; sus 4 formularios ya usaban
+  `TextField`/`SelectField`/`TextAreaField` y no necesitaron cambios.
+- **Calendario de clases en escritorio (`ClassesWeekGrid`)**: 7 columnas
+  fijas (una por dia), sin scroll horizontal. Con varias clases en un dia
+  se apilan "en abanico" (solo se ve titulo + hora; hover o clic trae la
+  carta al frente con instructor/cupo/estado y Editar/Cancelar/Eliminar;
+  una sola fija a la vez, clic fuera la cierra). Un dia con una clase se
+  ve completa; uno sin clases dice "Sin clases". Sin cambios en
+  movil/tablet. Mismo ajuste hecho en `apps/web` (`ClassesCalendar`).
+- **Rendimiento revisado**: no se encontro en `apps/admin` el patron de
+  `apps/web` (`supabase.auth.getUser()` de mas antes de una accion; ver
+  commit de perf en `feat/web-frontend`) -- aqui las mutaciones ya usan
+  `profile.businessId` del contexto de auth, sin llamada extra. La causa
+  mas probable del "tarda un segundo" en el panel era el remonte del
+  header en cada navegacion, ya corregido arriba.
 
 Ultima actualizacion anterior: 2026-09-23 (crear clientes de Studio sin cuenta desde `apps/admin`):
 - **Boton "Nuevo cliente" en `/customers`** (`CustomersPage`) abre
