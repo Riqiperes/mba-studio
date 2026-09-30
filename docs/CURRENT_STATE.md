@@ -749,13 +749,26 @@ Solo interfaz: servicios, hooks, rutas, RLS y migraciones sin cambios. Plan y bi
 - **Animaciones (2026-09-27)**: entrada del contenido al terminar de cargar y de las alertas, "solicitud enviada" de Academia más expresiva (único momento de "delight"), semana de Horarios (`WeekSelector` + `ClassesCalendar`) con deslizamiento direccional, saldo de créditos que destaca solo cuando cambia por una acción real (reservar/cancelar), nunca en la carga inicial. Detalle en la bitácora de `docs/frontend/plan-de-accion-frontend.md`.
 - **Correcciones (2026-09-29)**: el monograma dentro del recuadro de la
   bailarina en Inicio se quitó (el de la esquina de la página, fijo en
-  `MainLayout`, se queda); Horarios (`ClassesCalendar`) muestra una
-  columna por día en escritorio (con scroll horizontal si hay muchos
-  días) en vez de apilar los días hacia abajo, sin cambios en móvil. Los
-  4 formularios de `apps/web` (perfil, login/password, clase muestra,
-  inscripción+pago) ya usaban `TextField`/`SelectField`/`TextAreaField`
-  con etiquetas visibles, así que no necesitaron cambios (a diferencia de
-  `apps/admin`, ver su propio `CURRENT_STATE.md` en esa rama).
+  `MainLayout`, se queda). Los 4 formularios de `apps/web` (perfil,
+  login/password, clase muestra, inscripción+pago) ya usaban
+  `TextField`/`SelectField`/`TextAreaField` con etiquetas visibles, así
+  que no necesitaron cambios (a diferencia de `apps/admin`, ver su propio
+  `CURRENT_STATE.md` en esa rama).
+- **Horario de escritorio en columnas (2026-09-29)**: `ClassesCalendar`
+  ahora muestra las 7 columnas completas (una por día) sin scroll
+  horizontal, alineadas debajo de la fila de días. Con varias clases en
+  un día, se apilan "en abanico" (solo se ve hora + nombre de cada una;
+  hover o clic la trae al frente y muestra instructor/duración/cupo/
+  acción; solo una puede quedar fija a la vez, clic fuera la cierra). Un
+  día con una sola clase se ve completa; uno sin clases dice "Sin
+  clases". Sin cambios en móvil (misma lista apilada de siempre).
+- **Rendimiento: reservar y unirse a lista de espera (2026-09-29)**:
+  `bookClass`/`joinWaitlist` (`bookingsService.ts`) usaban
+  `supabase.auth.getUser()` (revalida la sesión contra el servidor en
+  cada llamada) solo para leer el id del usuario, ya disponible sin red
+  vía `getSession()`; `joinWaitlist` también hacía una consulta aparte
+  para el `business_id` de la clase que el caller ya tiene en memoria.
+  Cada acción ahorra 1-2 vueltas de red completas.
 
 ## Integraciones configuradas
 
