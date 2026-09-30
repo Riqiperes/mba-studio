@@ -106,9 +106,9 @@ export function ClassesCalendarPage() {
     }
   }, [reloadBookings, reloadCredits]);
 
-  const handleJoinWaitlist = useCallback(async (classId: string) => {
+  const handleJoinWaitlist = useCallback(async (classId: string, businessId: string) => {
     try {
-      await joinWaitlist(classId);
+      await joinWaitlist(classId, businessId);
       await reloadBookings();
     } catch (err) {
       console.error("[classes] join waitlist fallo", err);
