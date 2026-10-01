@@ -155,6 +155,18 @@ produccion y esta protegida (sin push directo); el trabajo nuevo sale de
 - No dejar `TODO`/`FIXME`/`HACK` sin explicar por que existen; si algo se
   pospone, documentarlo en `docs/roadmap.md`.
 
+## Rediseno de frontend (en curso)
+
+Todo trabajo visual de `apps/web` y `apps/admin` sigue
+`docs/frontend/plan-de-accion-frontend.md`: leer SIEMPRE el plan completo
+(protocolo, identidad de marca, decisiones y bitacora) para saber en que
+punto va el trabajo y que falta, y revisar la guia visual
+`docs/frontend/PROMPT.md`, el kit `docs/frontend/brand/` y los logos de
+`docs/frontend/logos/` (y el PDF `docs/frontend/logos MBA.pdf` si existe
+local) antes de tocar colores, tipografias o logos. `PROMPT.md` es guia
+visual: el contenido y las funciones se quedan como estan hoy. Marcar cada
+seccion al terminarla.
+
 ## Documentacion viva
 
 `docs/CURRENT_STATE.md` refleja el estado real del proyecto y se actualiza
