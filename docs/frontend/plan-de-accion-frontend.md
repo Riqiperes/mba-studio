@@ -5,8 +5,9 @@ logica, services y hooks ya existen y funcionan; esta fase es de **UI/UX**.
 Este plan es la fuente de verdad del trabajo de front hasta terminarlo.
 
 - Rama web: `feat/web-frontend`
-- Rama admin: `feat/admin-frontend` (se crea desde `develop` actualizado al
-  terminar web, **no** desde la rama de web)
+- Rama admin: `feat/admin-frontend`, creada desde `feat/web-frontend` el
+  2026-09-24 (decision del usuario: `develop` aun no tiene el plan, `PROMPT.md`
+  ni el kit de marca porque la web no se ha fusionado)
 - **Guia visual principal: `docs/frontend/PROMPT.md`** (paleta, tipografia,
   layout y pantallas) + kit de marca `docs/frontend/brand/` (logos, monogramas,
   motivos y fotos). Manda sobre lo decidido antes en D1-D3.
@@ -18,6 +19,66 @@ Este plan es la fuente de verdad del trabajo de front hasta terminarlo.
 
 Estados: `[ ]` pendiente · `[~]` en progreso · `[x]` hecho · `[-]` descartado
 (con motivo en la bitacora)
+
+---
+
+## PENDIENTES PARA CERRAR EL FRONT AL 100% (empezar aqui)
+
+Estado al 2026-09-27: Fases 0, 1, 2.0 y 2 terminadas, mas un pase de
+animaciones sobre ambas (ver bitacora 2026-09-27). Web en
+`feat/web-frontend` (subida a origin), admin en `feat/admin-frontend`
+(commits locales, sin subir a origin todavia). Sin PR a `develop` en
+ninguna de las dos. Solo falta lo de esta lista. Marcar cada punto al
+resolverlo y anotarlo en la bitacora.
+
+**0. Aprobacion del equipo (bloquea el resto de esta lista)**
+
+- [x] Mostrar el diseño + las animaciones al equipo de trabajo, junto con
+      esta lista completa de pendientes (puntos 1 a 5), para que la
+      revisen y digan que cambiar antes de continuar.
+- [x] Si piden cambios al diseño o a las animaciones: aplicarlos y volver
+      a mostrar antes de seguir. *(sin cambios pedidos, diseño aprobado
+      tal cual)*
+- [x] Recien cuando el equipo apruebe el diseño tal cual esta (o con los
+      cambios ya aplicados): continuar con el punto 3 (el merge de
+      sincronizacion y los PR) y cerrar las decisiones de los puntos 1, 4
+      y 5 con lo que el equipo haya dicho.
+
+**1. Tareas del plan que se dejaron para el final** *(decide el equipo, ver punto 0)*
+
+- [ ] 0.5 Decidir si se borran los archivos sin uso: `apps/web/src/pages/HomePage.tsx` (D4) y `apps/web/src/features/studio/components/ClassesFilterBar.tsx` (D5).
+- [ ] 0.7 Icono `apple-touch-icon` (PNG 180x180) para "agregar a pantalla de inicio" en iPhone (web y admin).
+
+**2. Pruebas que faltan**
+
+- [ ] Probar en un telefono real (iPhone y Android): zoom al escribir, muesca/area segura, sensacion al tocar, hoja de los modales, tema oscuro y las animaciones nuevas (carga, alertas, semana de Clases, saldo de creditos).
+- [ ] Probar la web con sesion y datos reales: reservar, cancelar, lista de espera, creditos, inscripcion y clase muestra de Academia, perfil.
+- [ ] Probar el panel con un usuario admin real y datos: clases, reservaciones, clientes, alumnos, grupos, colegiaturas, usuarios, admins y vista de instructor.
+
+**3. Integracion y publicacion**
+
+- [x] `git merge feat/web-frontend` (estando en `feat/admin-frontend`), para
+      traer los commits que solo tenia esa rama (animaciones de la fase 1,
+      fix de banner/horario en columnas, perf de reservar/lista de espera).
+      Sin conflictos (probado primero en seco en una rama temporal
+      desechable). `typecheck` en verde para `apps/admin` y `apps/web`
+      despues del merge. `feat/admin-frontend` ahora tiene el trabajo de
+      ambas ramas.
+- [ ] Abrir PR de `feat/web-frontend` a `develop` (y despues `feat/admin-frontend`, que sale de la de web).
+- [ ] Publicar web y admin en Cloudflare Pages.
+
+**4. Funcionamiento detectado sin cambiar (decidir si entra; no es diseno)** *(decide el equipo, ver punto 0)*
+
+- [ ] "Mis reservaciones" (`/my-bookings`) y el detalle de clase (`/classes/:id`) no tienen enlace visible en la web.
+- [ ] "Cancelar" una reserva desde Horarios no pide confirmacion (en Mi horario si).
+- [ ] `formatWeekStartKey` usa fecha UTC: despues de las 6 pm la semana "de hoy" puede correrse un dia.
+- [ ] El cupo del calendario de la web solo cuenta las reservas propias, no las de todos.
+- [ ] Varios formularios de los modales del admin usan el placeholder como unica etiqueta del campo.
+
+**5. Opcionales** *(decide el equipo, ver punto 0)*
+
+- [ ] Boton para cambiar entre modo claro y oscuro (hoy sigue la configuracion del sistema; ya existe `data-theme` para forzarlo).
+- [ ] Enlaces a paginas legales (D6) cuando la rama `feat/politicas-privacidad` tenga esas paginas.
 
 ---
 
@@ -204,10 +265,10 @@ Se trabaja en `feat/admin-frontend`. Reutiliza las decisiones D1–D3.
 
 | # | Tarea | Archivos | Estado |
 |---|-------|----------|--------|
-| 2.0.1 | Tokens de marca iguales a web | `apps/admin/src/index.css`, `apps/admin/index.html` | [ ] |
-| 2.0.2 | Logos y favicon | `apps/admin/src/assets/`, `apps/admin/public/` | [ ] |
-| 2.0.3 | Componentes base: botones, inputs, modal base, tabla base, estados de carga / vacio / error | `apps/admin/src/components/ui/` | [ ] |
-| 2.0.4 | Layout: `AdminLayout` (menu lateral / superior), pantalla de carga de `RequireAuth` | `layouts/AdminLayout.tsx`, `routes/RequireAuth.tsx` | [ ] |
+| 2.0.1 | Tokens de marca iguales a web | `apps/admin/src/index.css`, `apps/admin/index.html` | [x] |
+| 2.0.2 | Logos y favicon | `apps/admin/src/assets/`, `apps/admin/public/` | [x] |
+| 2.0.3 | Componentes base: botones, inputs, modal base, tabla base, estados de carga / vacio / error | `apps/admin/src/components/ui/` | [x] |
+| 2.0.4 | Layout: `AdminLayout` (menu lateral / superior), pantalla de carga de `RequireAuth` | `layouts/AdminLayout.tsx`, `routes/RequireAuth.tsx` | [x] |
 
 ## Fase 2 — Admin (panel)
 
@@ -215,19 +276,19 @@ Rutas relativas a `apps/admin/src/`.
 
 | # | Seccion | Ruta | Archivos | Estado |
 |---|---------|------|----------|--------|
-| 2.1 | Login | `/login` | `pages/LoginPage.tsx`, `features/auth/components/GoogleSignInButton.tsx`, `SignOutButton.tsx` | [ ] |
-| 2.2 | Dashboard | `/` | `pages/HomePage.tsx` | [ ] |
-| 2.3 | Hubs Estudio y Academia | `/estudio`, `/academia` | `pages/EstudioHubPage.tsx`, `pages/AcademiaHubPage.tsx` | [ ] |
-| 2.4 | Clases: vista semanal, filtros, alta/edicion (incl. masiva) | `/classes` | `pages/ClassesPage.tsx`, `features/classes/components/*` | [ ] |
-| 2.5 | Reservaciones de una clase (agregar cliente, lista) | `/classes/:id` | `pages/ClassBookingsPage.tsx`, `features/bookings/components/BookCustomerModal.tsx` | [ ] |
-| 2.6 | Instructores | `/instructors` | `pages/InstructorsPage.tsx`, `features/instructors/components/*` | [ ] |
-| 2.7 | Paquetes | `/packages` | `pages/PackagesPage.tsx`, `features/packages/components/*` | [ ] |
-| 2.8 | Clientes: lista, alta sin cuenta, detalle, creditos, dependientes | `/customers`, `/customers/:id` | `pages/CustomersPage.tsx`, `pages/CustomerDetailPage.tsx`, `features/customers/components/*`, `features/credits/components/GrantCreditsModal.tsx`, `features/dependents/components/*` | [ ] |
-| 2.9 | Alumnos | `/students` | `pages/StudentsPage.tsx` | [ ] |
-| 2.10 | Academia: grupos, detalle de grupo, inscribir, marcar pago, adeudos | `/academy/groups`, `/academy/groups/:id`, `/academy/overdue` | `pages/AcademyGroupsPage.tsx`, `pages/AcademyGroupDetailPage.tsx`, `pages/AcademyOverduePage.tsx`, `features/academy/components/*` | [ ] |
-| 2.11 | Usuarios e invitaciones de admins | `/users`, `/admins` | `pages/UsersPage.tsx`, `pages/AdminInvitesPage.tsx`, `features/users/components/*`, `features/adminInvites/components/*` | [ ] |
-| 2.12 | Vista de instructor | `/instructor/my-classes` | `pages/InstructorMyClassesPage.tsx` | [ ] |
-| 2.13 | Cierre de la fase: revision completa, lint/typecheck/build, `CURRENT_STATE.md`, proponer PR a `develop` | — | — | [ ] |
+| 2.1 | Login | `/login` | `pages/LoginPage.tsx`, `features/auth/components/GoogleSignInButton.tsx`, `SignOutButton.tsx` | [x] |
+| 2.2 | Dashboard | `/` | `pages/HomePage.tsx` | [x] |
+| 2.3 | Hubs Estudio y Academia | `/estudio`, `/academia` | `pages/EstudioHubPage.tsx`, `pages/AcademiaHubPage.tsx` | [x] |
+| 2.4 | Clases: vista semanal, filtros, alta/edicion (incl. masiva) | `/classes` | `pages/ClassesPage.tsx`, `features/classes/components/*` | [x] |
+| 2.5 | Reservaciones de una clase (agregar cliente, lista) | `/classes/:id` | `pages/ClassBookingsPage.tsx`, `features/bookings/components/BookCustomerModal.tsx` | [x] |
+| 2.6 | Instructores | `/instructors` | `pages/InstructorsPage.tsx`, `features/instructors/components/*` | [x] |
+| 2.7 | Paquetes | `/packages` | `pages/PackagesPage.tsx`, `features/packages/components/*` | [x] |
+| 2.8 | Clientes: lista, alta sin cuenta, detalle, creditos, dependientes | `/customers`, `/customers/:id` | `pages/CustomersPage.tsx`, `pages/CustomerDetailPage.tsx`, `features/customers/components/*`, `features/credits/components/GrantCreditsModal.tsx`, `features/dependents/components/*` | [x] |
+| 2.9 | Alumnos | `/students` | `pages/StudentsPage.tsx` | [x] |
+| 2.10 | Academia: grupos, detalle de grupo, inscribir, marcar pago, adeudos | `/academy/groups`, `/academy/groups/:id`, `/academy/overdue` | `pages/AcademyGroupsPage.tsx`, `pages/AcademyGroupDetailPage.tsx`, `pages/AcademyOverduePage.tsx`, `features/academy/components/*` | [x] |
+| 2.11 | Usuarios e invitaciones de admins | `/users`, `/admins` | `pages/UsersPage.tsx`, `pages/AdminInvitesPage.tsx`, `features/users/components/*`, `features/adminInvites/components/*` | [x] |
+| 2.12 | Vista de instructor | `/instructor/my-classes` | `pages/InstructorMyClassesPage.tsx` | [x] |
+| 2.13 | Cierre de la fase: revision completa, lint/typecheck/build, `CURRENT_STATE.md`, proponer PR a `develop` | — | — | [x] |
 
 ---
 
@@ -269,3 +330,7 @@ Si se quiere alguna, se agrega primero a `docs/roadmap.md` como tarea aparte:
 | 2026-09-24 | 1.9 hecha (`UserProfilePage.tsx`, `SignOutButton.tsx`; extra `components/ui/TextAreaField.tsx`): tarjeta de perfil con inicial, correo y rol; formulario con `TextField`/`TextAreaField` (mismos ids y datos), mensajes con icono; informacion de la cuenta; inscripciones con estado en punto + texto. La inicial ya no queda vacia cuando el nombre esta en blanco. |
 | 2026-09-24 | 1.10 hecha (`pages/NotFoundPage.tsx` nuevo, `App.tsx` solo la ruta `*` dentro de `MainLayout`): antes una ruta inexistente mostraba pantalla en blanco. Sin pie con enlaces legales (D6). |
 | 2026-09-24 | 1.11 hecha: tema oscuro automatico con `prefers-color-scheme` (`index.css`), logo horizontal rosa en oscuro (`BrandLogo` con `<picture>`), `theme-color` por esquema y `color-scheme` en `index.html`; sin colores sueltos de Tailwind en ninguna pantalla con ruta. Verificado: lint, typecheck y build; capturas claro/oscuro en movil; sin desborde horizontal a 320 y 390 px en las 10 rutas (medido con `scrollWidth`); comparacion con el metodo de `interface-review` de las lineas eliminadas (mismos ids, manejadores, textos y confirmaciones). `docs/CURRENT_STATE.md` actualizado. No se abre PR (lo pidio el usuario). |
+| 2026-09-24 | Se crea `feat/admin-frontend` desde `feat/web-frontend` (ver encabezado). Fase 2.0 hecha. 2.0.1: tokens iguales a web en `apps/admin/src/index.css` (tema oscuro definido pero sin activar hasta 2.13) + clases base del panel `.campo`/`.campo-compacto`/`.etiqueta-campo` y `.tabla-contenedor`/`.tabla` (tabla base); `index.html` con Fraunces + Jost, `viewport-fit=cover` y title. 2.0.2: kit de marca en `apps/admin/public/brand/` y favicon `monograma-malva`. 2.0.3: componentes base copiados de web a `apps/admin/src/components/ui/` (`ModalDialog` con `size` md/lg y `ScreenHeader` compacto con `actions`, propios del panel), `lucide-react` en admin. 2.0.4: `AdminLayout` con header fijo (logo + "Panel"), pestanas con icono segun rol (mismas reglas: instructor, admin de negocio, super admin), nombre y cerrar sesion, enlace "Saltar al contenido" y monograma de fondo discreto; `RequireAuth` con pantalla de carga del monograma y "Sin acceso" en tarjeta (mismos textos e id); `BackButton` con chevron y el mismo `navigate(-1)`. Revisado: lineas eliminadas con equivalente, capturas movil/escritorio con una ruta temporal (ya borrada), lint/typecheck/build web y admin. |
+| 2026-09-24 | Fase 2 hecha (2.1 a 2.13) en un solo commit, como pidio el usuario. Metodo: (1) migracion mecanica de patrones repetidos a clases base y tokens (campos -> `.campo`, botones -> `buttonClasses`, tablas -> `.tabla` dentro de `.tabla-contenedor`, colores sueltos -> semanticos), revisada para que solo cambiaran cadenas de clases; (2) los 10 modales pasan a `components/ui/ModalShell.tsx` (nuevo: `<dialog>` nativo que envuelve el formulario existente sin tocarlo; Escape, foco atrapado, cierre al tocar fuera como antes, hoja inferior en movil, nombre accesible desde el `h2`); (3) diseno fino por pantalla. 2.1 Login: logo vertical, tarjeta, boton Google con su marca (misma llamada). 2.2 Dashboard y 2.3 hubs: `components/ui/HubLinkCard.tsx` (nuevo) con iconos Lucide en lugar de emojis, contador de solicitudes de Academia con texto para lector. 2.4 Clases: `ScreenHeader` con "Nueva clase", selector de semana con flechas circulares, grilla semanal con dias apilados en movil y 7 columnas en escritorio, hoy resaltado, clase cancelada marcada con texto, la tarjeta entera abre la clase con enlace (antes solo con mouse). 2.5 a 2.12: encabezados con `ScreenHeader` y etiqueta por seccion, errores con `FormMessages`/estilo comun anunciado, estados vacios `.vacio`, acciones en linea `.accion` (40px de alto), tarjetas de paquetes y grupos y filas de clientes/instructores/alumnos accesibles con teclado, colegiaturas atrasadas con filtro en el encabezado. Regresion encontrada y corregida: la migracion habia igualado el tinte verde/rojo de pago del mes en Alumnos y en el detalle de grupo; se restauro (tintes exito/alerta) y ahora ademas lleva texto ("Pagado/Pendiente este mes", "Pagada/Pendiente"). 2.13: tema oscuro automatico en admin, `theme-color` por esquema. Verificado: comparacion automatica de ids, manejadores, textos, placeholders y etiquetas contra `cde12ec` (39 diferencias, todas con equivalente: acentos, "Cargando…", modales/tarjetas que ahora usan dialogo o enlace); capturas claro/oscuro en movil y escritorio con rutas temporales (ya borradas); sin desborde horizontal a 320 y 390 px en 18 pantallas; lint, typecheck y build de admin y web. Observado sin cambiar: varios formularios de los modales usan el placeholder como unica etiqueta (ya era asi). |
+| 2026-09-27 | Pase de animaciones (skills `find-animation-opportunities`, `emil-design-eng`, `animate`, `mobile-native`; `review-animations` queda reservada para invocacion directa del usuario) sobre las pantallas ya cerradas de fase 1 y 2, sin cambiar contenido ni comportamiento. Admin primero (`feat/admin-frontend`, commits `0c57ea8` y fix `892c37d`): entrada del contenido al terminar de cargar (`.entra`), entrada de alertas (`.alerta-entra`, 70 lugares), deslizamiento direccional de semana en Clases (`.semana-entra`, etiqueta + grilla, 20px/240ms), fade de filas nuevas en tablas, flash del saldo de creditos solo cuando cambia por una accion real (bug corregido: `balance` arranca en `null` y se resuelve al valor real en un segundo render, la guarda original solo cubria el primer render). Despues web (`feat/web-frontend`, commit `c58c49c`, subido a origin): mismas 5 animaciones adaptadas (Landing, catalogos, detalle de paquete/clase, Mi horario, Perfil), mas `.exito-entra` (fade+rise+scale, un poco mas expresiva) para "Solicitud enviada"/"Clase muestra solicitada" en `AcademyGroupCard`, el unico momento de "delight" que aparecio en web. Todo con `var(--ease-brand)` (unico token de curva del repo), `transform`/`opacity`/`background-color`, respetando el `prefers-reduced-motion` ya existente. Verificado: lint, typecheck y build de ambas apps en verde; `/mobile-native` sin hallazgos (mismo patron ya usado por `.modal-dialog`, sin `:hover` nuevo, sin tocar safe-area/viewport) pero sin poder probarlo en un telefono real. Pendiente: `feat/admin-frontend` no se ha sincronizado con los commits nuevos de `feat/web-frontend` (ver pendiente en la seccion de integracion); `feat/admin-frontend` sigue sin `push` a origin (decision del usuario, no se ha pedido). |
+| 2026-10-01 | Equipo aprobo el diseno + animaciones tal cual estaban (punto 0) y las pruebas del punto 2 ya se hicieron. Punto 3: `git merge feat/web-frontend` estando en `feat/admin-frontend` (merge commit, sin rebase porque ambas ramas ya estan en origin) para traer los 7 commits que web tenia de mas (animaciones, fix de banner/horario en columnas, perf de reservar/lista de espera). Probado primero en seco en una rama temporal desechable: sin conflictos, ni en `docs/CURRENT_STATE.md` (el unico archivo que tocan ambas ramas). `typecheck` de `apps/admin` y `apps/web` en verde despues del merge real. `feat/admin-frontend` quedo con el trabajo de ambas ramas y se subio a origin. Pendiente: abrir PR `feat/web-frontend` -> `develop`, despues PR `feat/admin-frontend` -> `develop`, y publicar en Cloudflare Pages. |

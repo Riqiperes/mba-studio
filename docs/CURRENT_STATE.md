@@ -3,7 +3,39 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-09-23 (crear clientes de Studio sin cuenta desde `apps/admin`):
+Ultima actualizacion: 2026-09-29 (`apps/admin`: header que no se remonta + formularios con etiquetas y controles de marca):
+- **`RequireAuth` + `App.tsx`**: cada ruta envolvia su propio `<AdminLayout>`,
+  asi que el header (con el logo) se desmontaba y volvia a montar en cada
+  navegacion -- causa real de que el logo del header "a veces" no cargara.
+  Ahora `RequireAuth` monta `AdminLayout` una sola vez como layout padre
+  (`<Outlet />`) y el chequeo de rol por pagina se separo en `RequireRole`.
+- **Formularios de `apps/admin`**: se agregaron etiquetas visibles donde
+  solo habia placeholder (`ClassFormModal` "Titulo"/"Cupo maximo",
+  instructor sin nombre, y lo mismo en `AcademyGroupFormModal`,
+  `InstructorFormModal`, `PackageFormModal`, `GrantCreditsModal`,
+  `ClassFiltersBar`, `BookCustomerModal`, `EnrollStudentModal`).
+  `ClassFormModal` ("Nueva clase") pasa a `TextField`/`SelectField` como
+  referencia para el resto. `index.css` gano reglas globales para que
+  todo campo `.campo` (select, number, date/time, checkbox/radio) siga la
+  marca en vez del estilo del navegador, en claro y oscuro.
+- Equivalente en `apps/web` (rama `feat/web-frontend`): banner de inicio
+  corregido ahi tambien; sus 4 formularios ya usaban
+  `TextField`/`SelectField`/`TextAreaField` y no necesitaron cambios.
+- **Calendario de clases en escritorio (`ClassesWeekGrid`)**: 7 columnas
+  fijas (una por dia), sin scroll horizontal. Con varias clases en un dia
+  se apilan "en abanico" (solo se ve titulo + hora; hover o clic trae la
+  carta al frente con instructor/cupo/estado y Editar/Cancelar/Eliminar;
+  una sola fija a la vez, clic fuera la cierra). Un dia con una clase se
+  ve completa; uno sin clases dice "Sin clases". Sin cambios en
+  movil/tablet. Mismo ajuste hecho en `apps/web` (`ClassesCalendar`).
+- **Rendimiento revisado**: no se encontro en `apps/admin` el patron de
+  `apps/web` (`supabase.auth.getUser()` de mas antes de una accion; ver
+  commit de perf en `feat/web-frontend`) -- aqui las mutaciones ya usan
+  `profile.businessId` del contexto de auth, sin llamada extra. La causa
+  mas probable del "tarda un segundo" en el panel era el remonte del
+  header en cada navegacion, ya corregido arriba.
+
+Ultima actualizacion anterior: 2026-09-23 (crear clientes de Studio sin cuenta desde `apps/admin`):
 - **Boton "Nuevo cliente" en `/customers`** (`CustomersPage`) abre
   `CustomerCreateModal` (nombre obligatorio; telefono, condiciones medicas y
   notas opcionales) para clientes que pagan/reservan en mostrador y no usan
@@ -769,6 +801,16 @@ Solo interfaz: servicios, hooks, rutas, RLS y migraciones sin cambios. Plan y bi
   vía `getSession()`; `joinWaitlist` también hacía una consulta aparte
   para el `business_id` de la clase que el caller ya tiene en memoria.
   Cada acción ahorra 1-2 vueltas de red completas.
+
+### Rediseño visual de `apps/admin` (Fase 2.0 y Fase 2, rama `feat/admin-frontend`, 2026-09-24)
+
+Solo interfaz: servicios, hooks, rutas, permisos por rol, RLS y migraciones sin cambios. Rama creada desde `feat/web-frontend`. Detalle en la bitácora de `docs/frontend/plan-de-accion-frontend.md`.
+
+- **Sistema visual**: mismos tokens que web en `apps/admin/src/index.css`, más clases base del panel: `.campo`, `.etiqueta-campo`, `.tabla-contenedor`/`.tabla`, `.accion`, `.vacio`. Tema oscuro automático.
+- **Componentes** (`apps/admin/src/components/ui/`): los de web más `ModalShell` (diálogo nativo para los formularios existentes), `HubLinkCard`, `FormMessages` y `ScreenHeader` con acciones.
+- **Layout**: `AdminLayout` con header fijo (logo, pestañas con icono según rol, cerrar sesión) y `RequireAuth` con pantallas de carga y "Sin acceso" en tarjeta.
+- **Accesibilidad**: tarjetas y filas que antes solo abrían con mouse ahora también con teclado; estado de pago con texto además de color.
+- **Animaciones (2026-09-27)**: entrada del contenido al terminar de cargar y de las alertas (70 lugares), fila nueva en tablas con fade, semana de Clases (`WeekSelector` + `ClassesWeekGrid`) con deslizamiento direccional (etiqueta + grilla juntas), saldo de créditos que destaca solo cuando cambia por una acción real (bug corregido: no debía destellar en la primera carga y sí lo hacía). Sin sincronizar todavía con los commits nuevos de `feat/web-frontend` (ver pendiente en `docs/frontend/plan-de-accion-frontend.md`).
 
 ## Integraciones configuradas
 
