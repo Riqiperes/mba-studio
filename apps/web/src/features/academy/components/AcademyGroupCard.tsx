@@ -44,7 +44,7 @@ export function AcademyGroupCard({
   const navigate = useNavigate();
   const [enrollModalOpen, setEnrollModalOpen] = useState(false);
   const [trialModalOpen, setTrialModalOpen] = useState(false);
-  const [requestSent, setRequestSent] = useState<"enroll" | "trial" | null>(null);
+  const [requestSent, setRequestSent] = useState<"trial" | null>(null);
 
   function requireSession(open: () => void) {
     if (!session) {
@@ -69,11 +69,9 @@ export function AcademyGroupCard({
         <p>{formatAgeRange(group)}</p>
       </div>
 
-      {requestSent && (
+      {requestSent === "trial" && (
         <p className="mb-3 text-sm text-green-700">
-          {requestSent === "enroll"
-            ? "Solicitud enviada. El staff la revisará pronto."
-            : "Clase muestra solicitada. El staff confirmará tu lugar."}
+          Clase muestra solicitada. El staff confirmará tu lugar.
         </p>
       )}
 
@@ -112,7 +110,6 @@ export function AcademyGroupCard({
           groupName={group.name}
           registrationFeeCents={registrationFeeCents}
           onClose={() => setEnrollModalOpen(false)}
-          onSuccess={() => setRequestSent("enroll")}
         />
       )}
       {trialModalOpen && (

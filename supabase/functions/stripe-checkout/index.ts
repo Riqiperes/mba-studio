@@ -1,10 +1,12 @@
-// Crea una Stripe Checkout Session para la cuota de inscripcion de
-// Academia. Si el grupo tiene una colegiatura mensual configurada
-// (academy_tuition_periods), la misma sesion cobra ademas la primera
-// mensualidad y arranca una suscripcion recurrente (todos los alumnos se
-// facturan el dia 1 de cada mes, ver docs/payments.md). La llama apps/web
-// (usuario autenticado). No otorga nada ni marca ningun pago: eso lo hace
-// unicamente stripe-webhook cuando Stripe confirma el pago.
+// Crea una Stripe Checkout Session para la inscripcion de Academia. Si el
+// grupo tiene una colegiatura mensual configurada
+// (academy_tuition_periods), se cobra SOLO la mensualidad recurrente (sin
+// la cuota de inscripcion por separado -- decision de negocio). Si no
+// tiene colegiatura, se cobra la cuota de inscripcion unica de siempre.
+// Todos los alumnos con colegiatura se facturan el dia 1 de cada mes (ver
+// docs/payments.md). La llama apps/web (usuario autenticado). No otorga
+// nada ni marca ningun pago: eso lo hace unicamente stripe-webhook cuando
+// Stripe confirma el pago.
 import Stripe from "npm:stripe@22.6.2";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { handleCorsPreflight } from "../_shared/cors.ts";
@@ -73,11 +75,6 @@ Deno.serve(async (req) => {
     return errorResponse("La cuota de inscripcion ya esta pagada", 400);
   }
 
-  const feeCents = enrollment.business?.academy_registration_fee_cents;
-  if (!feeCents || feeCents <= 0) {
-    return errorResponse("La cuota de inscripcion no esta configurada", 500);
-  }
-
   // Lectura de la colegiatura del grupo con la service role: no es dato
   // sensible del usuario (lo configura el staff), y evita tener que abrir
   // una policy de RLS publica nueva sobre academy_tuition_periods solo
@@ -93,17 +90,7 @@ Deno.serve(async (req) => {
   const origin = req.headers.get("origin") ?? new URL(req.url).origin;
   const stripe = new Stripe(stripeSecretKey, { apiVersion: STRIPE_API_VERSION });
 
-  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
-    {
-      price_data: {
-        currency: "mxn",
-        product_data: { name: "Cuota de inscripcion - Academia" },
-        unit_amount: feeCents,
-      },
-      quantity: 1,
-    },
-  ];
-
+  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
   const sessionParams: Stripe.Checkout.SessionCreateParams = {
     payment_method_types: ["card"],
     line_items: lineItems,
@@ -115,15 +102,11 @@ Deno.serve(async (req) => {
 
   const tuitionCents = tuitionPeriod?.amount_cents;
   if (tuitionCents && tuitionCents > 0) {
-    // Colegiatura mensual: se combina en la misma sesion como precio
-    // recurrente. billing_cycle_anchor_config alinea a TODOS los alumnos
-    // al dia 1 de cada mes (decision de negocio). Sin proration_behavior
-    // explicito: Stripe usa "create_prorations" por default, que es
-    // obligatorio para poder combinar un precio unico (la cuota de
-    // inscripcion) en la misma sesion -- "none" no lo permite. Efecto:
-    // el primer cobro incluye la cuota completa + una colegiatura
-    // prorateada por los dias restantes hasta el dia 1; los cobros
-    // siguientes son el monto completo cada dia 1.
+    // Grupo con colegiatura mensual: se cobra SOLO la mensualidad, sin la
+    // cuota de inscripcion por separado (decision de negocio). Todos los
+    // alumnos con colegiatura se facturan el dia 1 de cada mes
+    // (billing_cycle_anchor_config), sin importar el dia en que se
+    // inscribieron.
     lineItems.push({
       price_data: {
         currency: "mxn",
@@ -138,6 +121,21 @@ Deno.serve(async (req) => {
       metadata: { enrollment_id: enrollment.id },
       billing_cycle_anchor_config: { day_of_month: 1 },
     };
+  } else {
+    // Sin colegiatura configurada: cobro unico de la cuota de inscripcion,
+    // como antes.
+    const feeCents = enrollment.business?.academy_registration_fee_cents;
+    if (!feeCents || feeCents <= 0) {
+      return errorResponse("La cuota de inscripcion no esta configurada", 500);
+    }
+    lineItems.push({
+      price_data: {
+        currency: "mxn",
+        product_data: { name: "Cuota de inscripcion - Academia" },
+        unit_amount: feeCents,
+      },
+      quantity: 1,
+    });
   }
 
   try {

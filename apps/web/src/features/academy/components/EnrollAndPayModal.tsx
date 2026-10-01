@@ -16,7 +16,6 @@ type Props = {
   groupName: string;
   registrationFeeCents: number | null;
   onClose: () => void;
-  onSuccess: () => void;
 };
 
 export function EnrollAndPayModal({
@@ -104,10 +103,11 @@ export function EnrollAndPayModal({
       >
         <h2 className="text-lg font-semibold text-brand-primary">Inscribir a {groupName}</h2>
         <p className="text-sm text-gray-600">
-          La cuota de inscripción es de {formatCents(registrationFeeCents)} y se paga ahora mismo
-          con Stripe (si el grupo tiene colegiatura mensual, se incluye en el mismo pago). Si hay
-          cupo disponible tu inscripción se activa al instante; si ya no hay lugar, te
-          reembolsamos automáticamente. Al continuar te llevaremos a la pantalla segura de pago.
+          El pago se hace ahora mismo con Stripe: si el grupo tiene colegiatura mensual se cobra
+          solo la mensualidad, si no, la cuota de inscripción única de {formatCents(registrationFeeCents)}.
+          El monto exacto se confirma en la pantalla segura de pago antes de cobrar. Si hay cupo
+          disponible tu inscripción se activa al instante; si ya no hay lugar, te reembolsamos
+          automáticamente.
         </p>
 
         {dependentsLoading ? (

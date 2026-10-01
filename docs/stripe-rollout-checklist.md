@@ -1,77 +1,49 @@
-# Stripe test mode - despliegue via Dashboard y prueba de pago
+# Checklist: activar colegiatura recurrente + activacion automatica
 
-Guia de referencia para (re)desplegar `stripe-checkout`, `stripe-webhook`
-y `stripe-cancel-subscription` desde el Dashboard web de Supabase (sin
-CLI) y probar el cobro de la cuota de inscripcion + colegiatura mensual de
-Academia en modo test. Ver `docs/payments.md` para el diseño completo.
+Lista de pasos pendientes para que el codigo de
+`feat/academy-registration-stripe-checkout` (colegiatura mensual por
+Stripe + activacion automatica de inscripciones) funcione en modo test.
+Incluye el codigo completo de las 3 funciones listo para copiar/pegar
+(igual al de `docs/stripe-test-deploy.md` -- si se vuelve a editar la
+logica, actualizar ambos archivos).
 
-**El codigo de las 3 funciones cambio sustancialmente el 2026-09-28**
-(colegiatura recurrente, activacion automatica, reembolso automatico) --
-si ya habias pegado una version anterior en el Dashboard, hay que
-reemplazarla completa por la de abajo, no solo agregar lo nuevo.
+Nada de esto se aplica solo -- cada paso lo corre el usuario a mano en el
+Dashboard de Supabase o de Stripe. Marca cada casilla conforme lo hagas.
 
-## Por que estas versiones son distintas al repo
+## Estado
 
-El codigo fuente real vive en `supabase/functions/stripe-checkout/index.ts`,
-`supabase/functions/stripe-webhook/index.ts` y
-`supabase/functions/stripe-cancel-subscription/index.ts`, y reutiliza
-helpers compartidos de `supabase/functions/_shared/` (cors, responses,
-logger). El editor de funciones del Dashboard no tiene acceso al resto del
-repo, asi que estas versiones de abajo traen esos helpers **inline**
-(duplicados) para poder pegarse solas.
+- [x] Migracion `031_academy_tuition_stripe_auto_activation.sql` aplicada
+      en Supabase (SQL Editor).
+- [ ] **Re-pegar** `stripe-checkout` en el Dashboard -- el codigo de abajo
+      cambio el 2026-10-01 (ya no cobra la cuota de inscripcion junto con
+      la colegiatura, solo la mensualidad). La version que ya pegaste
+      antes esta desactualizada.
+- [x] Codigo de `stripe-webhook` pegado en el Dashboard.
+- [x] Funcion `stripe-cancel-subscription` creada y desplegada.
+- [ ] `stripe-webhook`: confirmar que "Enforce JWT Verification" sigue
+      **desactivado**.
+- [ ] `stripe-checkout` y `stripe-cancel-subscription`: confirmar JWT
+      verification **activado** (default, no tocar).
+- [x] Fila de colegiatura ($900 MXN) creada en `academy_tuition_periods`
+      para "Ballet Infantil A".
+- [ ] Webhook de Stripe (test mode) actualizado con los eventos
+      `invoice.paid` e `invoice.payment_failed` (ademas del
+      `checkout.session.completed` que ya tenia).
+- [ ] Prueba de pago repetida con tarjeta de test, confirmando que ahora
+      cobra solo $900 (sin los $250 de inscripcion) para grupos con
+      colegiatura.
+- [ ] En Stripe Dashboard -> Settings -> Business -> Public details:
+      cambiar el nombre publico de "BRANSH" al del negocio real (y
+      confirmar que esa cuenta de Stripe es la correcta antes de ir a
+      produccion).
+- [ ] PR abierto contra `develop` (pendiente, no se abre sin avisar).
 
-**Quedan desincronizadas del repo a proposito.** Si se edita la logica de
-alguna funcion, hay que actualizar ambos lados a mano (el `.ts` del repo y
-lo pegado en el Dashboard), o migrar a `supabase functions deploy` via CLI
-para que el repo vuelva a ser la unica fuente de verdad.
+## Paso 2 -- Desplegar las funciones
 
-## Pasos previos (una sola vez)
+### 2.1. `stripe-checkout` (ya existe -- editar y reemplazar todo)
 
-1. Monto de la cuota de inscripcion (SQL Editor de Supabase), si no se
-   hizo ya:
-   ```sql
-   update public.business
-   set academy_registration_fee_cents = 25000
-   where name = 'MBA MID';
-   ```
-   (25000 centavos = $250.00 MXN)
-2. **Nuevo**: colegiatura mensual de los grupos de Ballet ($900 MXN). Cada
-   grupo con colegiatura necesita su propia fila en
-   `academy_tuition_periods` (grupos sin fila activa aqui NO cobran
-   colegiatura, solo la cuota de inscripcion -- ver `docs/payments.md`).
-   Ajusta el nombre del grupo segun corresponda:
-   ```sql
-   insert into public.academy_tuition_periods (business_id, group_id, amount_cents, active)
-   select b.id, g.id, 90000, true
-   from public.business b
-   join public.academy_groups g on g.business_id = b.id
-   where b.name = 'MBA MID' and g.name = 'Ballet Infantil A'
-   on conflict (group_id) do update set amount_cents = excluded.amount_cents, active = true;
-   ```
-   (90000 centavos = $900.00 MXN/mes). Repite el `insert` para cada grupo
-   de Ballet adicional, cambiando `g.name`.
-3. Secret `STRIPE_SECRET_KEY` cargado en Project Settings -> Edge
-   Functions -> Secrets (la `sk_test_...`, nunca la `sk_live_...`).
-4. Desplegar las 3 funciones (Dashboard -> Edge Functions -> Deploy a new
-   function, o editar las existentes), pegando el codigo de las secciones
-   de abajo.
-5. Solo para `stripe-webhook`: en su pagina de configuracion, apagar
-   **"Enforce JWT Verification"** (Stripe llama a esta funcion sin JWT de
-   Supabase, autentica con su propia firma). `stripe-checkout` y
-   `stripe-cancel-subscription` se dejan con JWT activado (las llaman
-   apps/web y apps/admin con la sesion del usuario).
-6. Webhook endpoint en
-   [Stripe Dashboard (test mode)](https://dashboard.stripe.com/test/webhooks):
-   URL `https://eazyblybekyygimqpjjw.supabase.co/functions/v1/stripe-webhook`.
-   **Eventos a escuchar** (si el endpoint ya existia solo con
-   `checkout.session.completed`, edítalo para agregar los otros dos):
-   - `checkout.session.completed`
-   - `invoice.paid`
-   - `invoice.payment_failed`
-   Copiar el "Signing secret" (`whsec_...`) y cargarlo como secret
-   `STRIPE_WEBHOOK_SECRET` (mismo lugar que el paso 3).
-
-## Funcion 1: `stripe-checkout`
+Dashboard de Supabase -> **Edge Functions** -> `stripe-checkout` -> editar
+-> borrar todo el contenido -> pegar esto -> Deploy:
 
 ```typescript
 import Stripe from "npm:stripe@22.6.2";
@@ -217,7 +189,9 @@ Deno.serve(async (req) => {
 });
 ```
 
-## Funcion 2: `stripe-webhook`
+### 2.2. `stripe-webhook` (ya existe -- editar y reemplazar todo)
+
+Mismo proceso en `stripe-webhook` -> pegar esto -> Deploy:
 
 ```typescript
 import Stripe from "npm:stripe@22.6.2";
@@ -443,7 +417,9 @@ Deno.serve(async (req) => {
 });
 ```
 
-## Funcion 3 (nueva): `stripe-cancel-subscription`
+### 2.3. `stripe-cancel-subscription` (nueva -- "Deploy a new function")
+
+Nombre exacto: `stripe-cancel-subscription`. Pegar esto -> Deploy:
 
 ```typescript
 import Stripe from "npm:stripe@22.6.2";
@@ -534,38 +510,43 @@ Deno.serve(async (req) => {
 });
 ```
 
-## Probar el pago
+## Paso 3 -- Configuracion
 
-1. Login real en `apps/web` (`http://localhost:5173` en desarrollo).
-2. Ir a `/academy` -> elegir un grupo de Ballet (con colegiatura
-   configurada) -> **"Pagar inscripción e inscribir"** -> completar el
-   modal (alumno + fecha de nacimiento si es nuevo).
-3. Redirige a Stripe Checkout hosted, mostrando **dos conceptos**: la
-   cuota de inscripción y la colegiatura (prorateada hasta el día 1). Usar
-   la **tarjeta de prueba**:
-   - Numero: `4242 4242 4242 4242`
-   - Fecha de expiracion: cualquier fecha futura (ej. `12/34`)
-   - CVC: cualquier 3 digitos
-   - Nombre/codigo postal: cualquier valor
-4. Al completar el pago, Stripe redirige a `/profile?pago=procesando`. En
-   unos segundos, si había cupo, la solicitud debe verse `ACTIVA`
-   directamente en "Mis alumnos e inscripciones" (sin pasar por
-   `apps/admin`). Si el grupo ya no tenía cupo, debe verse `RECHAZADA` y
-   el cargo debe aparecer reembolsado en el
-   [Dashboard de Stripe (test mode) -> Payments](https://dashboard.stripe.com/test/payments).
-5. Para probar el caso sin cupo: baja `max_capacity` del grupo a un número
-   ya alcanzado (o llena el grupo con alumnos `ACTIVA` de prueba) antes de
-   pagar.
-6. Para probar el cobro mensual sin esperar un mes real: en el
-   [Dashboard de Stripe (test mode) -> Subscriptions](https://dashboard.stripe.com/test/subscriptions),
-   abre la suscripción creada y usa **"Advance clock"** (o edita la
-   suscripción para que el próximo ciclo de facturación sea hoy) para
-   forzar un nuevo `invoice.paid` y confirmar que se registra en
-   `academy_payments` con `payment_method = 'STRIPE'`.
-7. Si algo falla: revisar los logs de la función correspondiente en el
-   Dashboard (Edge Functions -> `<nombre>` -> Logs) -- ahí quedan los
-   `console.error` con el detalle.
+1. **JWT verification**: confirmar que sigue desactivado solo en
+   `stripe-webhook` (Stripe no manda JWT de Supabase, autentica con su
+   propia firma). No tocar `stripe-checkout` ni `stripe-cancel-subscription`.
 
-**Nunca usar una tarjeta real ni la `sk_live_...`/`pk_live_...` para estas
-pruebas** -- con claves de test, Stripe rechaza tarjetas reales y con
-claves live cualquier pago es un cobro de verdad.
+2. **Colegiatura del grupo de Ballet** (SQL Editor de Supabase). Primero
+   confirma el nombre exacto del grupo:
+   ```sql
+   select name from public.academy_groups;
+   ```
+   Despues, ajustando `g.name` al nombre real (visto antes:
+   `'Ballet Infantil A'`):
+   ```sql
+   insert into public.academy_tuition_periods (business_id, group_id, amount_cents, active)
+   select b.id, g.id, 90000, true
+   from public.business b
+   join public.academy_groups g on g.business_id = b.id
+   where b.name = 'MBA MID' and g.name = 'Ballet Infantil A'
+   on conflict (group_id) do update set amount_cents = excluded.amount_cents, active = true;
+   ```
+   (90000 centavos = $900.00 MXN/mes). Repite el `insert` cambiando
+   `g.name` por cada grupo adicional de Ballet que tambien cobre
+   colegiatura.
+
+3. **Webhook de Stripe** (test mode):
+   [dashboard.stripe.com/test/webhooks](https://dashboard.stripe.com/test/webhooks)
+   -> abrir el endpoint ya creado -> editar -> agregar estos dos eventos
+   (sin quitar el que ya tenia):
+   - `invoice.paid`
+   - `invoice.payment_failed`
+   No hace falta generar un `whsec_...` nuevo por esto -- agregar eventos a
+   un endpoint existente no lo regenera.
+
+## Paso 4 -- Probar
+
+Ver la seccion "Probar el pago" de `docs/stripe-test-deploy.md` (tarjeta
+`4242 4242 4242 4242`, como forzar el caso sin cupo, como adelantar el
+reloj de una suscripcion en Stripe test mode para simular el cobro del
+mes siguiente).

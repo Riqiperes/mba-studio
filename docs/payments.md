@@ -83,19 +83,19 @@ repetido falla/se ignora antes de tocar creditos.
 ## Colegiatura recurrente de Academia (Stripe Subscriptions)
 
 Si un grupo tiene una fila activa en `academy_tuition_periods`,
-`stripe-checkout` combina en la misma Checkout Session la cuota de
-inscripcion (pago unico) con la colegiatura mensual (precio recurrente),
-en modo `subscription`. Todos los alumnos con colegiatura por Stripe se
-facturan el **dia 1 de cada mes** (`billing_cycle_anchor_config.day_of_month
-= 1`), sin importar el dia en que se inscribieron -- decision de negocio,
-ver `docs/business-rules.md`.
+`stripe-checkout` cobra **solo la colegiatura mensual** (precio
+recurrente, modo `subscription`) -- la cuota de inscripcion unica NO se
+cobra por separado en ese caso (decision de negocio). Si el grupo no tiene
+colegiatura configurada, se cobra la cuota de inscripcion unica de
+siempre (modo `payment`), sin cambios.
 
-Sin `proration_behavior` explicito, Stripe usa el default
-(`create_prorations`): el primer cobro incluye la cuota completa + una
-colegiatura **prorateada** por los dias restantes hasta el dia 1; los
-cobros siguientes son el monto completo. Esto es obligatorio: la API de
-Stripe no permite combinar un precio unico con `proration_behavior:
-"none"` en la misma sesion.
+Todos los alumnos con colegiatura por Stripe se facturan el **dia 1 de
+cada mes** (`billing_cycle_anchor_config.day_of_month = 1`), sin importar
+el dia en que se inscribieron -- decision de negocio, ver
+`docs/business-rules.md`. Sin `proration_behavior` explicito, Stripe usa
+el default (`create_prorations`): el primer cobro es **prorateado** por
+los dias restantes hasta el dia 1 (puede ser casi el monto completo si
+falta poco para esa fecha); los cobros siguientes son el monto completo.
 
 `stripe-webhook` escucha ademas:
 - `invoice.paid`: registra el cobro en `academy_payments` (mismo lugar que

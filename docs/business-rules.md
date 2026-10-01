@@ -72,12 +72,14 @@ Falta de pago sostenida / solicitud del alumno -> Baja
 
 ### Colegiatura automatica via Stripe (grupos con `academy_tuition_periods`)
 
-- Si un grupo tiene colegiatura configurada, el mismo pago de inscripcion
-  arranca una suscripcion recurrente que cobra a **todos los alumnos el
+- Si un grupo tiene colegiatura configurada, al inscribirse se arranca
+  directo una suscripcion recurrente que cobra a **todos los alumnos el
   dia 1 de cada mes** (antes del vencimiento del dia 10 -- decision de
   negocio para simplificar el cobro, no busca replicar el vencimiento
-  exacto). El recargo del 10% por pago tardio no aplica a este flujo (se
-  cobra automaticamente, no puede "atrasarse" salvo que la tarjeta falle).
+  exacto). **No se cobra la cuota de inscripcion unica por separado en
+  este caso** -- solo la mensualidad (decision de negocio). El recargo del
+  10% por pago tardio no aplica a este flujo (se cobra automaticamente, no
+  puede "atrasarse" salvo que la tarjeta falle).
 - Si la tarjeta falla un mes, esa colegiatura queda `NO_PAGADO` igual que
   un pago manual atrasado, y cae en la misma vista de "Atrasados" del
   staff.
