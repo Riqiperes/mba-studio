@@ -294,6 +294,81 @@
       background: transparent;
     }
   }
+
+  /* Entrada del bloque que reemplaza al estado de carga (evita el salto
+     brusco carga -> datos/vacio/error). Se aplica al contenedor que se
+     monta cuando `loading` pasa a false. */
+  .entra {
+    opacity: 1;
+    translate: 0 0;
+    transition: opacity 200ms var(--ease-brand), translate 200ms var(--ease-brand);
+  }
+  @starting-style {
+    .entra {
+      opacity: 0;
+      translate: 0 4px;
+    }
+  }
+
+  /* Entrada de un mensaje de alerta (error de validacion o de una accion) */
+  .alerta-entra {
+    opacity: 1;
+    translate: 0 0;
+    transition: opacity 160ms var(--ease-brand), translate 160ms var(--ease-brand);
+  }
+  @starting-style {
+    .alerta-entra {
+      opacity: 0;
+      translate: 0 -4px;
+    }
+  }
+
+  /* Confirmacion positiva y rara (solicitud enviada, clase muestra
+     solicitada): un poco mas expresiva que una alerta, el "delight budget"
+     de un momento que casi no se repite. */
+  .exito-entra {
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
+    transition: opacity 250ms var(--ease-brand), scale 250ms var(--ease-brand), translate 250ms var(--ease-brand);
+  }
+  @starting-style {
+    .exito-entra {
+      opacity: 0;
+      scale: 0.97;
+      translate: 0 4px;
+    }
+  }
+
+  /* Semana del Horario de clases: entra desde el lado de donde viene
+     (--dir: 1 = avanza, -1 = retrocede; la fija ClassesCalendarPage). Se
+     aplica a la etiqueta de semana y a la grilla, para que se sientan como
+     un solo calendario deslizando. */
+  .semana-entra {
+    opacity: 1;
+    translate: 0 0;
+    transition: opacity 240ms var(--ease-brand), translate 240ms var(--ease-brand);
+  }
+  @starting-style {
+    .semana-entra {
+      opacity: 0;
+      translate: calc(var(--dir, 1) * 20px) 0;
+    }
+  }
+
+  /* Aviso de que un dato cambio (ej. saldo de creditos tras reservar/cancelar) */
+  @keyframes destaca-cambio {
+    from {
+      background-color: var(--acento-suave);
+    }
+    to {
+      background-color: transparent;
+    }
+  }
+  .destaca-cambio {
+    border-radius: var(--radius-card);
+    animation: destaca-cambio 900ms var(--ease-brand);
+  }
 }
 
 /* Fuera de @layer a proposito: debe ganarle a text-sm en inputs existentes

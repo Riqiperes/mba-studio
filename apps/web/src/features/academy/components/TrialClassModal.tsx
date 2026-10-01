@@ -129,7 +129,7 @@ export function TrialClassModal({ open, group, onClose, onSuccess }: Props) {
         </SelectField>
 
         {formError && (
-          <p role="alert" className="flex items-start gap-2 text-pequeno text-alerta">
+          <p role="alert" className="alerta-entra flex items-start gap-2 text-pequeno text-alerta">
             <CircleAlert className="mt-px h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
             {formError}
           </p>

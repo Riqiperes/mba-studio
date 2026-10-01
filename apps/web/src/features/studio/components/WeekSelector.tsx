@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type CSSProperties } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { addWeeks, formatWeekStartKey, getWeekLabel, getWeekStart } from "../utils/weekUtils";
 import { buttonClasses } from "@/components/ui/buttonStyles";
@@ -6,12 +6,14 @@ import { buttonClasses } from "@/components/ui/buttonStyles";
 type Props = {
   selectedWeekStart: string; // YYYY-MM-DD (Domingo de la semana)
   onChange: (weekStart: string) => void;
+  /** Direccion del ultimo cambio de semana (1 = avanza, -1 = retrocede), para que la etiqueta deslice junto con la grilla. */
+  direction?: 1 | -1;
 };
 
 const arrowClasses =
   "grid h-10 w-10 shrink-0 place-items-center rounded-full border border-borde bg-tarjeta text-texto transition-[background-color,scale] duration-200 ease-(--ease-brand) hover:bg-acento-suave hover:text-acento active:scale-[0.96]";
 
-export function WeekSelector({ selectedWeekStart, onChange }: Props) {
+export function WeekSelector({ selectedWeekStart, onChange, direction = 1 }: Props) {
   const [currentWeekStart, setCurrentWeekStart] = useState(selectedWeekStart);
 
   useEffect(() => {
@@ -38,7 +40,12 @@ export function WeekSelector({ selectedWeekStart, onChange }: Props) {
       </button>
 
       <div className="flex min-w-0 flex-wrap items-center justify-center gap-x-3 gap-y-1">
-        <span aria-live="polite" className="font-display text-subtitulo font-medium tabular-nums text-texto">
+        <span
+          key={currentWeekStart}
+          aria-live="polite"
+          className="semana-entra font-display text-subtitulo font-medium tabular-nums text-texto"
+          style={{ "--dir": direction } as CSSProperties}
+        >
           {getWeekLabel(new Date(currentWeekStart + "T00:00:00"))}
         </span>
 

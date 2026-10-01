@@ -131,7 +131,7 @@ export function UserProfilePage() {
             {message && (
               <p
                 role={message.type === "success" ? "status" : "alert"}
-                className={`flex items-start gap-2 rounded-control bg-suave p-3 text-pequeno ${
+                className={`alerta-entra flex items-start gap-2 rounded-control bg-suave p-3 text-pequeno ${
                   message.type === "success" ? "text-exito" : "text-alerta"
                 }`}
               >
@@ -177,7 +177,7 @@ export function UserProfilePage() {
               Cargando…
             </p>
           ) : enrollments.length === 0 ? (
-            <p className="text-cuerpo text-texto-suave text-pretty">
+            <p className="entra text-cuerpo text-texto-suave text-pretty">
               Todavía no has inscrito a ningún alumno. Ve a{" "}
               <Link to="/academy" className="font-medium text-acento underline decoration-acento/40 underline-offset-4">
                 Academia
@@ -185,7 +185,7 @@ export function UserProfilePage() {
               para inscribir o agendar una clase muestra.
             </p>
           ) : (
-            <ul id="my-academy-enrollments-list" className="divide-y divide-borde">
+            <ul id="my-academy-enrollments-list" className="entra divide-y divide-borde">
               {enrollments.map((enrollment) => {
                 const tone = STATUS_TONES[enrollment.status] ?? { text: "text-texto-suave", dot: "bg-texto-suave" };
                 return (

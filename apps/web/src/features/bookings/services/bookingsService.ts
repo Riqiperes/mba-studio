@@ -134,11 +134,15 @@ export async function listMyWaitlist(): Promise<WaitlistEntryWithClass[]> {
 }
 
 export async function bookClass(classId: string): Promise<Booking> {
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData.user) throw new Error("Usuario no autenticado");
+  // getSession() lee la sesion en cache (sin red); getUser() la revalida
+  // contra el servidor en cada llamada -- innecesario aqui, la RPC ya
+  // valida todo server-side.
+  const { data: sessionData } = await supabase.auth.getSession();
+  const userId = sessionData.session?.user.id;
+  if (!userId) throw new Error("Usuario no autenticado");
 
   const { data, error } = await supabase.rpc("book_class", {
-    p_customer_id: userData.user.id,
+    p_customer_id: userId,
     p_class_id: classId,
   });
   if (error) throw error;
@@ -150,23 +154,31 @@ export async function cancelBooking(bookingId: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function joinWaitlist(classId: string): Promise<WaitlistEntry> {
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData.user) throw new Error("Usuario no autenticado");
+export async function joinWaitlist(classId: string, businessId?: string): Promise<WaitlistEntry> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const userId = sessionData.session?.user.id;
+  if (!userId) throw new Error("Usuario no autenticado");
 
-  const { data: businessData, error: bizError } = await supabase
-    .from("studio_classes")
-    .select("business_id")
-    .eq("id", classId)
-    .single();
-  if (bizError) throw bizError;
+  // El caller ya conoce el business_id de la clase (viene en la lista que
+  // cargo); solo se consulta si no se paso, para no perder una vuelta de
+  // red completa en el camino comun.
+  let resolvedBusinessId = businessId;
+  if (!resolvedBusinessId) {
+    const { data: businessData, error: bizError } = await supabase
+      .from("studio_classes")
+      .select("business_id")
+      .eq("id", classId)
+      .single();
+    if (bizError) throw bizError;
+    resolvedBusinessId = businessData.business_id;
+  }
 
   const { data, error } = await supabase
     .from("waitlist")
     .insert({
-      business_id: businessData.business_id,
+      business_id: resolvedBusinessId,
       class_id: classId,
-      customer_id: userData.user.id,
+      customer_id: userId,
     })
     .select(WAITLIST_COLUMNS)
     .single();

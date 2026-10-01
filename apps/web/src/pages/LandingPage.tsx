@@ -56,7 +56,7 @@ export function LandingPage() {
   const hasContactInfo = Boolean(address || phoneUrl || whatsappUrl);
 
   return (
-    <div id="landing-page" className="mx-auto flex max-w-[980px] flex-col gap-10 px-4 pt-6 sm:gap-12 sm:px-8 sm:pt-8">
+    <div id="landing-page" className="entra mx-auto flex max-w-[980px] flex-col gap-10 px-4 pt-6 sm:gap-12 sm:px-8 sm:pt-8">
       {/* 1. Banner con la bailarina difuminada */}
       <section
         id="landing-hero-section"
@@ -71,12 +71,6 @@ export function LandingPage() {
         <div
           aria-hidden="true"
           className="absolute inset-0 -z-10 bg-[linear-gradient(0deg,var(--cloud-dancer)_0%,var(--cloud-dancer)_42%,transparent_78%)] sm:bg-[linear-gradient(90deg,var(--cloud-dancer)_0%,var(--cloud-dancer)_38%,transparent_60%)]"
-        />
-        <img
-          src="/brand/corner-motif-rosa.svg"
-          alt=""
-          aria-hidden="true"
-          className="absolute top-0 right-0 w-14 opacity-70 sm:w-20"
         />
         <div className="mt-auto flex max-w-md flex-col items-start gap-4 p-6 sm:my-auto sm:p-10">
           <p className="etiqueta text-cacao">Pilates · Ballet</p>

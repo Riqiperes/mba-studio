@@ -76,7 +76,7 @@ export function AcademyGroupCard({
       </div>
 
       {requestSent && (
-        <p role="status" className="mb-4 flex items-start gap-2 rounded-control bg-suave p-3 text-pequeno text-exito">
+        <p role="status" className="exito-entra mb-4 flex items-start gap-2 rounded-control bg-suave p-3 text-pequeno text-exito">
           <CircleCheck className="mt-px h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
           {requestSent === "enroll"
             ? "Solicitud enviada. El staff la revisará pronto."

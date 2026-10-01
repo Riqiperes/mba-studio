@@ -778,6 +778,29 @@ Solo interfaz: servicios, hooks, rutas, RLS y migraciones sin cambios. Plan y bi
 - **Móvil**: `viewport-fit=cover` y áreas seguras, sin destello al tocar, `touch-action: manipulation`, inputs de 16px en pantallas táctiles, `theme-color` por esquema; sin desborde horizontal a 320 y 390 px en todas las rutas.
 - **Pendiente de la fase**: 0.5 (archivos huérfanos `HomePage.tsx` y `ClassesFilterBar.tsx`) y 0.7 (`apple-touch-icon`). Sin enlaces legales (D6) porque aún no existen esas páginas.
 - **Observado sin cambiar (funcionamiento)**: `/my-bookings` y `/classes/:id` no tienen enlace visible en la app; "Cancelar" en Horarios no pide confirmación (en Mi horario sí); `formatWeekStartKey` usa fecha UTC; el cupo del calendario solo cuenta las reservas propias.
+- **Animaciones (2026-09-27)**: entrada del contenido al terminar de cargar y de las alertas, "solicitud enviada" de Academia más expresiva (único momento de "delight"), semana de Horarios (`WeekSelector` + `ClassesCalendar`) con deslizamiento direccional, saldo de créditos que destaca solo cuando cambia por una acción real (reservar/cancelar), nunca en la carga inicial. Detalle en la bitácora de `docs/frontend/plan-de-accion-frontend.md`.
+- **Correcciones (2026-09-29)**: el monograma dentro del recuadro de la
+  bailarina en Inicio se quitó (el de la esquina de la página, fijo en
+  `MainLayout`, se queda). Los 4 formularios de `apps/web` (perfil,
+  login/password, clase muestra, inscripción+pago) ya usaban
+  `TextField`/`SelectField`/`TextAreaField` con etiquetas visibles, así
+  que no necesitaron cambios (a diferencia de `apps/admin`, ver su propio
+  `CURRENT_STATE.md` en esa rama).
+- **Horario de escritorio en columnas (2026-09-29)**: `ClassesCalendar`
+  ahora muestra las 7 columnas completas (una por día) sin scroll
+  horizontal, alineadas debajo de la fila de días. Con varias clases en
+  un día, se apilan "en abanico" (solo se ve hora + nombre de cada una;
+  hover o clic la trae al frente y muestra instructor/duración/cupo/
+  acción; solo una puede quedar fija a la vez, clic fuera la cierra). Un
+  día con una sola clase se ve completa; uno sin clases dice "Sin
+  clases". Sin cambios en móvil (misma lista apilada de siempre).
+- **Rendimiento: reservar y unirse a lista de espera (2026-09-29)**:
+  `bookClass`/`joinWaitlist` (`bookingsService.ts`) usaban
+  `supabase.auth.getUser()` (revalida la sesión contra el servidor en
+  cada llamada) solo para leer el id del usuario, ya disponible sin red
+  vía `getSession()`; `joinWaitlist` también hacía una consulta aparte
+  para el `business_id` de la clase que el caller ya tiene en memoria.
+  Cada acción ahorra 1-2 vueltas de red completas.
 
 ### Rediseño visual de `apps/admin` (Fase 2.0 y Fase 2, rama `feat/admin-frontend`, 2026-09-24)
 

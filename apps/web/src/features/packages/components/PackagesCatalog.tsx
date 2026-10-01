@@ -28,14 +28,16 @@ export function PackagesCatalogPage() {
         <LoadingState id="packages-loading" message="Cargando paquetes…" />
       ) : packages.length === 0 ? (
         !error && (
-          <EmptyState
-            id="packages-empty"
-            title="Todavía no hay paquetes disponibles"
-            description="Vuelve pronto para ver las opciones del estudio."
-          />
+          <div className="entra">
+            <EmptyState
+              id="packages-empty"
+              title="Todavía no hay paquetes disponibles"
+              description="Vuelve pronto para ver las opciones del estudio."
+            />
+          </div>
         )
       ) : (
-        <div id="packages-grid" className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+        <div id="packages-grid" className="entra grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           {packages.map((pkg) => (
             <PackageCard key={pkg.id} pkg={pkg} />
           ))}

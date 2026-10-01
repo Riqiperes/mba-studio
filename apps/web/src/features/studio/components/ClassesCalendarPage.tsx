@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, type CSSProperties } from "react";
 import { useStudioClasses } from "@/features/studio/hooks/useStudioClasses";
 import { useMyBookings } from "@/features/bookings/hooks/useMyBookings";
 import { useMyCredits } from "@/features/credits/hooks/useMyCredits";
@@ -25,6 +25,12 @@ export function ClassesCalendarPage() {
   const today = new Date();
   const todayWeekStart = formatWeekStartKey(getWeekStart(today));
   const [weekStart, setWeekStart] = useState<string>(todayWeekStart);
+  const [weekDirection, setWeekDirection] = useState<1 | -1>(1);
+
+  function handleWeekChange(value: string) {
+    setWeekDirection(value >= weekStart ? 1 : -1);
+    setWeekStart(value);
+  }
 
   // Calcula dateFrom (Domingo) y dateTo (Sabado) a partir de weekStart
   const dateFrom = weekStart;
@@ -100,9 +106,9 @@ export function ClassesCalendarPage() {
     }
   }, [reloadBookings, reloadCredits]);
 
-  const handleJoinWaitlist = useCallback(async (classId: string) => {
+  const handleJoinWaitlist = useCallback(async (classId: string, businessId: string) => {
     try {
-      await joinWaitlist(classId);
+      await joinWaitlist(classId, businessId);
       await reloadBookings();
     } catch (err) {
       console.error("[classes] join waitlist fallo", err);
@@ -127,7 +133,7 @@ export function ClassesCalendarPage() {
         lead="Próximas clases de Pilates. Navega por semanas."
       />
 
-      <WeekSelector selectedWeekStart={weekStart} onChange={setWeekStart} />
+      <WeekSelector selectedWeekStart={weekStart} onChange={handleWeekChange} direction={weekDirection} />
 
       {error && (
         <div className="mb-6">
@@ -138,16 +144,18 @@ export function ClassesCalendarPage() {
       {isLoading ? (
         <LoadingState id="classes-loading" message="Cargando clases…" />
       ) : (
-        <ClassesCalendar
-          classes={classesWithState}
-          onBook={handleBook}
-          onCancel={handleCancel}
-          onJoinWaitlist={handleJoinWaitlist}
-          onLeaveWaitlist={handleLeaveWaitlist}
-          hasCredits={hasCredits}
-          loading={isLoading}
-          weekStart={weekStart}
-        />
+        <div key={weekStart} className="semana-entra" style={{ "--dir": weekDirection } as CSSProperties}>
+          <ClassesCalendar
+            classes={classesWithState}
+            onBook={handleBook}
+            onCancel={handleCancel}
+            onJoinWaitlist={handleJoinWaitlist}
+            onLeaveWaitlist={handleLeaveWaitlist}
+            hasCredits={hasCredits}
+            loading={isLoading}
+            weekStart={weekStart}
+          />
+        </div>
       )}
     </div>
   );

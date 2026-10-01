@@ -78,17 +78,19 @@ export function MyBookingsPage() {
         {loading ? (
           <LoadingState message="Cargando…" />
         ) : bookings.length === 0 ? (
-          <EmptyState
-            title="No tienes reservaciones"
-            description="Explora las clases disponibles y reserva tu lugar."
-            action={
-              <Link to="/classes" className={buttonClasses("primary", "md")}>
-                Ver horarios
-              </Link>
-            }
-          />
+          <div className="entra">
+            <EmptyState
+              title="No tienes reservaciones"
+              description="Explora las clases disponibles y reserva tu lugar."
+              action={
+                <Link to="/classes" className={buttonClasses("primary", "md")}>
+                  Ver horarios
+                </Link>
+              }
+            />
+          </div>
         ) : (
-          <div className="space-y-3" id="my-bookings-list">
+          <div className="entra space-y-3" id="my-bookings-list">
             {bookings.map((booking) => (
               <BookingCard
                 key={booking.id}
@@ -107,9 +109,9 @@ export function MyBookingsPage() {
         </h2>
 
         {waitlist.length === 0 ? (
-          <p className="rounded-card bg-suave px-5 py-4 text-cuerpo text-texto-suave">No estás en ninguna lista de espera.</p>
+          <p className="entra rounded-card bg-suave px-5 py-4 text-cuerpo text-texto-suave">No estás en ninguna lista de espera.</p>
         ) : (
-          <div className="space-y-3" id="my-waitlist-list">
+          <div className="entra space-y-3" id="my-waitlist-list">
             {waitlist.map((entry) => (
               <WaitlistCard
                 key={entry.id}
