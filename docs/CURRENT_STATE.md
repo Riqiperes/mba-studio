@@ -3,7 +3,28 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-09-29 (`apps/admin`: header que no se remonta + formularios con etiquetas y controles de marca):
+Ultima actualizacion: 2026-10-02 (rama `feat/auth-ux-theme-medical-details`):
+- **Contrasena en `apps/web`**: boton mostrar/ocultar en login y registro;
+  en el registro, lista en vivo de requisitos (8+ caracteres, una letra, un
+  numero) que es la misma regla que valida `zod`. Falta exigirla tambien en
+  Supabase (Dashboard, ver `docs/authentication.md`).
+- **Tema claro/oscuro**: `ThemeToggleButton` en header y login de web y
+  admin; la eleccion se guarda en `localStorage` (`mba-theme`), sin eleccion
+  sigue al sistema. `BrandLogo` cambia de logo tambien con el tema forzado.
+- **Reservados de una clase (admin)**: el nombre del cliente lleva a
+  `/customers/:id` y, solo si tiene condiciones medicas registradas, se
+  muestran debajo del nombre. Tambien en "Mis clases" del instructor.
+- **Correo de confirmacion**: plantilla con la marca en
+  `supabase/templates/confirm-signup.html`; se pega a mano en el Dashboard
+  de cada proyecto, y conviene SMTP propio antes de produccion (pasos en
+  `docs/authentication.md`).
+
+Release `release/design-sin-stripe` (2026-10-03): `main` recibe el rediseno
+de `develop` hasta antes de Stripe (PR #23) mas los commits de #25 (cherry-pick).
+Stripe (#24) se queda solo en `develop` hasta que este probado en dev y
+configurado en prod.
+
+Actualizacion anterior: 2026-09-29 (`apps/admin`: header que no se remonta + formularios con etiquetas y controles de marca):
 - **`RequireAuth` + `App.tsx`**: cada ruta envolvia su propio `<AdminLayout>`,
   asi que el header (con el logo) se desmontaba y volvia a montar en cada
   navegacion -- causa real de que el logo del header "a veces" no cargara.
