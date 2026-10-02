@@ -1,16 +1,16 @@
 // Cancela la suscripcion de Stripe de una inscripcion de Academia. La
 // llama apps/admin cuando el staff da de baja a un alumno
 // (withdrawEnrollment) para no seguir cobrandole la colegiatura mensual.
-// Solo puede cancelar la suscripcion de una inscripcion que el usuario que
-// llama puede leer via RLS (staff del negocio, o el propio tutor del
-// alumno) -- ver academy_enrollments RLS en supabase/migrations/.
+// Solo staff (STAFF/BUSINESS_ADMIN/SUPER_ADMIN), y solo de una inscripcion
+// que puede leer via RLS -- ver academy_enrollments RLS en
+// supabase/migrations/.
 import Stripe from "npm:stripe@22.6.2";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { handleCorsPreflight } from "../_shared/cors.ts";
 import { jsonResponse, errorResponse } from "../_shared/responses.ts";
 import { logError } from "../_shared/logger.ts";
 
-const STRIPE_API_VERSION = "2026-06-24.dahlia" as const;
+const STRIPE_API_VERSION = "2026-08-26.dahlia" as const;
 
 interface CancelBody {
   enrollmentId: string;
@@ -54,6 +54,14 @@ Deno.serve(async (req) => {
   const supabaseAsUser = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: authHeader } },
   });
+
+  // Solo staff: el tutor tambien puede LEER su inscripcion via RLS, y sin
+  // este chequeo podria cancelar su colegiatura y seguir ACTIVA sin pagar.
+  // Mismos roles que la policy academy_enrollments_manage_staff.
+  const { data: role } = await supabaseAsUser.rpc("current_user_role");
+  if (role !== "STAFF" && role !== "BUSINESS_ADMIN" && role !== "SUPER_ADMIN") {
+    return errorResponse("No autorizado", 403);
+  }
 
   const { data: enrollment, error: fetchError } = await supabaseAsUser
     .from("academy_enrollments")
