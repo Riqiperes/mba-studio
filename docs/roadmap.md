@@ -58,9 +58,9 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
          staff), alta de alumno inline, clase muestra (`MUESTRA`), y badge
          de solicitudes nuevas para el staff en `apps/admin`. Cuota de
          inscripción conectada a Stripe Checkout en modo test (2026-09-17,
-         migración `030_academy_registration_stripe.sql`), reemplazando el
+         migración `031_academy_registration_stripe.sql`), reemplazando el
          pago dummy. Ampliado (2026-09-28, migración
-         `031_academy_tuition_stripe_auto_activation.sql`): colegiatura
+         `032_academy_tuition_stripe_auto_activation.sql`): colegiatura
          mensual recurrente via Stripe Subscriptions para grupos con
          `academy_tuition_periods` configurado (cobro automático el día 1
          de cada mes), y activación automática de la solicitud sin esperar

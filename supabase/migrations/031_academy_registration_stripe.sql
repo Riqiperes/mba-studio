@@ -1,4 +1,4 @@
--- supabase/migrations/030_academy_registration_stripe.sql
+-- supabase/migrations/031_academy_registration_stripe.sql
 -- Conecta el cobro de la cuota de inscripcion de Academia a Stripe Checkout
 -- (etapa 14 del roadmap), reemplazando el pago dummy de 027/028. Ver
 -- docs/payments.md y docs/superpowers/specs/2026-09-09-academy-self-enrollment-and-admin-visibility-design.md.

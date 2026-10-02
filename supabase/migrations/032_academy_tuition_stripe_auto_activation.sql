@@ -1,4 +1,4 @@
--- supabase/migrations/031_academy_tuition_stripe_auto_activation.sql
+-- supabase/migrations/032_academy_tuition_stripe_auto_activation.sql
 -- Colegiatura recurrente por Stripe Subscriptions + activacion automatica
 -- de la cuota de inscripcion (sin esperar aprobacion del staff) cuando hay
 -- cupo. Ver docs/payments.md.

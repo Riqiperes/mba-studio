@@ -131,8 +131,8 @@ el patron general de manejo de errores (ver `docs/security.md`).
 ## Estado actual
 
 Implementado para la cuota de inscripción de Academia + colegiatura
-mensual recurrente (migraciones `030_academy_registration_stripe.sql` y
-`031_academy_tuition_stripe_auto_activation.sql`, Edge Functions
+mensual recurrente (migraciones `031_academy_registration_stripe.sql` y
+`032_academy_tuition_stripe_auto_activation.sql`, Edge Functions
 `supabase/functions/stripe-checkout/`, `supabase/functions/stripe-webhook/`
 y `supabase/functions/stripe-cancel-subscription/`). Idempotencia via
 tabla `stripe_events`. Modo test de Stripe. Pendiente: cargar
