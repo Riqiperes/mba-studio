@@ -13,5 +13,11 @@ export type Booking = {
   updatedAt: string;
 };
 
-/** Usado en la tabla de reservados de una clase, con el nombre del cliente. */
-export type BookingWithCustomer = Booking & { customerName: string | null };
+/**
+ * Usado en la tabla de reservados de una clase, con el nombre del cliente
+ * y sus condiciones medicas (null si no tiene ninguna registrada).
+ */
+export type BookingWithCustomer = Booking & {
+  customerName: string | null;
+  customerMedicalConditions: string | null;
+};
