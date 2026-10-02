@@ -36,25 +36,45 @@ export async function listMyAcademyEnrollments(): Promise<MyAcademyEnrollment[]>
 }
 
 /**
- * Cuota de inscripcion DUMMY: marca registration_fee_paid=true sin pasar
- * por Stripe. Reemplazar cuando la etapa 14 (Stripe) conecte un cobro
- * real -- ver docs/superpowers/specs/2026-09-09-academy-self-enrollment-and-admin-visibility-design.md.
+ * Crea la solicitud de inscripcion en estado PENDIENTE, sin cuota pagada
+ * todavia. El cobro real se hace despues via Stripe Checkout
+ * (createRegistrationCheckoutSession) -- el pago solo lo confirma
+ * stripe-webhook, nunca este insert.
  */
 export async function createEnrollmentRequest(
   businessId: string,
   dependentId: string,
   groupId: string,
-): Promise<void> {
-  const { error } = await supabase.from("academy_enrollments").insert({
-    business_id: businessId,
-    dependent_id: dependentId,
-    group_id: groupId,
-    status: "PENDIENTE",
-    registration_fee_paid: true,
-    registration_fee_paid_at: new Date().toISOString(),
-  });
+): Promise<string> {
+  const { data, error } = await supabase
+    .from("academy_enrollments")
+    .insert({
+      business_id: businessId,
+      dependent_id: dependentId,
+      group_id: groupId,
+      status: "PENDIENTE",
+    })
+    .select("id")
+    .single();
 
   if (error) throw error;
+  return data.id;
+}
+
+/**
+ * Pide a la Edge Function stripe-checkout una Checkout Session de Stripe
+ * para la cuota de inscripcion de `enrollmentId` y devuelve la URL de
+ * redireccion. Ver docs/payments.md.
+ */
+export async function createRegistrationCheckoutSession(enrollmentId: string): Promise<string> {
+  const { data, error } = await supabase.functions.invoke<{ url?: string; error?: string }>(
+    "stripe-checkout",
+    { body: { enrollmentId } },
+  );
+
+  if (error) throw error;
+  if (!data?.url) throw new Error(data?.error ?? "No se pudo iniciar el pago");
+  return data.url;
 }
 
 export async function createTrialClassRequest(

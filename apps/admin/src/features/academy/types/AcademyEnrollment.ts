@@ -9,7 +9,7 @@ export type AcademyEnrollment = {
   dependentId: string;
   groupId: string;
   enrollmentDate: string;
-  status: "ACTIVA" | "BAJA" | "PENDIENTE" | "MUESTRA";
+  status: "ACTIVA" | "BAJA" | "PENDIENTE" | "MUESTRA" | "RECHAZADA";
   scheduleId: string | null;
   trialDate: string | null;
   registrationFeePaid: boolean;

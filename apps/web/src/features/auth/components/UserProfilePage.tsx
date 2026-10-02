@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { CircleAlert, CircleCheck } from "lucide-react";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { updateProfile } from "@/features/auth/services/authService";
@@ -16,6 +16,7 @@ const STATUS_LABELS: Record<string, string> = {
   ACTIVA: "Activa",
   BAJA: "Inactiva",
   MUESTRA: "Clase muestra solicitada",
+  RECHAZADA: "Rechazada (sin cupo, reembolsado)",
 };
 
 // Color del texto y del punto por estado; siempre acompanado de la etiqueta.
@@ -24,6 +25,7 @@ const STATUS_TONES: Record<string, { text: string; dot: string }> = {
   ACTIVA: { text: "text-exito", dot: "bg-exito" },
   BAJA: { text: "text-texto-suave", dot: "bg-texto-suave" },
   MUESTRA: { text: "text-acento", dot: "bg-acento" },
+  RECHAZADA: { text: "text-alerta", dot: "bg-alerta" },
 };
 
 export function UserProfilePage() {
@@ -34,6 +36,8 @@ export function UserProfilePage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const { enrollments, loading: enrollmentsLoading } = useMyAcademyEnrollments();
+  const [searchParams] = useSearchParams();
+  const paymentProcessing = searchParams.get("pago") === "procesando";
 
   useEffect(() => {
     if (profile) {
@@ -80,6 +84,18 @@ export function UserProfilePage() {
           <SignOutButton />
         </header>
       </div>
+
+      {paymentProcessing && (
+        <p
+          id="registration-payment-processing"
+          role="status"
+          className="alerta-entra flex items-start gap-2 rounded-control bg-suave p-3 text-pequeno text-exito"
+        >
+          <CircleCheck className="mt-px h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+          ¡Pago recibido! Estamos confirmando tu inscripción: si hay cupo se activa al instante, y si ya no hay
+          lugar te reembolsamos automáticamente. Revisa el estado en "Mis alumnos e inscripciones" en unos segundos.
+        </p>
+      )}
 
       <Card>
         <CardContent className="space-y-6">

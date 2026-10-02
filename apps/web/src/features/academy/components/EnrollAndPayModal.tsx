@@ -20,7 +20,6 @@ type Props = {
   groupName: string;
   registrationFeeCents: number | null;
   onClose: () => void;
-  onSuccess: () => void;
 };
 
 export function EnrollAndPayModal({
@@ -29,7 +28,6 @@ export function EnrollAndPayModal({
   groupName,
   registrationFeeCents,
   onClose,
-  onSuccess,
 }: Props) {
   const { profile } = useAuth();
   const { dependents, loading: dependentsLoading, create } = useMyDependents();
@@ -91,11 +89,12 @@ export function EnrollAndPayModal({
     }
     setFormError(null);
     try {
+      // enroll() redirige el navegador a Stripe Checkout al terminar; el
+      // exito real (registration_fee_paid) lo confirma stripe-webhook, no
+      // este flujo -- por eso no hay onSuccess()/onClose() aqui.
       await enroll(profile.businessId, dependentId, groupId);
-      onSuccess();
-      onClose();
     } catch (err) {
-      setFormError(getErrorMessage(err, "No se pudo enviar la solicitud."));
+      setFormError(getErrorMessage(err, "No se pudo iniciar el pago de la inscripción."));
     }
   }
 
@@ -123,10 +122,11 @@ export function EnrollAndPayModal({
     >
       <div className="flex flex-col gap-4">
         <p className="rounded-control bg-suave p-3 text-pequeno text-texto-suave text-pretty">
-          Tu solicitud queda pendiente de aprobación por el staff. La cuota de inscripción es de{" "}
-          <span className="font-medium text-texto">{formatCents(registrationFeeCents)}</span>.{" "}
-          <strong className="font-medium text-texto">Este es un pago de prueba</strong>, todavía no procesamos cobros
-          reales — el staff confirmará el pago cuando revise tu solicitud.
+          El pago se hace ahora mismo con Stripe: si el grupo tiene colegiatura mensual se cobra solo la
+          mensualidad, si no, la cuota de inscripción única de{" "}
+          <span className="font-medium text-texto">{formatCents(registrationFeeCents)}</span>. El monto exacto se
+          confirma en la pantalla segura de pago antes de cobrar. Si hay cupo disponible tu inscripción se activa al
+          instante; si ya no hay lugar, te reembolsamos automáticamente.
         </p>
 
         {dependentsLoading ? (

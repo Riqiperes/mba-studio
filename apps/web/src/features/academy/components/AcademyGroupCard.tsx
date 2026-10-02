@@ -45,7 +45,7 @@ export function AcademyGroupCard({
   const navigate = useNavigate();
   const [enrollModalOpen, setEnrollModalOpen] = useState(false);
   const [trialModalOpen, setTrialModalOpen] = useState(false);
-  const [requestSent, setRequestSent] = useState<"enroll" | "trial" | null>(null);
+  const [requestSent, setRequestSent] = useState<"trial" | null>(null);
 
   function requireSession(open: () => void) {
     if (!session) {
@@ -75,12 +75,10 @@ export function AcademyGroupCard({
         </p>
       </div>
 
-      {requestSent && (
+      {requestSent === "trial" && (
         <p role="status" className="exito-entra mb-4 flex items-start gap-2 rounded-control bg-suave p-3 text-pequeno text-exito">
           <CircleCheck className="mt-px h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
-          {requestSent === "enroll"
-            ? "Solicitud enviada. El staff la revisará pronto."
-            : "Clase muestra solicitada. El staff confirmará tu lugar."}
+          Clase muestra solicitada. El staff confirmará tu lugar.
         </p>
       )}
 
@@ -120,7 +118,6 @@ export function AcademyGroupCard({
           groupName={group.name}
           registrationFeeCents={registrationFeeCents}
           onClose={() => setEnrollModalOpen(false)}
-          onSuccess={() => setRequestSent("enroll")}
         />
       )}
       {trialModalOpen && (

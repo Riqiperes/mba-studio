@@ -55,13 +55,21 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
     18f. **Academia — Inscripción propia en `apps/web` (self-service).**
          Implementado (2026-09-09, migración `027_academy_self_enrollment.sql`):
          solicitud de inscripción real (`PENDIENTE`, requiere aprobación de
-         staff), alta de alumno inline, clase muestra (`MUESTRA`), cuota de
-         inscripción con botón de pago **dummy** (sin Stripe todavía), y
-         badge de solicitudes nuevas para el staff en `apps/admin`. Pendiente
-         real: conectar el cobro de inscripción y de colegiatura a Stripe
-         Checkout cuando la etapa 14 esté lista (ver "Cobro automático" en
-         el spec). Spec completo:
-         `docs/superpowers/specs/2026-09-09-academy-self-enrollment-and-admin-visibility-design.md`.
+         staff), alta de alumno inline, clase muestra (`MUESTRA`), y badge
+         de solicitudes nuevas para el staff en `apps/admin`. Cuota de
+         inscripción conectada a Stripe Checkout en modo test (2026-09-17,
+         migración `031_academy_registration_stripe.sql`), reemplazando el
+         pago dummy. Ampliado (2026-09-28, migración
+         `032_academy_tuition_stripe_auto_activation.sql`): colegiatura
+         mensual recurrente via Stripe Subscriptions para grupos con
+         `academy_tuition_periods` configurado (cobro automático el día 1
+         de cada mes), y activación automática de la solicitud sin esperar
+         al staff cuando hay cupo (reembolso automático si ya no lo hay,
+         estado nuevo `RECHAZADA`). El cobro manual (efectivo/transferencia)
+         sigue disponible en paralelo. Ver `docs/payments.md`,
+         `docs/business-rules.md` y `docs/CURRENT_STATE.md` para lo que
+         falta desplegar/configurar antes de la primera prueba real.
+         Spec original: `docs/superpowers/specs/2026-09-09-academy-self-enrollment-and-admin-visibility-design.md`.
 
 19. **Politicas de cancelacion y creditos (Studio):**
     - Ventana de 8 horas antes de la clase para cancelar y recuperar credito.

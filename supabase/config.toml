@@ -1,0 +1,7 @@
+project_id = "eazyblybekyygimqpjjw"
+
+# Stripe llama a este endpoint directamente (server-to-server): no manda un
+# JWT de Supabase, la autenticidad se verifica con la firma de Stripe
+# (STRIPE_WEBHOOK_SECRET) dentro de la funcion. Ver docs/payments.md.
+[functions.stripe-webhook]
+verify_jwt = false

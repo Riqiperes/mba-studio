@@ -3,7 +3,30 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-09-29 (`apps/admin`: header que no se remonta + formularios con etiquetas y controles de marca):
+Ultima actualizacion: 2026-10-02 (integracion de Stripe para Academia con el rediseno):
+- Rama `feat/academy-stripe-checkout-integration` = `feat/academy-registration-stripe-checkout`
+  + `develop` (rediseno web/admin y "Nuevo cliente"). Conflictos resueltos en
+  `AcademyGroupCard`, `EnrollAndPayModal` y `UserProfilePage`: diseno nuevo con el
+  flujo de Stripe (sin `onSuccess`, aviso `?pago=procesando`, estado `RECHAZADA`).
+- Migraciones renumeradas para no chocar con `030_customers_without_account.sql`:
+  `031_academy_registration_stripe.sql` y `032_academy_tuition_stripe_auto_activation.sql`.
+  En el proyecto de dev (`eazyblybekyygimqpjjw`) su contenido ya estaba aplicado a mano
+  (no aparece en el historial de migraciones); en produccion (`nnabpthdclgggpxysyxs`)
+  NO estan aplicadas.
+- `stripe-webhook`: los errores de DB ahora lanzan (500) y se libera el `event.id` de
+  `stripe_events`, para que Stripe reintente en vez de perder un pago. Lectura de
+  suscripcion e intento de pago adaptada a la API `dahlia` (`invoice.parent.subscription_details`,
+  `invoice.payments`); antes las facturas de colegiatura se ignoraban y no se podia
+  reembolsar en modo suscripcion. `STRIPE_API_VERSION` = `2026-08-26.dahlia` (la del SDK
+  `stripe@22.6.2`) en las 3 funciones; `deno check` pasa.
+- `stripe-cancel-subscription`: solo STAFF/BUSINESS_ADMIN/SUPER_ADMIN (antes el tutor
+  podia cancelar su propia colegiatura y seguir ACTIVA).
+- Pendiente antes de produccion: aplicar 031/032 en prod, desplegar las 3 funciones con
+  sus secretos y registrar el webhook. Los bloques de codigo de
+  `docs/stripe-test-deploy.md` y `docs/stripe-rollout-checklist.md` estan desactualizados;
+  la fuente de verdad es `supabase/functions/`.
+
+Actualizacion anterior: 2026-09-29 (`apps/admin`: header que no se remonta + formularios con etiquetas y controles de marca):
 - **`RequireAuth` + `App.tsx`**: cada ruta envolvia su propio `<AdminLayout>`,
   asi que el header (con el logo) se desmontaba y volvia a montar en cada
   navegacion -- causa real de que el logo del header "a veces" no cargara.
@@ -763,7 +786,7 @@ otro negocio (Studio packages, bookings, Academia) implementado todavia.
   - Ya reservado → badge "Reservado" + "Cancelar" (RPC `cancel_booking`, devuelve crédito)
 - **Mi horario** (`/my-bookings`): lista de reservaciones activas con botón cancelar, lista de espera con posición FIFO y botón salir, créditos disponibles.
 - **Perfil** (`/profile`): ver/editar nombre y teléfono, muestra email, rol, fecha de registro, botón cerrar sesión.
-- **Academia** (`/academy`): catálogo público de grupos con inscripción propia — "Inscribir y pagar inscripción" (crea alumno inline si hace falta, INSERT con `status='PENDIENTE'` y cuota de inscripción marcada como pagada — **pago dummy, sin Stripe todavía**) y "Agendar clase muestra" (`status='MUESTRA'`, sin costo); WhatsApp queda como alternativa secundaria. `/profile` gana la sección "Mis alumnos e inscripciones" con el estado de cada solicitud.
+- **Academia** (`/academy`): catálogo público de grupos con inscripción propia — "Pagar inscripción e inscribir" (crea alumno inline si hace falta, INSERT con `status='PENDIENTE'` y `registration_fee_paid=false`, luego redirige a Stripe Checkout hosted para cobrar la cuota — **Stripe test mode, migraciones `031_academy_registration_stripe.sql` y `032_academy_tuition_stripe_auto_activation.sql`**; si el grupo tiene colegiatura configurada, la misma sesión de pago arranca una suscripción mensual recurrente) y "Agendar clase muestra" (`status='MUESTRA'`, sin costo); WhatsApp queda como alternativa secundaria. El pago solo lo confirma `stripe-webhook`, nunca el frontend: si hay cupo la inscripción se activa al instante (`ACTIVA`), si no se reembolsa automáticamente (`RECHAZADA`). `/profile` gana la sección "Mis alumnos e inscripciones" con el estado de cada solicitud (incluye `RECHAZADA`), más un banner tras volver de Stripe (`?pago=procesando`/`?pago=cancelado`) que ya no promete éxito incondicional, porque el resultado real lo decide el webhook después del redirect.
 - **Navegación inferior fija** (mobile-first): Inicio, Paquetes, Horarios, Academia, Usuario.
 - **Auth**: Google OAuth + email/password, `RequireAuth` con carga de perfil, `signOut` en contexto.
 - **Créditos**: balance visible en nav y páginas, se actualiza tras reservar/cancelar.
@@ -839,8 +862,40 @@ Solo interfaz: servicios, hooks, rutas, permisos por rol, RLS y migraciones sin 
   dashboard, no disponible en este entorno). Plan (dos proyectos, Root
   directory = raiz del repo, preview deployments automaticos por commit,
   rama de produccion = `main`) documentado ahi mismo.
-- Stripe y Google OAuth: documentados en `docs/` pero sin credenciales
-  reales todavia.
+- **Stripe (test mode)**: cuota de inscripción de Academia probada de
+  extremo a extremo en desarrollo (pago de prueba con tarjeta
+  `4242 4242 4242 4242`, solicitud aprobada en `apps/admin`) usando las
+  versiones "autocontenidas" de `stripe-checkout`/`stripe-webhook` pegadas
+  directo en el Dashboard de Supabase (ver `docs/stripe-test-deploy.md`).
+  Ampliado el 2026-09-28 (migración
+  `032_academy_tuition_stripe_auto_activation.sql`) con: colegiatura
+  mensual recurrente via Stripe Subscriptions (grupos con
+  `academy_tuition_periods` activo, cobro el día 1 de cada mes),
+  activación automática de la inscripción sin esperar al staff cuando hay
+  cupo (reembolso automático + estado `RECHAZADA` si ya no hay lugar), y
+  una tercera función `stripe-cancel-subscription` (cancela la suscripción
+  al dar de baja a un alumno en `apps/admin`, para no seguir cobrando).
+  Ver `docs/payments.md` para el diseño completo.
+  **Pendiente antes de volver a probar** (el código de las 3 funciones
+  cambió sustancialmente desde la última prueba, hay que re-pegarlas en el
+  Dashboard con las versiones nuevas de `docs/stripe-test-deploy.md`):
+  1) re-desplegar las 3 funciones (`stripe-checkout`, `stripe-webhook`,
+  `stripe-cancel-subscription` — esta última es nueva, con JWT verification
+  activado); 2) agregar los eventos `invoice.paid` e
+  `invoice.payment_failed` al webhook endpoint ya existente en el
+  dashboard de Stripe (antes solo escuchaba `checkout.session.completed`);
+  3) configurar `academy_tuition_periods` para los grupos de Ballet
+  ($900 MXN/mes) vía SQL Editor o la UI de admin si ya existe; 4) probar
+  de nuevo con tarjeta de test, confirmando activación instantánea con
+  cupo disponible. Claves de test ya cargadas (`sk_test_...` como secret
+  de Supabase, `pk_test_...` en `apps/web/.env`, sin uso en código —
+  checkout es hosted). Se obtuvo también una clave `sk_live_...` de
+  producción — **guardada aparte, sin usar**, hasta que el sitio esté
+  publicado en Cloudflare Pages y listo para cobros reales (ver bloqueador
+  de Cloudflare Pages arriba). El `supabase` CLI de esta máquina sigue
+  logueado a otra cuenta, por eso el despliegue es manual vía Dashboard.
+  Google OAuth: documentado en `docs/` pero sin credenciales reales
+  todavia.
 - **WhatsApp / Notifications (primeras Edge Functions reales del repo)**:
   `supabase/functions/_shared/whatsapp/` (interfaz `WhatsAppProvider` +
   `MockWhatsAppProvider` + `getWhatsAppProvider()` por `WHATSAPP_PROVIDER`),
