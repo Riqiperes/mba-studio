@@ -11,7 +11,7 @@ const priceFormatter = new Intl.NumberFormat("es-MX", { style: "currency", curre
 
 export function PackagesGrid({ packages, onEdit, onToggleActive, onDelete }: Props) {
   if (packages.length === 0) {
-    return <p className="text-sm text-gray-500">Todavia no hay paquetes.</p>;
+    return <p className="vacio">Todavía no hay paquetes.</p>;
   }
 
   return (
@@ -20,33 +20,42 @@ export function PackagesGrid({ packages, onEdit, onToggleActive, onDelete }: Pro
         <article
           key={pkg.id}
           id={`admin-package-card-${pkg.id}`}
-          onClick={() => onEdit(pkg)}
-          className="flex cursor-pointer flex-col rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+          className="relative flex flex-col rounded-card border border-borde bg-tarjeta p-6 shadow-card transition-colors duration-200 hover:border-acento/40"
         >
           <div className="mb-4 flex flex-col gap-1">
-            <h3 className="text-lg font-semibold text-brand-primary">{pkg.name}</h3>
-            {pkg.description && <p className="text-sm text-gray-600">{pkg.description}</p>}
+            <h3 className="font-display text-subtitulo font-medium text-texto">
+              {/* Toda la tarjeta abre la edicion (como antes); ahora tambien con teclado */}
+              <button
+                type="button"
+                onClick={() => onEdit(pkg)}
+                aria-label={`Editar paquete ${pkg.name}`}
+                className="text-start after:absolute after:inset-0 after:rounded-card after:content-['']"
+              >
+                {pkg.name}
+              </button>
+            </h3>
+            {pkg.description && <p className="text-sm text-texto-suave">{pkg.description}</p>}
           </div>
 
-          <div className="mb-4 flex items-center gap-2 text-sm text-gray-700">
-            <span className="font-medium">{pkg.credits} creditos</span>
-            <span className="text-gray-400">·</span>
-            <span>{pkg.validDays ? `${pkg.validDays} dias` : "Sin vencimiento"}</span>
+          <div className="mb-4 flex items-center gap-2 text-sm text-texto">
+            <span className="font-medium">{pkg.credits} créditos</span>
+            <span className="text-texto-suave">·</span>
+            <span>{pkg.validDays ? `${pkg.validDays} días` : "Sin vencimiento"}</span>
           </div>
 
-          <div className="mt-auto flex items-end justify-between border-t border-gray-100 pt-4">
+          <div className="mt-auto flex items-end justify-between border-t border-borde pt-4">
             <div>
-              <p className="text-2xl font-bold text-brand-primary">
+              <p className="font-display text-precio font-medium tabular-nums text-texto">
                 {priceFormatter.format(pkg.priceCents / 100)}
               </p>
-              <p className="text-xs text-gray-500">Pago unico</p>
+              <p className="text-pequeno text-texto-suave">Pago único</p>
             </div>
-            <div className="flex flex-col items-end gap-1">
+            <div className="relative z-10 flex flex-col items-end gap-1">
               <span
                 className={
                   pkg.active
-                    ? "rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700"
-                    : "rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500"
+                    ? "rounded-full bg-suave px-2 py-0.5 text-pequeno text-exito"
+                    : "rounded-full bg-suave px-2 py-0.5 text-pequeno text-texto-suave"
                 }
               >
                 {pkg.active ? "Activo" : "Inactivo"}
@@ -57,7 +66,7 @@ export function PackagesGrid({ packages, onEdit, onToggleActive, onDelete }: Pro
                   event.stopPropagation();
                   onToggleActive(pkg);
                 }}
-                className="text-xs text-gray-600 hover:underline"
+                className="accion text-texto-suave"
               >
                 {pkg.active ? "Desactivar" : "Activar"}
               </button>
@@ -67,7 +76,7 @@ export function PackagesGrid({ packages, onEdit, onToggleActive, onDelete }: Pro
                   event.stopPropagation();
                   onDelete(pkg);
                 }}
-                className="text-xs text-red-600 hover:underline"
+                className="accion text-alerta"
               >
                 Eliminar
               </button>

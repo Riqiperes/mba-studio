@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButton";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 
 export function LoginPage() {
   const { session, loading } = useAuth();
@@ -12,11 +13,23 @@ export function LoginPage() {
   return (
     <div
       id="login-page"
-      className="flex min-h-screen flex-col items-center justify-center gap-6 p-6"
+      className="relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-superficie px-4 py-10"
     >
-      <h1 className="text-2xl font-semibold text-brand-primary">MBA MID - Panel administrativo</h1>
-      <p className="text-gray-600">Inicia sesion para continuar</p>
-      <GoogleSignInButton />
+      <img
+        src="/brand/monograma-linea.svg"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-24 -bottom-16 -z-10 w-[min(620px,120vw)] max-w-none opacity-30"
+      />
+      <div className="flex w-full max-w-sm flex-col items-center gap-6">
+        <BrandLogo variant="vertical" alt="Merida Ballet Academy" className="h-28" />
+        <div className="w-full rounded-card border border-borde bg-tarjeta p-6 text-center shadow-card sm:p-8">
+          <p className="etiqueta">Panel administrativo</p>
+          <h1 className="mt-2 font-display text-titulo font-medium">MBA MID</h1>
+          <p className="mt-1 mb-6 text-cuerpo text-texto-suave">Inicia sesión para continuar</p>
+          <GoogleSignInButton />
+        </div>
+      </div>
     </div>
   );
 }

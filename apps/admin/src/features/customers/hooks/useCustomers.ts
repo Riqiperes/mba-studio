@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { getCustomer, listCustomers, updateCustomer } from "../services/customersService";
+import {
+  createCustomer,
+  getCustomer,
+  listCustomers,
+  updateCustomer,
+} from "../services/customersService";
 import type { Customer } from "../types/Customer";
 
 export function useCustomers() {
@@ -24,7 +29,12 @@ export function useCustomers() {
     reload();
   }, [reload]);
 
-  return { customers, loading, error, reload };
+  async function create(input: Parameters<typeof createCustomer>[0]) {
+    await createCustomer(input);
+    await reload();
+  }
+
+  return { customers, loading, error, reload, create };
 }
 
 export function useCustomer(id: string) {

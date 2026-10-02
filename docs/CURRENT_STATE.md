@@ -3,7 +3,55 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-09-15 (Primer proyecto Supabase de produccion + main listo para deploy):
+Ultima actualizacion: 2026-09-29 (`apps/admin`: header que no se remonta + formularios con etiquetas y controles de marca):
+- **`RequireAuth` + `App.tsx`**: cada ruta envolvia su propio `<AdminLayout>`,
+  asi que el header (con el logo) se desmontaba y volvia a montar en cada
+  navegacion -- causa real de que el logo del header "a veces" no cargara.
+  Ahora `RequireAuth` monta `AdminLayout` una sola vez como layout padre
+  (`<Outlet />`) y el chequeo de rol por pagina se separo en `RequireRole`.
+- **Formularios de `apps/admin`**: se agregaron etiquetas visibles donde
+  solo habia placeholder (`ClassFormModal` "Titulo"/"Cupo maximo",
+  instructor sin nombre, y lo mismo en `AcademyGroupFormModal`,
+  `InstructorFormModal`, `PackageFormModal`, `GrantCreditsModal`,
+  `ClassFiltersBar`, `BookCustomerModal`, `EnrollStudentModal`).
+  `ClassFormModal` ("Nueva clase") pasa a `TextField`/`SelectField` como
+  referencia para el resto. `index.css` gano reglas globales para que
+  todo campo `.campo` (select, number, date/time, checkbox/radio) siga la
+  marca en vez del estilo del navegador, en claro y oscuro.
+- Equivalente en `apps/web` (rama `feat/web-frontend`): banner de inicio
+  corregido ahi tambien; sus 4 formularios ya usaban
+  `TextField`/`SelectField`/`TextAreaField` y no necesitaron cambios.
+- **Calendario de clases en escritorio (`ClassesWeekGrid`)**: 7 columnas
+  fijas (una por dia), sin scroll horizontal. Con varias clases en un dia
+  se apilan "en abanico" (solo se ve titulo + hora; hover o clic trae la
+  carta al frente con instructor/cupo/estado y Editar/Cancelar/Eliminar;
+  una sola fija a la vez, clic fuera la cierra). Un dia con una clase se
+  ve completa; uno sin clases dice "Sin clases". Sin cambios en
+  movil/tablet. Mismo ajuste hecho en `apps/web` (`ClassesCalendar`).
+- **Rendimiento revisado**: no se encontro en `apps/admin` el patron de
+  `apps/web` (`supabase.auth.getUser()` de mas antes de una accion; ver
+  commit de perf en `feat/web-frontend`) -- aqui las mutaciones ya usan
+  `profile.businessId` del contexto de auth, sin llamada extra. La causa
+  mas probable del "tarda un segundo" en el panel era el remonte del
+  header en cada navegacion, ya corregido arriba.
+
+Ultima actualizacion anterior: 2026-09-23 (crear clientes de Studio sin cuenta desde `apps/admin`):
+- **Boton "Nuevo cliente" en `/customers`** (`CustomersPage`) abre
+  `CustomerCreateModal` (nombre obligatorio; telefono, condiciones medicas y
+  notas opcionales) para clientes que pagan/reservan en mostrador y no usan
+  el software. Llama a `customersService.createCustomer` -> RPC
+  `create_customer_without_account`.
+- **Migracion `030_customers_without_account.sql`** (aplicada el 2026-09-23
+  en `MBA-STUDIO` y `MBA-STUDIO-PROD`): quita el FK `profiles.id ->
+  auth.users`, pone default `gen_random_uuid()` y crea la RPC
+  `SECURITY DEFINER` (solo STAFF/BUSINESS_ADMIN/SUPER_ADMIN; fija
+  `role='CUSTOMER'` y `business_id` server-side; no hay policy de INSERT en
+  `profiles`). Consecuencias: borrar un usuario de Auth ya no borra su
+  profile, y si el cliente se registra despues obtiene un profile nuevo (no
+  se fusiona con el creado por el staff). `database.types.ts` de ambas apps
+  se edito a mano con la RPC; conviene regenerarlos.
+
+Ultima actualizacion anterior: 2026-09-15 (Primer proyecto Supabase de produccion + main listo para deploy):
 - **Se creo `MBA-STUDIO-PROD`** (`nnabpthdclgggpxysyxs`, `us-east-1`, plan
   gratuito), segundo proyecto de Supabase separado de `MBA-STUDIO`
   (desarrollo/staging), para poder mostrarle el MVP al cliente sin
@@ -713,12 +761,56 @@ otro negocio (Studio packages, bookings, Academia) implementado todavia.
   - Sin cupo + no en waitlist → "Unirse a lista de espera" (INSERT en `waitlist` con RLS own)
   - Sin cupo + en waitlist → badge posición + "Salir" (DELETE own)
   - Ya reservado → badge "Reservado" + "Cancelar" (RPC `cancel_booking`, devuelve crédito)
-- **Mi horario** (`/my-bookings`): lista de reservaciones activas con botón cancelar, lista de espera con posición FIFO y botón salir, badge de créditos (`💎 N`).
+- **Mi horario** (`/my-bookings`): lista de reservaciones activas con botón cancelar, lista de espera con posición FIFO y botón salir, créditos disponibles.
 - **Perfil** (`/profile`): ver/editar nombre y teléfono, muestra email, rol, fecha de registro, botón cerrar sesión.
 - **Academia** (`/academy`): catálogo público de grupos con inscripción propia — "Pagar inscripción e inscribir" (crea alumno inline si hace falta, INSERT con `status='PENDIENTE'` y `registration_fee_paid=false`, luego redirige a Stripe Checkout hosted para cobrar la cuota — **Stripe test mode, migraciones `030_academy_registration_stripe.sql` y `031_academy_tuition_stripe_auto_activation.sql`**; si el grupo tiene colegiatura configurada, la misma sesión de pago arranca una suscripción mensual recurrente) y "Agendar clase muestra" (`status='MUESTRA'`, sin costo); WhatsApp queda como alternativa secundaria. El pago solo lo confirma `stripe-webhook`, nunca el frontend: si hay cupo la inscripción se activa al instante (`ACTIVA`), si no se reembolsa automáticamente (`RECHAZADA`). `/profile` gana la sección "Mis alumnos e inscripciones" con el estado de cada solicitud (incluye `RECHAZADA`), más un banner tras volver de Stripe (`?pago=procesando`/`?pago=cancelado`) que ya no promete éxito incondicional, porque el resultado real lo decide el webhook después del redirect.
 - **Navegación inferior fija** (mobile-first): Inicio, Paquetes, Horarios, Academia, Usuario.
 - **Auth**: Google OAuth + email/password, `RequireAuth` con carga de perfil, `signOut` en contexto.
 - **Créditos**: balance visible en nav y páginas, se actualiza tras reservar/cancelar.
+
+### Rediseño visual de `apps/web` (Fase 0 y Fase 1, rama `feat/web-frontend`, 2026-09-24)
+
+Solo interfaz: servicios, hooks, rutas, RLS y migraciones sin cambios. Plan y bitácora completos en `docs/frontend/plan-de-accion-frontend.md`; guía visual en `docs/frontend/PROMPT.md` y kit de marca en `docs/frontend/brand/`.
+
+- **Sistema visual**: tokens de `PROMPT.md` en `apps/web/src/index.css` (paleta crema/arena/malva/vino/cacao, Fraunces + Jost, radios 8/14/22, sombras). Tema oscuro automático con `prefers-color-scheme` (forzable con `data-theme`); el banner con foto se queda claro (`.tema-claro`).
+- **Componentes base** (`apps/web/src/components/ui/`): `Button` (+ `buttonStyles.ts` para enlaces con forma de botón), `Card`, `BackButton`, `TextField`, `SelectField`, `TextAreaField`, `ModalDialog` (`<dialog>` nativo, hoja inferior en móvil), `LoadingState`, `EmptyState`, `ErrorState`, `ScreenHeader`, `BrandLogo`, `AppHeader`, `BottomNavigation` (iconos `lucide-react`).
+- **Pantallas rediseñadas**: Inicio (banner, accesos rápidos, "Dónde estamos" con mapa embebido de la dirección del negocio o recuadro reservado si no hay datos), Login/registro, Paquetes y detalle, Horarios (selector de semana + fila de días que salta a cada día) y detalle de clase, Academia (modales sobre `ModalDialog`), Mi horario, Perfil y nueva página 404 (ruta `*`).
+- **Móvil**: `viewport-fit=cover` y áreas seguras, sin destello al tocar, `touch-action: manipulation`, inputs de 16px en pantallas táctiles, `theme-color` por esquema; sin desborde horizontal a 320 y 390 px en todas las rutas.
+- **Pendiente de la fase**: 0.5 (archivos huérfanos `HomePage.tsx` y `ClassesFilterBar.tsx`) y 0.7 (`apple-touch-icon`). Sin enlaces legales (D6) porque aún no existen esas páginas.
+- **Observado sin cambiar (funcionamiento)**: `/my-bookings` y `/classes/:id` no tienen enlace visible en la app; "Cancelar" en Horarios no pide confirmación (en Mi horario sí); `formatWeekStartKey` usa fecha UTC; el cupo del calendario solo cuenta las reservas propias.
+- **Animaciones (2026-09-27)**: entrada del contenido al terminar de cargar y de las alertas, "solicitud enviada" de Academia más expresiva (único momento de "delight"), semana de Horarios (`WeekSelector` + `ClassesCalendar`) con deslizamiento direccional, saldo de créditos que destaca solo cuando cambia por una acción real (reservar/cancelar), nunca en la carga inicial. Detalle en la bitácora de `docs/frontend/plan-de-accion-frontend.md`.
+- **Correcciones (2026-09-29)**: el monograma dentro del recuadro de la
+  bailarina en Inicio se quitó (el de la esquina de la página, fijo en
+  `MainLayout`, se queda). Los 4 formularios de `apps/web` (perfil,
+  login/password, clase muestra, inscripción+pago) ya usaban
+  `TextField`/`SelectField`/`TextAreaField` con etiquetas visibles, así
+  que no necesitaron cambios (a diferencia de `apps/admin`, ver su propio
+  `CURRENT_STATE.md` en esa rama).
+- **Horario de escritorio en columnas (2026-09-29)**: `ClassesCalendar`
+  ahora muestra las 7 columnas completas (una por día) sin scroll
+  horizontal, alineadas debajo de la fila de días. Con varias clases en
+  un día, se apilan "en abanico" (solo se ve hora + nombre de cada una;
+  hover o clic la trae al frente y muestra instructor/duración/cupo/
+  acción; solo una puede quedar fija a la vez, clic fuera la cierra). Un
+  día con una sola clase se ve completa; uno sin clases dice "Sin
+  clases". Sin cambios en móvil (misma lista apilada de siempre).
+- **Rendimiento: reservar y unirse a lista de espera (2026-09-29)**:
+  `bookClass`/`joinWaitlist` (`bookingsService.ts`) usaban
+  `supabase.auth.getUser()` (revalida la sesión contra el servidor en
+  cada llamada) solo para leer el id del usuario, ya disponible sin red
+  vía `getSession()`; `joinWaitlist` también hacía una consulta aparte
+  para el `business_id` de la clase que el caller ya tiene en memoria.
+  Cada acción ahorra 1-2 vueltas de red completas.
+
+### Rediseño visual de `apps/admin` (Fase 2.0 y Fase 2, rama `feat/admin-frontend`, 2026-09-24)
+
+Solo interfaz: servicios, hooks, rutas, permisos por rol, RLS y migraciones sin cambios. Rama creada desde `feat/web-frontend`. Detalle en la bitácora de `docs/frontend/plan-de-accion-frontend.md`.
+
+- **Sistema visual**: mismos tokens que web en `apps/admin/src/index.css`, más clases base del panel: `.campo`, `.etiqueta-campo`, `.tabla-contenedor`/`.tabla`, `.accion`, `.vacio`. Tema oscuro automático.
+- **Componentes** (`apps/admin/src/components/ui/`): los de web más `ModalShell` (diálogo nativo para los formularios existentes), `HubLinkCard`, `FormMessages` y `ScreenHeader` con acciones.
+- **Layout**: `AdminLayout` con header fijo (logo, pestañas con icono según rol, cerrar sesión) y `RequireAuth` con pantallas de carga y "Sin acceso" en tarjeta.
+- **Accesibilidad**: tarjetas y filas que antes solo abrían con mouse ahora también con teclado; estado de pago con texto además de color.
+- **Animaciones (2026-09-27)**: entrada del contenido al terminar de cargar y de las alertas (70 lugares), fila nueva en tablas con fade, semana de Clases (`WeekSelector` + `ClassesWeekGrid`) con deslizamiento direccional (etiqueta + grilla juntas), saldo de créditos que destaca solo cuando cambia por una acción real (bug corregido: no debía destellar en la primera carga y sí lo hacía). Sin sincronizar todavía con los commits nuevos de `feat/web-frontend` (ver pendiente en `docs/frontend/plan-de-accion-frontend.md`).
 
 ## Integraciones configuradas
 
