@@ -1,5 +1,12 @@
 # Checklist: activar colegiatura recurrente + activacion automatica
 
+> **Codigo actualizado el 2026-10-02:** los bloques de codigo de este
+> archivo quedaron desactualizados (version de API de Stripe, lectura de
+> `invoice.parent.subscription_details` / `invoice.payments`, reintentos del
+> webhook y chequeo de rol en `stripe-cancel-subscription`). Para desplegar,
+> copia siempre el codigo de `supabase/functions/<funcion>/index.ts`, que
+> es la fuente de verdad.
+
 Lista de pasos pendientes para que el codigo de
 `feat/academy-registration-stripe-checkout` (colegiatura mensual por
 Stripe + activacion automatica de inscripciones) funcione en modo test.
@@ -12,7 +19,7 @@ Dashboard de Supabase o de Stripe. Marca cada casilla conforme lo hagas.
 
 ## Estado
 
-- [x] Migracion `031_academy_tuition_stripe_auto_activation.sql` aplicada
+- [x] Migracion `032_academy_tuition_stripe_auto_activation.sql` aplicada
       en Supabase (SQL Editor).
 - [ ] **Re-pegar** `stripe-checkout` en el Dashboard -- el codigo de abajo
       cambio el 2026-10-01 (ya no cobra la cuota de inscripcion junto con

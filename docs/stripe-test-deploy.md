@@ -1,5 +1,12 @@
 # Stripe test mode - despliegue via Dashboard y prueba de pago
 
+> **Codigo actualizado el 2026-10-02:** los bloques de codigo de este
+> archivo quedaron desactualizados (version de API de Stripe, lectura de
+> `invoice.parent.subscription_details` / `invoice.payments`, reintentos del
+> webhook y chequeo de rol en `stripe-cancel-subscription`). Para desplegar,
+> copia siempre el codigo de `supabase/functions/<funcion>/index.ts`, que
+> es la fuente de verdad.
+
 Guia de referencia para (re)desplegar `stripe-checkout`, `stripe-webhook`
 y `stripe-cancel-subscription` desde el Dashboard web de Supabase (sin
 CLI) y probar el cobro de la cuota de inscripcion + colegiatura mensual de
