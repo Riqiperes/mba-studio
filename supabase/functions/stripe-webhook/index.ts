@@ -13,7 +13,7 @@ import Stripe from "npm:stripe@22.6.2";
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { logError, logEvent } from "../_shared/logger.ts";
 
-const STRIPE_API_VERSION = "2026-06-24.dahlia" as const;
+const STRIPE_API_VERSION = "2026-08-26.dahlia" as const;
 
 // Colegiatura vence el dia 10 de cada mes (docs/business-rules.md): el
 // periodo de un mes dado va del 10 al ultimo dia de ese mismo mes. Mismo
@@ -69,11 +69,8 @@ async function rejectAndRefund(
     })
     .eq("id", enrollmentId);
 
-  if (rejectError) {
-    logError("stripe-webhook.reject_update_failed", rejectError, { enrollmentId });
-  } else {
-    logEvent("stripe-webhook.rechazada_por_cupo_reembolsada", { enrollmentId });
-  }
+  if (rejectError) throw rejectError;
+  logEvent("stripe-webhook.rechazada_por_cupo_reembolsada", { enrollmentId });
 }
 
 async function handleCheckoutSessionCompleted(
@@ -95,19 +92,15 @@ async function handleCheckoutSessionCompleted(
   const subscriptionId = typeof session.subscription === "string" ? session.subscription : null;
   const customerId = typeof session.customer === "string" ? session.customer : null;
 
-  if (subscriptionId && !paymentIntentId) {
+  if (subscriptionId && !paymentIntentId && typeof session.invoice === "string") {
     // Modo subscription: el pago inicial vive en la primera factura de la
-    // suscripcion, no en session.payment_intent.
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
-      expand: ["latest_invoice.payment_intent"],
-    });
-    const latestInvoice = subscription.latest_invoice;
-    if (latestInvoice && typeof latestInvoice !== "string" && latestInvoice.payment_intent) {
-      paymentIntentId =
-        typeof latestInvoice.payment_intent === "string"
-          ? latestInvoice.payment_intent
-          : latestInvoice.payment_intent.id;
-    }
+    // suscripcion, no en session.payment_intent. Desde la API "basil" el
+    // PaymentIntent ya no esta en invoice.payment_intent sino en
+    // invoice.payments; sin el no se puede reembolsar si no hay cupo.
+    const invoice = await stripe.invoices.retrieve(session.invoice, { expand: ["payments"] });
+    const invoicePaymentIntent = invoice.payments?.data[0]?.payment.payment_intent;
+    paymentIntentId =
+      typeof invoicePaymentIntent === "string" ? invoicePaymentIntent : invoicePaymentIntent?.id ?? null;
   }
 
   const { error: paidUpdateError } = await supabase
@@ -123,10 +116,9 @@ async function handleCheckoutSessionCompleted(
     .eq("id", enrollmentId)
     .eq("registration_fee_paid", false);
 
-  if (paidUpdateError) {
-    logError("stripe-webhook.update_enrollment_fallo", paidUpdateError, { enrollmentId });
-    return;
-  }
+  // Errores de DB se lanzan (no return) para responder 500 y que Stripe
+  // reintente; un 200 aqui perderia el pago para siempre.
+  if (paidUpdateError) throw paidUpdateError;
 
   // Intenta activar de inmediato -- el trigger
   // enforce_academy_enrollment_capacity_and_age (migracion 023) valida
@@ -159,7 +151,10 @@ async function handleInvoiceEvent(
   invoice: Stripe.Invoice,
   status: "PAGADO" | "NO_PAGADO",
 ): Promise<void> {
-  const subscriptionId = typeof invoice.subscription === "string" ? invoice.subscription : null;
+  // Desde la API "basil" la suscripcion ya no esta en invoice.subscription.
+  const invoiceSubscription = invoice.parent?.subscription_details?.subscription;
+  const subscriptionId =
+    typeof invoiceSubscription === "string" ? invoiceSubscription : invoiceSubscription?.id ?? null;
   if (!subscriptionId) {
     // Factura sin suscripcion (no deberia pasar para colegiatura, pero no
     // hay nada que hacer aqui si ocurre).
@@ -172,14 +167,11 @@ async function handleInvoiceEvent(
     .eq("stripe_subscription_id", subscriptionId)
     .maybeSingle();
 
-  if (lookupError || !enrollment) {
-    logError(
-      "stripe-webhook.invoice_sin_enrollment",
-      lookupError ?? new Error("sin inscripcion con esta suscripcion"),
-      { subscriptionId, invoiceId: invoice.id },
-    );
-    return;
-  }
+  // Sin inscripcion puede ser solo orden de llegada: la primera factura
+  // suele llegar antes que checkout.session.completed guarde
+  // stripe_subscription_id. Se lanza para que Stripe reintente.
+  if (lookupError) throw lookupError;
+  if (!enrollment) throw new Error(`sin inscripcion para la suscripcion ${subscriptionId} (invoice ${invoice.id})`);
 
   const yearMonth = yearMonthFromUnixSeconds(invoice.period_start);
   const { periodStart, periodEnd } = periodForYearMonth(yearMonth);
@@ -199,10 +191,7 @@ async function handleInvoiceEvent(
     { onConflict: "enrollment_id,period_start" },
   );
 
-  if (upsertError) {
-    logError("stripe-webhook.invoice_upsert_fallo", upsertError, { enrollmentId: enrollment.id, invoiceId: invoice.id });
-    return;
-  }
+  if (upsertError) throw upsertError;
 
   logEvent(
     status === "PAGADO" ? "stripe-webhook.colegiatura_pagada" : "stripe-webhook.colegiatura_pago_fallido",
@@ -266,6 +255,13 @@ Deno.serve(async (req) => {
     return new Response("ok", { status: 200 });
   } catch (error) {
     logError("stripe-webhook.procesamiento_fallo", error, { eventId: event.id, type: event.type });
+    // Liberar el event.id para que el reintento de Stripe (por el 500) si
+    // se procese; si no, quedaria marcado como duplicado y un pago cobrado
+    // nunca activaria la inscripcion.
+    const { error: deleteError } = await supabase.from("stripe_events").delete().eq("id", event.id);
+    if (deleteError) {
+      logError("stripe-webhook.stripe_events_delete_fallo", deleteError, { eventId: event.id });
+    }
     return new Response("Error interno", { status: 500 });
   }
 });

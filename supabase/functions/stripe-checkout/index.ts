@@ -13,7 +13,7 @@ import { handleCorsPreflight } from "../_shared/cors.ts";
 import { jsonResponse, errorResponse } from "../_shared/responses.ts";
 import { logError } from "../_shared/logger.ts";
 
-const STRIPE_API_VERSION = "2026-06-24.dahlia" as const;
+const STRIPE_API_VERSION = "2026-08-26.dahlia" as const;
 
 interface CheckoutBody {
   enrollmentId: string;
@@ -124,7 +124,10 @@ Deno.serve(async (req) => {
   } else {
     // Sin colegiatura configurada: cobro unico de la cuota de inscripcion,
     // como antes.
-    const feeCents = enrollment.business?.academy_registration_fee_cents;
+    // El cliente sin tipos generados infiere el embed como arreglo; en
+    // runtime una relacion many-to-one llega como objeto.
+    const business = Array.isArray(enrollment.business) ? enrollment.business[0] : enrollment.business;
+    const feeCents = business?.academy_registration_fee_cents;
     if (!feeCents || feeCents <= 0) {
       return errorResponse("La cuota de inscripcion no esta configurada", 500);
     }
