@@ -2,6 +2,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButton";
 import { BrandLogo } from "@/components/ui/BrandLogo";
+import { ThemeToggleButton } from "@/components/ui/ThemeToggleButton";
 
 export function LoginPage() {
   const { session, loading } = useAuth();
@@ -21,6 +22,9 @@ export function LoginPage() {
         aria-hidden="true"
         className="pointer-events-none absolute -right-24 -bottom-16 -z-10 w-[min(620px,120vw)] max-w-none opacity-30"
       />
+      <div className="absolute top-[max(1rem,env(safe-area-inset-top))] right-4">
+        <ThemeToggleButton />
+      </div>
       <div className="flex w-full max-w-sm flex-col items-center gap-6">
         <BrandLogo variant="vertical" alt="Merida Ballet Academy" className="h-28" />
         <div className="w-full rounded-card border border-borde bg-tarjeta p-6 text-center shadow-card sm:p-8">

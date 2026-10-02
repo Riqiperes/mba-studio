@@ -25,21 +25,18 @@ interface BrandLogoProps {
 
 export function BrandLogo({ variant, className = "", alt = "Merida Ballet Academy" }: BrandLogoProps) {
   const darkSource = DARK_THEME_SOURCES[variant];
-  const image = (
-    <img
-      src={LOGO_SOURCES[variant]}
-      alt={alt}
-      className={`block w-auto select-none ${className}`}
-      draggable={false}
-    />
-  );
+  const imageClasses = `block w-auto select-none ${className}`;
 
-  if (!darkSource) return image;
+  if (!darkSource) {
+    return <img src={LOGO_SOURCES[variant]} alt={alt} className={imageClasses} draggable={false} />;
+  }
 
+  // Las dos versiones; index.css (.logo-solo-claro/.logo-solo-oscuro) oculta
+  // la que no corresponde al tema, incluido el forzado con data-theme.
   return (
-    <picture>
-      <source srcSet={darkSource} media="(prefers-color-scheme: dark)" />
-      {image}
-    </picture>
+    <>
+      <img src={LOGO_SOURCES[variant]} alt={alt} className={`logo-solo-claro ${imageClasses}`} draggable={false} />
+      <img src={darkSource} alt={alt} className={`logo-solo-oscuro ${imageClasses}`} draggable={false} />
+    </>
   );
 }
