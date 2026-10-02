@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { z } from "zod";
-import { CircleAlert, CircleCheck } from "lucide-react";
+import { Check, CircleAlert, CircleCheck, Eye, EyeOff, Minus } from "lucide-react";
 import { signInWithEmail, signUpWithEmail } from "../services/authService";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
@@ -12,8 +12,22 @@ const loginSchema = z.object({
   password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
 });
 
+// Requisitos visibles en el registro; el mismo arreglo valida y pinta la
+// lista, para que nunca se desincronicen.
+const PASSWORD_REQUIREMENTS = [
+  { label: "Al menos 8 caracteres", test: (value: string) => value.length >= 8 },
+  { label: "Al menos una letra", test: (value: string) => /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/.test(value) },
+  { label: "Al menos un número", test: (value: string) => /\d/.test(value) },
+];
+
 const registerSchema = loginSchema.extend({
   fullName: z.string().min(1, "El nombre es obligatorio"),
+  password: z
+    .string()
+    .refine(
+      (value) => PASSWORD_REQUIREMENTS.every((requirement) => requirement.test(value)),
+      "La contraseña no cumple los requisitos",
+    ),
 });
 
 function mapAuthError(err: unknown): string {
@@ -38,6 +52,7 @@ export function EmailPasswordForm({ mode, redirectTo }: { mode: Mode; redirectTo
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -117,13 +132,53 @@ export function EmailPasswordForm({ mode, redirectTo }: { mode: Mode; redirectTo
       <TextField
         id="password-input"
         label="Contraseña"
-        type="password"
+        type={showPassword ? "text" : "password"}
         autoComplete={mode === "register" ? "new-password" : "current-password"}
-        hint={mode === "register" ? "Mínimo 8 caracteres." : undefined}
+        aria-describedby={mode === "register" ? "password-requirements" : undefined}
         value={password}
         onChange={(event) => setPassword(event.target.value)}
         error={fieldErrors.password}
+        trailing={
+          <button
+            id="password-visibility-toggle"
+            type="button"
+            onClick={() => setShowPassword((current) => !current)}
+            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            aria-pressed={showPassword}
+            className="flex h-10 w-10 items-center justify-center rounded-control text-texto-suave transition-colors duration-200 hover:text-texto focus-visible:outline-2 focus-visible:outline-acento"
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" strokeWidth={1.6} aria-hidden="true" />
+            ) : (
+              <Eye className="h-5 w-5" strokeWidth={1.6} aria-hidden="true" />
+            )}
+          </button>
+        }
       />
+
+      {mode === "register" && (
+        <ul id="password-requirements" aria-label="Requisitos de la contraseña" className="-mt-2 flex flex-col gap-1">
+          {PASSWORD_REQUIREMENTS.map((requirement) => {
+            const met = requirement.test(password);
+            return (
+              <li
+                key={requirement.label}
+                className={`flex items-center gap-2 text-pequeno transition-colors duration-200 ${
+                  met ? "text-exito" : "text-texto-suave"
+                }`}
+              >
+                {met ? (
+                  <Check className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
+                ) : (
+                  <Minus className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
+                )}
+                {requirement.label}
+                <span className="sr-only">{met ? "(cumplido)" : "(pendiente)"}</span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
 
       <Button type="submit" size="lg" loading={isLoading} className="mt-2 w-full">
         {isLoading ? "Enviando…" : mode === "register" ? "Crear cuenta" : "Iniciar sesión"}
