@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { HeartPulse } from "lucide-react";
 import { BookCustomerModal } from "@/features/bookings/components/BookCustomerModal";
 import { useClassBookings } from "@/features/bookings/hooks/useClassBookings";
 import { useClasses } from "@/features/classes/hooks/useClasses";
@@ -116,7 +117,22 @@ export function ClassBookingsPage() {
             <tbody>
               {bookings.map((booking) => (
                 <tr key={booking.id}>
-                  <td>{booking.customerName ?? "-"}</td>
+                  <td>
+                    <Link
+                      to={`/customers/${booking.customerId}`}
+                      className="font-medium text-texto underline-offset-4 hover:text-acento hover:underline"
+                    >
+                      {booking.customerName ?? "-"}
+                    </Link>
+                    {booking.customerMedicalConditions && (
+                      <p className="mt-1 flex items-start gap-1.5 text-pequeno text-alerta">
+                        <HeartPulse className="mt-px h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                        <span>
+                          <span className="font-medium">Condición médica:</span> {booking.customerMedicalConditions}
+                        </span>
+                      </p>
+                    )}
+                  </td>
                   <td>
                     <button
                       type="button"
