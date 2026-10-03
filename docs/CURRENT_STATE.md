@@ -3,7 +3,27 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-10-02 (rama `feat/auth-ux-theme-medical-details`):
+Ultima actualizacion: 2026-10-03 (produccion con el rediseno + correo propio):
+- **`main` (produccion)** tiene el rediseno de web y admin y lo de #25
+  (contrasena, tema claro/oscuro, condicion medica en reservados), via PR
+  #26 (`release/design-sin-stripe`). **No tiene Stripe**: la inscripcion de
+  Academia en produccion sigue creando la solicitud pendiente sin cobro.
+- **`develop`** = `main` + Stripe para Academia (#24). `main` se sincronizo
+  de vuelta en `develop` (rama `docs/estado-2026-10-03`), asi que el
+  proximo `develop` -> `main` solo traera Stripe.
+- **Stripe**: falta volver a desplegar las 3 funciones en dev desde el repo,
+  completar la configuracion y la prueba, y despues todo en prod. Estado y
+  pasos en `docs/stripe-test-deploy.md` (unica guia; se borro
+  `docs/stripe-rollout-checklist.md` y las copias de codigo que estaban
+  desactualizadas).
+- **Correo de Supabase Auth**: SMTP propio con Resend y el dominio del
+  negocio (GoDaddy, verificado). Con eso ya se puede pegar la plantilla
+  `supabase/templates/confirm-signup.html` en "Confirm signup". Detalle en
+  `docs/authentication.md`.
+- Pendiente manual en Supabase (dev y prod): plantilla pegada, y
+  contrasena minima 8 + "Letters and digits" en Providers > Email.
+
+Actualizacion anterior: 2026-10-02 (rama `feat/auth-ux-theme-medical-details`):
 - **Contrasena en `apps/web`**: boton mostrar/ocultar en login y registro;
   en el registro, lista en vivo de requisitos (8+ caracteres, una letra, un
   numero) que es la misma regla que valida `zod`. Falta exigirla tambien en
@@ -37,10 +57,7 @@ Actualizacion anterior: 2026-10-02 (integracion de Stripe para Academia con el r
   `stripe@22.6.2`) en las 3 funciones; `deno check` pasa.
 - `stripe-cancel-subscription`: solo STAFF/BUSINESS_ADMIN/SUPER_ADMIN (antes el tutor
   podia cancelar su propia colegiatura y seguir ACTIVA).
-- Pendiente antes de produccion: aplicar 031/032 en prod, desplegar las 3 funciones con
-  sus secretos y registrar el webhook. Los bloques de codigo de
-  `docs/stripe-test-deploy.md` y `docs/stripe-rollout-checklist.md` estan desactualizados;
-  la fuente de verdad es `supabase/functions/`.
+- Pendiente antes de produccion: ver `docs/stripe-test-deploy.md`.
 
 Actualizacion anterior: 2026-09-29 (`apps/admin`: header que no se remonta + formularios con etiquetas y controles de marca):
 - **`RequireAuth` + `App.tsx`**: cada ruta envolvia su propio `<AdminLayout>`,
@@ -1080,7 +1097,7 @@ y cambiarles el rol / vincular `instructor_id`; pagina `/instructor/my-classes`
 (solo lectura: sus clases de Studio + sus grupos de Academia con alerta
 medica); `RequireAuth` generalizado con `allowedRoles` por ruta; nav de
 `AdminLayout` condicional por rol. Ver detalle completo y decisiones en
-`docs/HANDOFF.md` punto 9.
+el historial de git de `docs/HANDOFF.md` (version de 2026-09-03).
 
 Decision pendiente de validar con uso real: `studio_classes` e
 `instructors` son de lectura publica (catalogo/marketing) por decision

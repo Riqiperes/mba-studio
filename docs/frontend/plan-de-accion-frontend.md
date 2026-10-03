@@ -4,10 +4,9 @@ Rediseno visual de `apps/web` (cliente) y despues `apps/admin` (panel). La
 logica, services y hooks ya existen y funcionan; esta fase es de **UI/UX**.
 Este plan es la fuente de verdad del trabajo de front hasta terminarlo.
 
-- Rama web: `feat/web-frontend`
-- Rama admin: `feat/admin-frontend`, creada desde `feat/web-frontend` el
-  2026-09-24 (decision del usuario: `develop` aun no tiene el plan, `PROMPT.md`
-  ni el kit de marca porque la web no se ha fusionado)
+- Ramas `feat/web-frontend` y `feat/admin-frontend`: ya fusionadas en
+  `develop` (PR #22 y #23, 2026-10-01) y en `main` (PR #26, 2026-10-03).
+  Trabajo visual nuevo sale de `develop` en una rama `feat/` propia.
 - **Guia visual principal: `docs/frontend/PROMPT.md`** (paleta, tipografia,
   layout y pantallas) + kit de marca `docs/frontend/brand/` (logos, monogramas,
   motivos y fotos). Manda sobre lo decidido antes en D1-D3.
@@ -24,12 +23,9 @@ Estados: `[ ]` pendiente · `[~]` en progreso · `[x]` hecho · `[-]` descartado
 
 ## PENDIENTES PARA CERRAR EL FRONT AL 100% (empezar aqui)
 
-Estado al 2026-09-27: Fases 0, 1, 2.0 y 2 terminadas, mas un pase de
-animaciones sobre ambas (ver bitacora 2026-09-27). Web en
-`feat/web-frontend` (subida a origin), admin en `feat/admin-frontend`
-(commits locales, sin subir a origin todavia). Sin PR a `develop` en
-ninguna de las dos. Solo falta lo de esta lista. Marcar cada punto al
-resolverlo y anotarlo en la bitacora.
+Estado al 2026-10-03: Fases 0, 1, 2.0 y 2 terminadas, con pase de
+animaciones, y ya en `develop` y `main` (en produccion). Solo falta lo de
+esta lista. Marcar cada punto al resolverlo y anotarlo en la bitacora.
 
 **0. Aprobacion del equipo (bloquea el resto de esta lista)**
 
@@ -64,8 +60,8 @@ resolverlo y anotarlo en la bitacora.
       desechable). `typecheck` en verde para `apps/admin` y `apps/web`
       despues del merge. `feat/admin-frontend` ahora tiene el trabajo de
       ambas ramas.
-- [ ] Abrir PR de `feat/web-frontend` a `develop` (y despues `feat/admin-frontend`, que sale de la de web).
-- [ ] Publicar web y admin en Cloudflare Pages.
+- [x] PR #22 (web) y #23 (admin) a `develop`, mergeados en ese orden el 2026-10-01.
+- [x] A `main` con PR #26 (2026-10-03), sin Stripe (ver `docs/stripe-test-deploy.md`); Cloudflare Pages publica desde `main`.
 
 **4. Funcionamiento detectado sin cambiar (decidir si entra; no es diseno)** *(decide el equipo, ver punto 0)*
 
@@ -333,5 +329,6 @@ Si se quiere alguna, se agrega primero a `docs/roadmap.md` como tarea aparte:
 | 2026-09-24 | Se crea `feat/admin-frontend` desde `feat/web-frontend` (ver encabezado). Fase 2.0 hecha. 2.0.1: tokens iguales a web en `apps/admin/src/index.css` (tema oscuro definido pero sin activar hasta 2.13) + clases base del panel `.campo`/`.campo-compacto`/`.etiqueta-campo` y `.tabla-contenedor`/`.tabla` (tabla base); `index.html` con Fraunces + Jost, `viewport-fit=cover` y title. 2.0.2: kit de marca en `apps/admin/public/brand/` y favicon `monograma-malva`. 2.0.3: componentes base copiados de web a `apps/admin/src/components/ui/` (`ModalDialog` con `size` md/lg y `ScreenHeader` compacto con `actions`, propios del panel), `lucide-react` en admin. 2.0.4: `AdminLayout` con header fijo (logo + "Panel"), pestanas con icono segun rol (mismas reglas: instructor, admin de negocio, super admin), nombre y cerrar sesion, enlace "Saltar al contenido" y monograma de fondo discreto; `RequireAuth` con pantalla de carga del monograma y "Sin acceso" en tarjeta (mismos textos e id); `BackButton` con chevron y el mismo `navigate(-1)`. Revisado: lineas eliminadas con equivalente, capturas movil/escritorio con una ruta temporal (ya borrada), lint/typecheck/build web y admin. |
 | 2026-09-24 | Fase 2 hecha (2.1 a 2.13) en un solo commit, como pidio el usuario. Metodo: (1) migracion mecanica de patrones repetidos a clases base y tokens (campos -> `.campo`, botones -> `buttonClasses`, tablas -> `.tabla` dentro de `.tabla-contenedor`, colores sueltos -> semanticos), revisada para que solo cambiaran cadenas de clases; (2) los 10 modales pasan a `components/ui/ModalShell.tsx` (nuevo: `<dialog>` nativo que envuelve el formulario existente sin tocarlo; Escape, foco atrapado, cierre al tocar fuera como antes, hoja inferior en movil, nombre accesible desde el `h2`); (3) diseno fino por pantalla. 2.1 Login: logo vertical, tarjeta, boton Google con su marca (misma llamada). 2.2 Dashboard y 2.3 hubs: `components/ui/HubLinkCard.tsx` (nuevo) con iconos Lucide en lugar de emojis, contador de solicitudes de Academia con texto para lector. 2.4 Clases: `ScreenHeader` con "Nueva clase", selector de semana con flechas circulares, grilla semanal con dias apilados en movil y 7 columnas en escritorio, hoy resaltado, clase cancelada marcada con texto, la tarjeta entera abre la clase con enlace (antes solo con mouse). 2.5 a 2.12: encabezados con `ScreenHeader` y etiqueta por seccion, errores con `FormMessages`/estilo comun anunciado, estados vacios `.vacio`, acciones en linea `.accion` (40px de alto), tarjetas de paquetes y grupos y filas de clientes/instructores/alumnos accesibles con teclado, colegiaturas atrasadas con filtro en el encabezado. Regresion encontrada y corregida: la migracion habia igualado el tinte verde/rojo de pago del mes en Alumnos y en el detalle de grupo; se restauro (tintes exito/alerta) y ahora ademas lleva texto ("Pagado/Pendiente este mes", "Pagada/Pendiente"). 2.13: tema oscuro automatico en admin, `theme-color` por esquema. Verificado: comparacion automatica de ids, manejadores, textos, placeholders y etiquetas contra `cde12ec` (39 diferencias, todas con equivalente: acentos, "Cargando…", modales/tarjetas que ahora usan dialogo o enlace); capturas claro/oscuro en movil y escritorio con rutas temporales (ya borradas); sin desborde horizontal a 320 y 390 px en 18 pantallas; lint, typecheck y build de admin y web. Observado sin cambiar: varios formularios de los modales usan el placeholder como unica etiqueta (ya era asi). |
 | 2026-09-27 | Pase de animaciones (skills `find-animation-opportunities`, `emil-design-eng`, `animate`, `mobile-native`; `review-animations` queda reservada para invocacion directa del usuario) sobre las pantallas ya cerradas de fase 1 y 2, sin cambiar contenido ni comportamiento. Admin primero (`feat/admin-frontend`, commits `0c57ea8` y fix `892c37d`): entrada del contenido al terminar de cargar (`.entra`), entrada de alertas (`.alerta-entra`, 70 lugares), deslizamiento direccional de semana en Clases (`.semana-entra`, etiqueta + grilla, 20px/240ms), fade de filas nuevas en tablas, flash del saldo de creditos solo cuando cambia por una accion real (bug corregido: `balance` arranca en `null` y se resuelve al valor real en un segundo render, la guarda original solo cubria el primer render). Despues web (`feat/web-frontend`, commit `c58c49c`, subido a origin): mismas 5 animaciones adaptadas (Landing, catalogos, detalle de paquete/clase, Mi horario, Perfil), mas `.exito-entra` (fade+rise+scale, un poco mas expresiva) para "Solicitud enviada"/"Clase muestra solicitada" en `AcademyGroupCard`, el unico momento de "delight" que aparecio en web. Todo con `var(--ease-brand)` (unico token de curva del repo), `transform`/`opacity`/`background-color`, respetando el `prefers-reduced-motion` ya existente. Verificado: lint, typecheck y build de ambas apps en verde; `/mobile-native` sin hallazgos (mismo patron ya usado por `.modal-dialog`, sin `:hover` nuevo, sin tocar safe-area/viewport) pero sin poder probarlo en un telefono real. Pendiente: `feat/admin-frontend` no se ha sincronizado con los commits nuevos de `feat/web-frontend` (ver pendiente en la seccion de integracion); `feat/admin-frontend` sigue sin `push` a origin (decision del usuario, no se ha pedido). |
+| 2026-10-03 | PR #26 (`release/design-sin-stripe`) lleva a `main` el rediseno: `develop` hasta el merge de #23 mas cherry-pick de los commits de #25, dejando fuera Stripe (#24). Despues se sincronizo `main` de vuelta en `develop`. |
 | 2026-10-02 | Rama `feat/auth-ux-theme-medical-details`: (1) boton claro/oscuro (`components/ui/ThemeToggleButton.tsx` en web y admin; script en `index.html` aplica el tema guardado antes de pintar; `BrandLogo` pinta las dos versiones del logo y `index.css` oculta la que no toca con `.logo-solo-claro`/`.logo-solo-oscuro`); (2) mostrar contrasena y requisitos en vivo en el registro (`TextField` de web gana `trailing`); (3) en Reservados (`ClassBookingsPage`) el nombre abre el detalle del cliente y, solo si tiene, se muestra su condicion medica; lo mismo (sin enlace) en "Mis clases" del instructor. Probado en navegador: tema, ojo y requisitos. |
 | 2026-10-01 | Equipo aprobo el diseno + animaciones tal cual estaban (punto 0) y las pruebas del punto 2 ya se hicieron. Punto 3: `git merge feat/web-frontend` estando en `feat/admin-frontend` (merge commit, sin rebase porque ambas ramas ya estan en origin) para traer los 7 commits que web tenia de mas (animaciones, fix de banner/horario en columnas, perf de reservar/lista de espera). Probado primero en seco en una rama temporal desechable: sin conflictos, ni en `docs/CURRENT_STATE.md` (el unico archivo que tocan ambas ramas). `typecheck` de `apps/admin` y `apps/web` en verde despues del merge real. `feat/admin-frontend` quedo con el trabajo de ambas ramas y se subio a origin. Pendiente: abrir PR `feat/web-frontend` -> `develop`, despues PR `feat/admin-frontend` -> `develop`, y publicar en Cloudflare Pages. |
