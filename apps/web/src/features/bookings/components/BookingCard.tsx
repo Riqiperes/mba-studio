@@ -11,7 +11,7 @@ type Props = {
 
 export function BookingCard({ booking, onCancel, loading }: Props) {
   const handleCancel = async () => {
-    if (!window.confirm("¿Cancelar esta reservación? Se te devolverá el crédito.")) return;
+    if (!window.confirm("¿Cancelar esta reservación? Si faltan menos de 8 horas para la clase, el crédito no se devuelve.")) return;
     await onCancel(booking.id);
   };
 
