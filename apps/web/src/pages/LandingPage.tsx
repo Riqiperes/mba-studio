@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, CalendarDays, MapPin, MessageCircle, Phone, Ticket } from "lucide-react";
+import { ArrowUpRight, CalendarDays, MapPin, MessageCircle, Ticket } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { getBusiness } from "@/features/studio/services/businessService";
 import type { Business } from "@/features/studio/services/businessService";
@@ -11,12 +11,6 @@ function formatWhatsAppLink(number: string | null): string {
   if (!number) return "";
   const cleaned = number.replace(/\D/g, "");
   return `https://wa.me/52${cleaned}`;
-}
-
-function formatPhoneLink(number: string | null): string {
-  if (!number) return "";
-  const cleaned = number.replace(/\D/g, "");
-  return `tel:+52${cleaned}`;
 }
 
 function formatMapEmbedUrl(address: string): string {
@@ -60,7 +54,6 @@ export function LandingPage() {
 
   const businessName = business?.name ?? "MBA";
   const whatsappUrl = formatWhatsAppLink(business?.whatsappNumber || FALLBACK_WHATSAPP_NUMBER);
-  const phoneUrl = business?.phone ? formatPhoneLink(business.phone) : "";
   const address = business?.address || FALLBACK_ADDRESS;
   const mapEmbedUrl = business?.address ? formatMapEmbedUrl(business.address) : FALLBACK_MAP_EMBED_URL;
 
@@ -155,12 +148,6 @@ export function LandingPage() {
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={buttonClasses("primary", "md")}>
                   <MessageCircle className="h-[18px] w-[18px]" strokeWidth={1.6} aria-hidden="true" />
                   WhatsApp
-                </a>
-              )}
-              {phoneUrl && (
-                <a href={phoneUrl} className={buttonClasses("secondary", "md")}>
-                  <Phone className="h-[18px] w-[18px]" strokeWidth={1.6} aria-hidden="true" />
-                  Llamar
                 </a>
               )}
               <a
