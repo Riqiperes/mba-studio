@@ -3,7 +3,27 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-10-03 (produccion con el rediseno + correo propio):
+Ultima actualizacion: 2026-10-03 (rama `feat/password-reset-web-fixes`):
+- **Recuperar contrasena (web)**: "¿Olvidaste tu contraseña?" en el login y
+  pagina `/reset-password`; plantilla `supabase/templates/reset-password.html`.
+  Falta en Supabase (dev y prod): Redirect URL `/reset-password` y pegar la
+  plantilla (ver `docs/authentication.md`).
+- **Horarios (web)**: semana y filtro de fechas en hora local (antes UTC:
+  despues de las 6 pm la semana se corria y se perdian clases de la
+  noche); cupo real de todos los clientes con la RPC publica de solo
+  lectura `class_booking_counts` (**migracion 033: aplicada en dev, falta en
+  prod**; sin ella la web sigue funcionando como antes); confirmacion al
+  cancelar con la regla de 8 horas; errores de reservar/cancelar visibles;
+  enlaces "Ver mi horario" y "Ver detalle".
+- **Nombre**: "MBA MID" pasa a "MBA" / "Merida Ballet Academy" en la UI,
+  plantillas y docs vigentes. `business.name` = "MBA" en dev y prod.
+- **Check "Supabase Preview" en GitHub**: falla siempre con "Remote
+  migration versions not found in local migrations directory" porque la
+  integracion de GitHub de Supabase compara el historial remoto (versiones
+  con fecha, aplicadas desde el Dashboard/MCP) con los archivos locales
+  (`001_...`). No bloquea Cloudflare ni el merge. Ver `docs/deployment.md`.
+
+Actualizacion anterior: 2026-10-03 (produccion con el rediseno + correo propio):
 - **`main` (produccion)** tiene el rediseno de web y admin y lo de #25
   (contrasena, tema claro/oscuro, condicion medica en reservados), via PR
   #26 (`release/design-sin-stripe`). **No tiene Stripe**: la inscripcion de
