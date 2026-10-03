@@ -23,12 +23,14 @@ function formatMapEmbedUrl(address: string): string {
   return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
 }
 
-// Respaldo mientras business.address este vacio (hoy en dev y prod): Plaza
+// Respaldos mientras business.address/whatsapp_number esten vacios (hoy en dev y prod): Plaza
 // Floresta, con el mapa exacto que dio el negocio desde Google Maps.
 const FALLBACK_ADDRESS =
   "Plaza Floresta, Avenida Periférico Norte, Floresta km. 24, Residencial Floresta, 97306 Mérida, Yuc.";
 const FALLBACK_MAP_EMBED_URL =
-  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d553.6434561119122!2d-89.55663166346362!3d21.01449759975296!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8f5677ec20cc5d0d%3A0x83bf1bf93e0504e6!2sPLAZA%20FLORESTA!5e0!3m2!1ses!2smx!4v1791016336214!5m2!1ses!2smx";
+  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14897.453173407275!2d-89.5620001034055!3d21.018144935278023!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8f5677ec20cc5d0d%3A0x83bf1bf93e0504e6!2sPLAZA%20FLORESTA!5e0!3m2!1ses!2smx!4v1791016578440!5m2!1ses!2smx";
+// Mismo numero de WhatsApp que PackageDetailPage/ClassDetailPage (sin lada; formatWhatsAppLink agrega el 52).
+const FALLBACK_WHATSAPP_NUMBER = "9991072423";
 
 function formatDirectionsUrl(address: string): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
@@ -57,7 +59,7 @@ export function LandingPage() {
   }
 
   const businessName = business?.name ?? "MBA";
-  const whatsappUrl = business?.whatsappNumber ? formatWhatsAppLink(business.whatsappNumber) : "";
+  const whatsappUrl = formatWhatsAppLink(business?.whatsappNumber || FALLBACK_WHATSAPP_NUMBER);
   const phoneUrl = business?.phone ? formatPhoneLink(business.phone) : "";
   const address = business?.address || FALLBACK_ADDRESS;
   const mapEmbedUrl = business?.address ? formatMapEmbedUrl(business.address) : FALLBACK_MAP_EMBED_URL;
