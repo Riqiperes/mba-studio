@@ -7,8 +7,10 @@ export function getWeekStart(date: Date): Date {
   return d;
 }
 
+/** YYYY-MM-DD en hora LOCAL (toISOString daba el dia UTC: despues de las 6 pm la semana se corria). */
 export function formatWeekStartKey(date: Date): string {
-  return date.toISOString().slice(0, 10);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
 export function addWeeks(date: Date, weeks: number): Date {

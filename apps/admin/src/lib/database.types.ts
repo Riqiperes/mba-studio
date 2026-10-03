@@ -856,6 +856,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      class_booking_counts: {
+        Args: { class_ids: string[] }
+        Returns: {
+          booked_count: number
+          class_id: string
+        }[]
+      }
       add_admin_invite: {
         Args: {
           p_email: string
