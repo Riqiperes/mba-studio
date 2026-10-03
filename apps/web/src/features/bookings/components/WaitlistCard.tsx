@@ -1,11 +1,12 @@
 // apps/web/src/features/bookings/components/WaitlistCard.tsx
-import { formatDate, formatTime } from "@/utils/dateUtils";
+import { formatDate, formatTime, formatTimeParts } from "@/utils/dateUtils";
+import { Button } from "@/components/ui/Button";
 import type { WaitlistEntryWithClass } from "../types/WaitlistEntry";
 
 type Props = {
   entry: WaitlistEntryWithClass;
   onLeave: (waitlistId: string) => Promise<void>;
-  loading?: boolean;
+  loading?: boolean | undefined;
 };
 
 export function WaitlistCard({ entry, onLeave, loading }: Props) {
@@ -14,37 +15,32 @@ export function WaitlistCard({ entry, onLeave, loading }: Props) {
     await onLeave(entry.id);
   };
 
+  const { time, period } = formatTimeParts(entry.class.startsAt);
+
   return (
-    <article id={`waitlist-card-${entry.id}`} className="flex flex-col rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-              Posición #{entry.position}
-            </span>
-            <h3 className="font-medium text-brand-primary">{entry.class.title}</h3>
-          </div>
-          <div className="mt-2 flex flex-col gap-1 text-sm text-gray-600">
-            <p className="flex items-center gap-1">
-              <span className="font-medium">{formatDate(entry.class.startsAt)}</span>
-              <span className="text-gray-400">·</span>
-              <span>{formatTime(entry.class.startsAt)} – {formatTime(entry.class.endsAt)}</span>
-            </p>
-            {entry.class.instructorName && (
-              <p className="flex items-center gap-1">
-                <span className="font-medium">{entry.class.instructorName}</span>
-              </p>
-            )}
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={handleLeave}
-          disabled={loading}
-          className="flex-shrink-0 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-        >
+    <article
+      id={`waitlist-card-${entry.id}`}
+      className="grid grid-cols-[64px_1fr] items-center gap-x-4 gap-y-3 rounded-card border border-borde bg-tarjeta p-4 shadow-card sm:grid-cols-[72px_1fr_auto] sm:p-5"
+    >
+      <p className="flex flex-col items-center border-e border-borde pe-4 text-center leading-none">
+        <span className="font-display text-[1.375rem] font-medium tabular-nums text-texto">{time}</span>
+        <span className="mt-1 text-pequeno text-texto-suave">{period}</span>
+      </p>
+      <div className="min-w-0 space-y-1.5">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-suave px-2.5 py-0.5 text-pequeno font-medium text-alerta">
+          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-alerta" />
+          Posición #{entry.position}
+        </span>
+        <h3 className="text-base font-medium text-texto">{entry.class.title}</h3>
+        <p className="text-pequeno text-texto-suave first-letter:uppercase">
+          {formatDate(entry.class.startsAt)} · {formatTime(entry.class.startsAt)} – {formatTime(entry.class.endsAt)}
+        </p>
+        {entry.class.instructorName && <p className="text-pequeno text-texto-suave">{entry.class.instructorName}</p>}
+      </div>
+      <div className="col-start-2 sm:col-start-3">
+        <Button variant="outline" size="sm" onClick={handleLeave} disabled={loading} loading={loading}>
           Salir
-        </button>
+        </Button>
       </div>
     </article>
   );

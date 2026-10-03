@@ -1,30 +1,47 @@
 import { useState, type FormEvent } from "react";
 import { z } from "zod";
+import { Check, CircleAlert, CircleCheck, Eye, EyeOff, Minus } from "lucide-react";
 import { signInWithEmail, signUpWithEmail } from "../services/authService";
+import { Button } from "@/components/ui/Button";
+import { TextField } from "@/components/ui/TextField";
 
 type Mode = "login" | "register";
 
 const loginSchema = z.object({
-  email: z.string().email("Correo invalido"),
-  password: z.string().min(8, "La contrasena debe tener al menos 8 caracteres"),
+  email: z.string().email("Correo inválido"),
+  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
 });
+
+// Requisitos visibles en el registro; el mismo arreglo valida y pinta la
+// lista, para que nunca se desincronicen.
+const PASSWORD_REQUIREMENTS = [
+  { label: "Al menos 8 caracteres", test: (value: string) => value.length >= 8 },
+  { label: "Al menos una letra", test: (value: string) => /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/.test(value) },
+  { label: "Al menos un número", test: (value: string) => /\d/.test(value) },
+];
 
 const registerSchema = loginSchema.extend({
   fullName: z.string().min(1, "El nombre es obligatorio"),
+  password: z
+    .string()
+    .refine(
+      (value) => PASSWORD_REQUIREMENTS.every((requirement) => requirement.test(value)),
+      "La contraseña no cumple los requisitos",
+    ),
 });
 
 function mapAuthError(err: unknown): string {
   const message = err instanceof Error ? err.message : "";
   if (message.includes("Invalid login credentials")) {
-    return "Correo o contrasena incorrectos.";
+    return "Correo o contraseña incorrectos.";
   }
   if (message.includes("User already registered")) {
     return "Ya existe una cuenta con ese correo.";
   }
   if (message.includes("Email not confirmed")) {
-    return "Todavia no confirmas tu correo. Revisa tu bandeja de entrada.";
+    return "Todavía no confirmas tu correo. Revisa tu bandeja de entrada.";
   }
-  return "Ocurrio un error. Intenta de nuevo.";
+  return "Ocurrió un error. Intenta de nuevo.";
 }
 
 export function EmailPasswordForm({ mode, redirectTo }: { mode: Mode; redirectTo?: string }) {
@@ -35,6 +52,7 @@ export function EmailPasswordForm({ mode, redirectTo }: { mode: Mode; redirectTo
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -62,7 +80,7 @@ export function EmailPasswordForm({ mode, redirectTo }: { mode: Mode; redirectTo
         const { needsEmailConfirmation } = await signUpWithEmail(email, password, fullName, redirectTo);
         if (needsEmailConfirmation) {
           setSuccessMessage(
-            "Cuenta creada. Revisa tu correo para confirmarla antes de iniciar sesion.",
+            "Cuenta creada. Revisa tu correo para confirmarla antes de iniciar sesión.",
           );
         }
       } else {
@@ -84,56 +102,100 @@ export function EmailPasswordForm({ mode, redirectTo }: { mode: Mode; redirectTo
       id="email-password-form"
       onSubmit={handleSubmit}
       noValidate
-      className="flex w-full max-w-xs flex-col gap-3"
+      className="flex w-full flex-col gap-4"
     >
       {mode === "register" && (
-        <div className="flex flex-col gap-1">
-          <input
-            id="full-name-input"
-            type="text"
-            placeholder="Nombre completo"
-            value={fullName}
-            onChange={(event) => setFullName(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-          />
-          {fieldErrors.fullName && <p className="text-xs text-red-600">{fieldErrors.fullName}</p>}
-        </div>
+        <TextField
+          id="full-name-input"
+          label="Nombre completo"
+          type="text"
+          autoComplete="name"
+          value={fullName}
+          onChange={(event) => setFullName(event.target.value)}
+          error={fieldErrors.fullName}
+        />
       )}
 
-      <div className="flex flex-col gap-1">
-        <input
-          id="email-input"
-          type="email"
-          placeholder="Correo electronico"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-        />
-        {fieldErrors.email && <p className="text-xs text-red-600">{fieldErrors.email}</p>}
-      </div>
+      <TextField
+        id="email-input"
+        label="Correo electrónico"
+        type="email"
+        inputMode="email"
+        autoComplete="email"
+        autoCapitalize="none"
+        placeholder="tu@correo.com"
+        value={email}
+        onChange={(event) => setEmail(event.target.value)}
+        error={fieldErrors.email}
+      />
 
-      <div className="flex flex-col gap-1">
-        <input
-          id="password-input"
-          type="password"
-          placeholder="Contrasena"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-        />
-        {fieldErrors.password && <p className="text-xs text-red-600">{fieldErrors.password}</p>}
-      </div>
+      <TextField
+        id="password-input"
+        label="Contraseña"
+        type={showPassword ? "text" : "password"}
+        autoComplete={mode === "register" ? "new-password" : "current-password"}
+        aria-describedby={mode === "register" ? "password-requirements" : undefined}
+        value={password}
+        onChange={(event) => setPassword(event.target.value)}
+        error={fieldErrors.password}
+        trailing={
+          <button
+            id="password-visibility-toggle"
+            type="button"
+            onClick={() => setShowPassword((current) => !current)}
+            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            aria-pressed={showPassword}
+            className="flex h-10 w-10 items-center justify-center rounded-control text-texto-suave transition-colors duration-200 hover:text-texto focus-visible:outline-2 focus-visible:outline-acento"
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" strokeWidth={1.6} aria-hidden="true" />
+            ) : (
+              <Eye className="h-5 w-5" strokeWidth={1.6} aria-hidden="true" />
+            )}
+          </button>
+        }
+      />
 
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-      >
-        {isLoading ? "Enviando..." : mode === "register" ? "Crear cuenta" : "Iniciar sesion"}
-      </button>
+      {mode === "register" && (
+        <ul id="password-requirements" aria-label="Requisitos de la contraseña" className="-mt-2 flex flex-col gap-1">
+          {PASSWORD_REQUIREMENTS.map((requirement) => {
+            const met = requirement.test(password);
+            return (
+              <li
+                key={requirement.label}
+                className={`flex items-center gap-2 text-pequeno transition-colors duration-200 ${
+                  met ? "text-exito" : "text-texto-suave"
+                }`}
+              >
+                {met ? (
+                  <Check className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
+                ) : (
+                  <Minus className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
+                )}
+                {requirement.label}
+                <span className="sr-only">{met ? "(cumplido)" : "(pendiente)"}</span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
 
-      {formError && <p className="text-sm text-red-600">{formError}</p>}
-      {successMessage && <p className="text-sm text-green-600">{successMessage}</p>}
+      <Button type="submit" size="lg" loading={isLoading} className="mt-2 w-full">
+        {isLoading ? "Enviando…" : mode === "register" ? "Crear cuenta" : "Iniciar sesión"}
+      </Button>
+
+      {formError && (
+        <p role="alert" className="alerta-entra flex items-start gap-2 text-pequeno text-alerta">
+          <CircleAlert className="mt-px h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+          {formError}
+        </p>
+      )}
+      {successMessage && (
+        <p role="status" className="flex items-start gap-2 rounded-control bg-suave p-3 text-pequeno text-exito">
+          <CircleCheck className="mt-px h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+          {successMessage}
+        </p>
+      )}
     </form>
   );
 }

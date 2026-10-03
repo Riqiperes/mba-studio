@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { HeartPulse } from "lucide-react";
 import { BackButton } from "@/components/ui/BackButton";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { useClasses } from "@/features/classes/hooks/useClasses";
@@ -54,10 +55,10 @@ export function InstructorMyClassesPage() {
 
   if (!profile?.instructorId) {
     return (
-      <div className="mx-auto max-w-3xl p-6 text-sm">
+      <div className="mx-auto max-w-3xl p-4 text-cuerpo sm:p-6">
         <BackButton />
-        <p className="text-gray-500">
-          Tu cuenta todavia no esta vinculada a un instructor. Pide al administrador que la vincule
+        <p className="vacio">
+          Tu cuenta todavía no está vinculada a un instructor. Pide al administrador que la vincule
           en "Usuarios".
         </p>
       </div>
@@ -65,26 +66,37 @@ export function InstructorMyClassesPage() {
   }
 
   return (
-    <div id="instructor-my-classes-page" className="mx-auto max-w-3xl p-6">
+    <div id="instructor-my-classes-page" className="mx-auto max-w-3xl p-4 sm:p-6">
       <BackButton />
-      <h1 className="mb-4 text-xl font-semibold text-brand-primary">Mis clases</h1>
+      <p className="etiqueta mb-2">Instructor</p>
+      <h1 className="mb-4 font-display text-titulo font-medium text-texto">Mis clases</h1>
 
       <section className="mb-8 space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900">Studio</h2>
-        {classesLoading && <p className="text-sm text-gray-500">Cargando...</p>}
+        <h2 className="font-display text-subtitulo font-medium text-texto">Studio</h2>
+        {classesLoading && <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>}
         {!classesLoading && classes.length === 0 && (
-          <p className="text-sm text-gray-500">No tienes clases asignadas.</p>
+          <p className="vacio">No tienes clases asignadas.</p>
         )}
         {classes.map((studioClass) => (
-          <div key={studioClass.id} className="rounded-lg border border-gray-200 p-4">
-            <p className="font-medium text-gray-900">{studioClass.title}</p>
-            <p className="mb-2 text-xs text-gray-500">{formatDateTime(studioClass.startsAt)}</p>
-            <ul className="text-sm text-gray-700">
+          <div key={studioClass.id} className="rounded-card border border-borde bg-tarjeta p-4 shadow-card">
+            <p className="font-medium text-texto">{studioClass.title}</p>
+            <p className="mb-2 text-pequeno text-texto-suave">{formatDateTime(studioClass.startsAt)}</p>
+            <ul className="text-sm text-texto">
               {(bookingsByClass[studioClass.id] ?? []).map((booking) => (
-                <li key={booking.id}>{booking.customerName ?? "-"}</li>
+                <li key={booking.id}>
+                  {booking.customerName ?? "-"}
+                  {booking.customerMedicalConditions && (
+                    <p className="mt-0.5 mb-1 flex items-start gap-1.5 text-pequeno text-alerta">
+                      <HeartPulse className="mt-px h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                      <span>
+                        <span className="font-medium">Condición médica:</span> {booking.customerMedicalConditions}
+                      </span>
+                    </p>
+                  )}
+                </li>
               ))}
               {(bookingsByClass[studioClass.id] ?? []).length === 0 && (
-                <li className="text-gray-400">Sin reservados</li>
+                <li className="text-texto-suave">Sin reservados</li>
               )}
             </ul>
           </div>
@@ -92,20 +104,20 @@ export function InstructorMyClassesPage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900">Academia</h2>
-        {groupsLoading && <p className="text-sm text-gray-500">Cargando...</p>}
+        <h2 className="font-display text-subtitulo font-medium text-texto">Academia</h2>
+        {groupsLoading && <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>}
         {!groupsLoading && myGroups.length === 0 && (
-          <p className="text-sm text-gray-500">No tienes grupos de academia asignados.</p>
+          <p className="vacio">No tienes grupos de academia asignados.</p>
         )}
         {myGroups.map((group) => (
-          <div key={group.id} className="rounded-lg border border-gray-200 p-4">
-            <p className="font-medium text-gray-900">{group.name}</p>
-            <ul className="text-sm text-gray-700">
+          <div key={group.id} className="rounded-card border border-borde bg-tarjeta p-4 shadow-card">
+            <p className="font-medium text-texto">{group.name}</p>
+            <ul className="text-sm text-texto">
               {(enrollmentsByGroup[group.id] ?? []).map((enrollment) => (
                 <li key={enrollment.id}>{enrollment.studentName}</li>
               ))}
               {(enrollmentsByGroup[group.id] ?? []).length === 0 && (
-                <li className="text-gray-400">Sin alumnos inscritos</li>
+                <li className="text-texto-suave">Sin alumnos inscritos</li>
               )}
             </ul>
           </div>

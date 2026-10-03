@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, type CSSProperties } from "react";
 import { useStudioClasses } from "@/features/studio/hooks/useStudioClasses";
 import { useMyBookings } from "@/features/bookings/hooks/useMyBookings";
 import { useMyCredits } from "@/features/credits/hooks/useMyCredits";
@@ -10,6 +10,9 @@ import { bookClass, cancelBooking, joinWaitlist, leaveWaitlist } from "@/feature
 import type { BookingWithClass } from "@/features/bookings/types/Booking";
 import type { WaitlistEntryWithClass } from "@/features/bookings/types/WaitlistEntry";
 import { BackButton } from "@/components/ui/BackButton";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { formatWeekStartKey, getWeekStart } from "@/features/studio/utils/weekUtils";
 
 function addDays(date: Date, days: number): Date {
@@ -22,6 +25,12 @@ export function ClassesCalendarPage() {
   const today = new Date();
   const todayWeekStart = formatWeekStartKey(getWeekStart(today));
   const [weekStart, setWeekStart] = useState<string>(todayWeekStart);
+  const [weekDirection, setWeekDirection] = useState<1 | -1>(1);
+
+  function handleWeekChange(value: string) {
+    setWeekDirection(value >= weekStart ? 1 : -1);
+    setWeekStart(value);
+  }
 
   // Calcula dateFrom (Domingo) y dateTo (Sabado) a partir de weekStart
   const dateFrom = weekStart;
@@ -97,9 +106,9 @@ export function ClassesCalendarPage() {
     }
   }, [reloadBookings, reloadCredits]);
 
-  const handleJoinWaitlist = useCallback(async (classId: string) => {
+  const handleJoinWaitlist = useCallback(async (classId: string, businessId: string) => {
     try {
-      await joinWaitlist(classId);
+      await joinWaitlist(classId, businessId);
       await reloadBookings();
     } catch (err) {
       console.error("[classes] join waitlist fallo", err);
@@ -116,37 +125,37 @@ export function ClassesCalendarPage() {
   }, [reloadBookings]);
 
   return (
-    <div id="classes-calendar-page" className="mx-auto max-w-5xl px-4 py-4 pb-24">
+    <div id="classes-calendar-page" className="mx-auto max-w-[980px] px-4 py-6 sm:px-8 sm:py-8">
       <BackButton />
-      <header className="mb-4">
-        <h1 className="text-xl font-semibold text-brand-primary">Horario de clases</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Próximas clases de Pilates. Navega por semanas.
-        </p>
-      </header>
+      <ScreenHeader
+        eyebrow="Estudio de Pilates"
+        title="Horario de clases"
+        lead="Próximas clases de Pilates. Navega por semanas."
+      />
 
-      <WeekSelector selectedWeekStart={weekStart} onChange={setWeekStart} />
+      <WeekSelector selectedWeekStart={weekStart} onChange={handleWeekChange} direction={weekDirection} />
 
       {error && (
-        <div id="classes-error" className="mb-6 rounded-md bg-red-50 p-4 text-sm text-red-600">
-          {error}
+        <div className="mb-6">
+          <ErrorState id="classes-error" message={error} />
         </div>
       )}
 
       {isLoading ? (
-        <div id="classes-loading" className="flex items-center justify-center py-12 text-gray-500">
-          Cargando clases...
-        </div>
+        <LoadingState id="classes-loading" message="Cargando clases…" />
       ) : (
-        <ClassesCalendar
-          classes={classesWithState}
-          onBook={handleBook}
-          onCancel={handleCancel}
-          onJoinWaitlist={handleJoinWaitlist}
-          onLeaveWaitlist={handleLeaveWaitlist}
-          hasCredits={hasCredits}
-          loading={isLoading}
-        />
+        <div key={weekStart} className="semana-entra" style={{ "--dir": weekDirection } as CSSProperties}>
+          <ClassesCalendar
+            classes={classesWithState}
+            onBook={handleBook}
+            onCancel={handleCancel}
+            onJoinWaitlist={handleJoinWaitlist}
+            onLeaveWaitlist={handleLeaveWaitlist}
+            hasCredits={hasCredits}
+            loading={isLoading}
+            weekStart={weekStart}
+          />
+        </div>
       )}
     </div>
   );

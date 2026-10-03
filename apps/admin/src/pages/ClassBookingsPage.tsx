@@ -1,11 +1,15 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { HeartPulse } from "lucide-react";
 import { BookCustomerModal } from "@/features/bookings/components/BookCustomerModal";
 import { useClassBookings } from "@/features/bookings/hooks/useClassBookings";
 import { useClasses } from "@/features/classes/hooks/useClasses";
 import { useCustomers } from "@/features/customers/hooks/useCustomers";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import { BackButton } from "@/components/ui/BackButton";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
 
 export function ClassBookingsPage() {
   const { id } = useParams<{ id: string }>();
@@ -61,119 +65,139 @@ export function ClassBookingsPage() {
   }
 
   if (classesLoading) {
-    return <div className="mx-auto max-w-3xl p-6 text-sm text-gray-500">Cargando...</div>;
+    return <LoadingState message="Cargando…" />;
   }
 
   if (classesError || !studioClass) {
     return (
-      <div className="mx-auto max-w-3xl p-6 text-sm">
+      <div className="mx-auto max-w-3xl p-4 text-cuerpo sm:p-6">
         <BackButton />
-        <p className="text-red-600">{classesError ?? "Clase no encontrada."}</p>
+        <ErrorState message={classesError ?? "Clase no encontrada."} />
       </div>
     );
   }
 
   return (
-    <div id="class-bookings-page" className="mx-auto max-w-3xl p-6">
+    <div id="class-bookings-page" className="entra mx-auto max-w-3xl p-4 sm:p-6">
       <BackButton />
-      <h1 className="mb-1 text-xl font-semibold text-brand-primary">{studioClass.title}</h1>
-      <p className="mb-4 text-sm text-gray-500">
+      <p className="etiqueta mb-2">Estudio · Clase</p>
+      <h1 className="mb-1 font-display text-titulo font-medium text-texto">{studioClass.title}</h1>
+      <p className="mb-4 text-sm text-texto-suave">
         Cupo: {bookings.length}/{studioClass.maxCapacity}
       </p>
 
-      {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
-      {actionError && <p className="mb-4 text-sm text-red-600">{actionError}</p>}
+      {error && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
+      {actionError && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{actionError}</p>}
 
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-brand-primary">Reservados</h2>
+        <h2 className="font-display text-subtitulo font-medium text-texto">Reservados</h2>
         <button
           type="button"
           onClick={() => setModalOpen(true)}
           disabled={isFull}
-          className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+          className={buttonClasses("primary", "md")}
         >
           Reservar cliente
         </button>
       </div>
 
-      {loading && <p className="text-sm text-gray-500">Cargando...</p>}
+      {loading && <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>}
       {!loading && bookings.length === 0 && (
-        <p className="mb-6 text-sm text-gray-500">Todavia no hay reservaciones.</p>
+        <p className="mb-6 vacio">Todavía no hay reservaciones.</p>
       )}
       {!loading && bookings.length > 0 && (
-        <table id="bookings-table" className="mb-6 w-full border-collapse text-sm">
-          <thead>
-            <tr className="border-b border-gray-200 text-left text-gray-500">
-              <th className="py-2">Cliente</th>
-              <th className="py-2">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.map((booking) => (
-              <tr key={booking.id} className="border-b border-gray-100">
-                <td className="py-2">{booking.customerName ?? "-"}</td>
-                <td className="py-2">
-                  <button
-                    type="button"
-                    onClick={() => handleCancel(booking.id)}
-                    className="text-gray-600 hover:underline"
-                  >
-                    Cancelar
-                  </button>
-                </td>
+        <div className="entra tabla-contenedor mb-6">
+          <table id="bookings-table" className="tabla">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {bookings.map((booking) => (
+                <tr key={booking.id}>
+                  <td>
+                    <Link
+                      to={`/customers/${booking.customerId}`}
+                      className="font-medium text-texto underline-offset-4 hover:text-acento hover:underline"
+                    >
+                      {booking.customerName ?? "-"}
+                    </Link>
+                    {booking.customerMedicalConditions && (
+                      <p className="mt-1 flex items-start gap-1.5 text-pequeno text-alerta">
+                        <HeartPulse className="mt-px h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                        <span>
+                          <span className="font-medium">Condición médica:</span> {booking.customerMedicalConditions}
+                        </span>
+                      </p>
+                    )}
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      onClick={() => handleCancel(booking.id)}
+                      className="accion text-texto-suave"
+                    >
+                      Cancelar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-brand-primary">Lista de espera</h2>
+        <h2 className="font-display text-subtitulo font-medium text-texto">Lista de espera</h2>
         {isFull && (
           <button
             type="button"
             onClick={() => setModalOpen(true)}
-            className="rounded-md border border-brand-primary px-4 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary hover:text-white"
+            className={buttonClasses("secondary", "md")}
           >
             Agregar a lista de espera
           </button>
         )}
       </div>
 
-      {waitlist.length === 0 && <p className="text-sm text-gray-500">Nadie en lista de espera.</p>}
+      {waitlist.length === 0 && <p className="vacio">Nadie en lista de espera.</p>}
       {waitlist.length > 0 && (
-        <table id="waitlist-table" className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="border-b border-gray-200 text-left text-gray-500">
-              <th className="py-2">Cliente</th>
-              <th className="py-2">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {waitlist.map((entry) => (
-              <tr key={entry.id} className="border-b border-gray-100">
-                <td className="py-2">{entry.customerName ?? "-"}</td>
-                <td className="py-2">
-                  <button
-                    type="button"
-                    onClick={() => handlePromote(entry.id)}
-                    disabled={isFull}
-                    className="mr-3 text-brand-primary hover:underline disabled:opacity-50"
-                  >
-                    Promover
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveWaiting(entry.id)}
-                    className="text-gray-600 hover:underline"
-                  >
-                    Quitar
-                  </button>
-                </td>
+        <div className="tabla-contenedor">
+        <table id="waitlist-table" className="tabla">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {waitlist.map((entry) => (
+                <tr key={entry.id}>
+                  <td>{entry.customerName ?? "-"}</td>
+                  <td>
+                    <button
+                      type="button"
+                      onClick={() => handlePromote(entry.id)}
+                      disabled={isFull}
+                      className="accion text-acento"
+                    >
+                      Promover
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveWaiting(entry.id)}
+                      className="accion text-texto-suave"
+                    >
+                      Quitar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <BookCustomerModal

@@ -89,6 +89,36 @@ con una cuenta real via alias `+` de Gmail (2026-08-28): registro,
 confirmacion pendiente detectada correctamente al intentar entrar antes de
 confirmar, `profile` creado igual que con Google.
 
+Contrasena (2026-10-02): boton para mostrar/ocultar en login y registro, y
+en el registro una lista en vivo de requisitos (`PASSWORD_REQUIREMENTS` en
+`EmailPasswordForm.tsx`: 8+ caracteres, una letra, un numero), que es la
+misma regla con la que valida `zod`. Eso solo es del lado del cliente: para
+que Supabase tambien la exija, en Dashboard > Authentication > Providers >
+Email poner "Minimum password length" = 8 y "Password requirements" =
+"Letters and digits" (en dev y prod). El login no exige los requisitos
+nuevos para no bloquear cuentas creadas antes.
+
+### Correo de confirmacion con la marca
+
+El correo "Confirm signup" usa `supabase/templates/confirm-signup.html`
+(marca MBA MID, tablas y estilos en linea, sin SVG ni fuentes web porque
+Gmail/Outlook no los muestran; saluda con `{{ .Data.full_name }}` si el
+registro lo trae). `supabase/config.toml` lo carga para la CLI local; en los
+proyectos hospedados (dev `eazyblybekyygimqpjjw` y prod
+`nnabpthdclgggpxysyxs`) se aplica a mano:
+
+1. Dashboard > Authentication > Emails > Templates > "Confirm signup".
+2. Subject: `Confirma tu cuenta · Merida Ballet Academy`.
+3. Pegar el HTML completo del archivo en "Message body" y guardar.
+4. Probar registrando una cuenta con un alias `+` de Gmail.
+
+Para que el remitente tambien sea de la marca (hoy sale de
+`noreply@mail.app.supabase.io`, con limite de pocos correos por hora,
+pensado solo para pruebas): Dashboard > Authentication > Emails > SMTP
+Settings con un proveedor (ej. Resend o Brevo) y un dominio del negocio
+verificado (SPF/DKIM). Sender name: "Merida Ballet Academy". Es necesario
+antes de produccion por el limite de envio.
+
 Login implementado en `apps/admin` (solo Google, sin email/password: es
 staff interno, no auto-registro publico). Mismo patron que `apps/web`
 (`authService`, `AuthProvider`/`useAuth`, `GoogleSignInButton`), mas un

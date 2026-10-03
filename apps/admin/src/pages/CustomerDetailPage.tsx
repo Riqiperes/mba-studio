@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useParams } from "react-router-dom";
 import { DependentFormModal, type DependentFormInput } from "@/features/dependents/components/DependentFormModal";
 import { DependentsTable } from "@/features/dependents/components/DependentsTable";
@@ -8,6 +8,9 @@ import type { Dependent } from "@/features/dependents/types/Dependent";
 import { GrantCreditsModal } from "@/features/credits/components/GrantCreditsModal";
 import { useCustomerCredits } from "@/features/credits/hooks/useCustomerCredits";
 import { BackButton } from "@/components/ui/BackButton";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
 
 export function CustomerDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -30,10 +33,33 @@ export function CustomerDetailPage() {
 
   const { balance, loading: creditsLoading, error: creditsError, grant } = useCustomerCredits(customerId);
   const [creditsModalOpen, setCreditsModalOpen] = useState(false);
+  const [balanceChanged, setBalanceChanged] = useState(false);
+  const previousBalance = useRef<number | null>(null);
+  const hasBalanceBaseline = useRef(false);
 
   async function handleGrantCredits(amount: number, notes?: string | null) {
     await grant(amount, notes);
   }
+
+  // Destaca el saldo solo cuando cambia por una accion (otorgar creditos),
+  // nunca en la primera carga: `balance` arranca en null y se resuelve al
+  // valor real en un segundo render, asi que la base se fija ahi (la
+  // primera vez que hay un numero real), no en el primer render.
+  useEffect(() => {
+    if (creditsLoading || balance === null) return undefined;
+    if (!hasBalanceBaseline.current) {
+      hasBalanceBaseline.current = true;
+      previousBalance.current = balance;
+      return undefined;
+    }
+    if (balance !== previousBalance.current) {
+      previousBalance.current = balance;
+      setBalanceChanged(true);
+      const timeout = setTimeout(() => setBalanceChanged(false), 900);
+      return () => clearTimeout(timeout);
+    }
+    return undefined;
+  }, [balance, creditsLoading]);
 
   useEffect(() => {
     if (!customer) return;
@@ -113,26 +139,27 @@ export function CustomerDetailPage() {
     }
   }
 
-  if (loading) return <div className="mx-auto max-w-3xl p-6 text-sm text-gray-500">Cargando...</div>;
+  if (loading) return <LoadingState message="Cargando…" />;
   if (error || !customer) {
     return (
-      <div className="mx-auto max-w-3xl p-6 text-sm">
+      <div className="mx-auto max-w-3xl p-4 text-cuerpo sm:p-6">
         <BackButton />
-        <p className="text-red-600">{error ?? "Cliente no encontrado."}</p>
+        <ErrorState message={error ?? "Cliente no encontrado."} />
       </div>
     );
   }
 
   return (
-    <div id="customer-detail-page" className="mx-auto max-w-3xl p-6">
+    <div id="customer-detail-page" className="entra mx-auto max-w-3xl p-4 sm:p-6">
       <BackButton />
-      <h1 className="mb-4 text-xl font-semibold text-brand-primary">
+      <p className="etiqueta mb-2">Estudio · Cliente</p>
+      <h1 className="mb-4 font-display text-titulo font-medium text-texto">
         {customer.fullName ?? "Cliente"}
       </h1>
 
       <form onSubmit={handleSaveCustomer} noValidate className="mb-6 flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1">
-          <label htmlFor="customer-fullname-input" className="text-xs text-gray-500">
+          <label htmlFor="customer-fullname-input" className="etiqueta-campo">
             Nombre
           </label>
           <input
@@ -140,11 +167,11 @@ export function CustomerDetailPage() {
             type="text"
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor="customer-phone-input" className="text-xs text-gray-500">
+          <label htmlFor="customer-phone-input" className="etiqueta-campo">
             Telefono
           </label>
           <input
@@ -152,11 +179,11 @@ export function CustomerDetailPage() {
             type="text"
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor="customer-discount-input" className="text-xs text-gray-500">
+          <label htmlFor="customer-discount-input" className="etiqueta-campo">
             Descuento referido (%)
           </label>
           <input
@@ -166,11 +193,11 @@ export function CustomerDetailPage() {
             max={100}
             value={discountPercent}
             onChange={(event) => setDiscountPercent(event.target.value)}
-            className="w-24 rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="w-24 rounded-control border border-borde-control px-3 py-2 text-sm"
           />
         </div>
         <div className="flex w-full flex-col gap-1">
-          <label htmlFor="customer-medical-conditions-input" className="text-xs text-gray-500">
+          <label htmlFor="customer-medical-conditions-input" className="etiqueta-campo">
             Condiciones medicas (opcional)
           </label>
           <textarea
@@ -179,11 +206,11 @@ export function CustomerDetailPage() {
             placeholder="Embarazo, hernia, lesiones, etc."
             value={medicalConditions}
             onChange={(event) => setMedicalConditions(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
         </div>
         <div className="flex w-full flex-col gap-1">
-          <label htmlFor="customer-notes-input" className="text-xs text-gray-500">
+          <label htmlFor="customer-notes-input" className="etiqueta-campo">
             Notas adicionales (opcional)
           </label>
           <textarea
@@ -191,33 +218,37 @@ export function CustomerDetailPage() {
             rows={2}
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="campo"
           />
         </div>
         <button
           type="submit"
           disabled={isSavingCustomer}
-          className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+          className={buttonClasses("primary", "md")}
         >
           {isSavingCustomer ? "Guardando..." : "Guardar"}
         </button>
       </form>
-      {editError && <p className="mb-4 text-sm text-red-600">{editError}</p>}
+      {editError && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{editError}</p>}
 
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-brand-primary">Creditos</h2>
+        <h2 className="font-display text-subtitulo font-medium text-texto">Creditos</h2>
         <button
           type="button"
           onClick={() => setCreditsModalOpen(true)}
-          className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+          className={buttonClasses("primary", "md")}
         >
           Otorgar creditos
         </button>
       </div>
-      {creditsLoading && <p className="mb-6 text-sm text-gray-500">Cargando...</p>}
-      {creditsError && <p className="mb-6 text-sm text-red-600">{creditsError}</p>}
+      {creditsLoading && <p className="mb-6 text-sm text-texto-suave">Cargando...</p>}
+      {creditsError && <p className="mb-6 text-sm text-alerta">{creditsError}</p>}
       {!creditsLoading && !creditsError && (
-        <p className="mb-6 text-2xl font-semibold text-brand-primary">{balance}</p>
+        <p
+          className={`mb-6 inline-block px-2 text-2xl font-semibold text-acento ${balanceChanged ? "destaca-cambio" : ""}`}
+        >
+          {balance}
+        </p>
       )}
 
       <GrantCreditsModal
@@ -227,19 +258,19 @@ export function CustomerDetailPage() {
       />
 
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-brand-primary">Alumnos</h2>
+        <h2 className="font-display text-subtitulo font-medium text-texto">Alumnos</h2>
         <button
           type="button"
           onClick={openCreateDependent}
-          className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+          className={buttonClasses("primary", "md")}
         >
           Nuevo alumno
         </button>
       </div>
 
-      {dependentsLoading && <p className="text-sm text-gray-500">Cargando...</p>}
-      {dependentsError && <p className="text-sm text-red-600">{dependentsError}</p>}
-      {dependentActionError && <p className="text-sm text-red-600">{dependentActionError}</p>}
+      {dependentsLoading && <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>}
+      {dependentsError && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{dependentsError}</p>}
+      {dependentActionError && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{dependentActionError}</p>}
       {!dependentsLoading && !dependentsError && (
         <DependentsTable
           dependents={dependents}
