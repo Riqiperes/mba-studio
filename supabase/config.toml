@@ -6,3 +6,7 @@ project_id = "eazyblybekyygimqpjjw"
 [auth.email.template.confirmation]
 subject = "Confirma tu cuenta · Merida Ballet Academy"
 content_path = "./supabase/templates/confirm-signup.html"
+
+[auth.email.template.recovery]
+subject = "Crea una contraseña nueva · Merida Ballet Academy"
+content_path = "./supabase/templates/reset-password.html"

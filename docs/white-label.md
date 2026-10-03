@@ -2,7 +2,7 @@
 
 ## Alcance actual
 
-El MVP es para **un solo negocio** (MBA MID). Este documento describe lo
+El MVP es para **un solo negocio** (MBA, Merida Ballet Academy). Este documento describe lo
 que ya esta preparado en la arquitectura y lo que se deja explicitamente
 para despues — no implementar lo de "despues" antes de que el MVP de un
 solo negocio funcione bien.

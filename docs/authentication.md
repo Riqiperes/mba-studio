@@ -91,17 +91,35 @@ confirmar, `profile` creado igual que con Google.
 
 Contrasena (2026-10-02): boton para mostrar/ocultar en login y registro, y
 en el registro una lista en vivo de requisitos (`PASSWORD_REQUIREMENTS` en
-`EmailPasswordForm.tsx`: 8+ caracteres, una letra, un numero), que es la
+`features/auth/utils/passwordRequirements.ts`: 8+ caracteres, una letra, un
+numero; el campo es `PasswordField.tsx`), que es la
 misma regla con la que valida `zod`. Eso solo es del lado del cliente: para
 que Supabase tambien la exija, en Dashboard > Authentication > Providers >
 Email poner "Minimum password length" = 8 y "Password requirements" =
 "Letters and digits" (en dev y prod). El login no exige los requisitos
 nuevos para no bloquear cuentas creadas antes.
 
+Recuperar contrasena (2026-10-03): "¿Olvidaste tu contraseña?" en el login
+(`ForgotPasswordForm.tsx`) llama `resetPasswordForEmail` con
+`redirectTo = <origen>/reset-password`. Siempre muestra el mismo mensaje,
+exista o no la cuenta (no revela que correos estan registrados). El enlace
+del correo abre una sesion de recuperacion y `/reset-password`
+(`pages/ResetPasswordPage.tsx`) guarda la contrasena nueva con
+`updateUser`, con los mismos requisitos del registro; sin sesion (enlace
+vencido o usado) ofrece volver al login. Requisitos en Supabase (dev y prod):
+
+1. Authentication > URL Configuration > Redirect URLs: agregar
+   `https://<dominio-web>/reset-password` (y
+   `http://localhost:5173/reset-password` para desarrollo). Si falta,
+   Supabase manda al usuario a la Site URL y no llega a la pagina.
+2. Templates > "Reset password": subject
+   `Crea una contraseña nueva · Merida Ballet Academy` y el HTML de
+   `supabase/templates/reset-password.html`.
+
 ### Correo de confirmacion con la marca
 
 El correo "Confirm signup" usa `supabase/templates/confirm-signup.html`
-(marca MBA MID, tablas y estilos en linea, sin SVG ni fuentes web porque
+(marca Merida Ballet Academy, tablas y estilos en linea, sin SVG ni fuentes web porque
 Gmail/Outlook no los muestran; saluda con `{{ .Data.full_name }}` si el
 registro lo trae). `supabase/config.toml` lo carga para la CLI local; en los
 proyectos hospedados (dev `eazyblybekyygimqpjjw` y prod
@@ -112,12 +130,17 @@ proyectos hospedados (dev `eazyblybekyygimqpjjw` y prod
 3. Pegar el HTML completo del archivo en "Message body" y guardar.
 4. Probar registrando una cuenta con un alias `+` de Gmail.
 
-Para que el remitente tambien sea de la marca (hoy sale de
-`noreply@mail.app.supabase.io`, con limite de pocos correos por hora,
-pensado solo para pruebas): Dashboard > Authentication > Emails > SMTP
-Settings con un proveedor (ej. Resend o Brevo) y un dominio del negocio
-verificado (SPF/DKIM). Sender name: "Merida Ballet Academy". Es necesario
-antes de produccion por el limite de envio.
+SMTP propio (2026-10-03): Supabase solo deja editar plantillas con SMTP
+propio. Se configuro **Resend** con el dominio del negocio (registrado en
+GoDaddy, verificado en Resend con los registros DNS SPF/DKIM que da Resend:
+`resend._domainkey` y `send`; los MX existentes del dominio no se tocaron).
+En Dashboard > Authentication > Emails > SMTP Settings: host
+`smtp.resend.com`, puerto `465`, usuario `resend`, password = API key de
+Resend (con permiso "Sending access"; vive solo en Supabase y Resend, nunca
+en el repo), sender name "Merida Ballet Academy", sender email
+`no-reply@<dominio>`, intervalo minimo 60 s. Confirmar que este igual en dev
+y prod: cada proyecto tiene su propia configuracion. Si se pierde la API key
+se crea otra en Resend y se reemplaza en ambos proyectos.
 
 Login implementado en `apps/admin` (solo Google, sin email/password: es
 staff interno, no auto-registro publico). Mismo patron que `apps/web`

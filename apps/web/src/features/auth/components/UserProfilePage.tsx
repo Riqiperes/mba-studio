@@ -10,6 +10,7 @@ import { SignOutButton } from "@/features/auth/components/SignOutButton";
 import { BackButton } from "@/components/ui/BackButton";
 import { TextField } from "@/components/ui/TextField";
 import { TextAreaField } from "@/components/ui/TextAreaField";
+import { buttonClasses } from "@/components/ui/buttonStyles";
 
 const STATUS_LABELS: Record<string, string> = {
   PENDIENTE: "Pendiente de aprobación",
@@ -166,6 +167,18 @@ export function UserProfilePage() {
               </dd>
             </div>
           </dl>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="font-display text-subtitulo font-medium">Mi horario</h2>
+            <p className="text-cuerpo text-texto-suave">Tus clases reservadas y listas de espera.</p>
+          </div>
+          <Link id="profile-my-bookings-link" to="/my-bookings" className={buttonClasses("soft", "md")}>
+            Ver mi horario
+          </Link>
         </CardContent>
       </Card>
 

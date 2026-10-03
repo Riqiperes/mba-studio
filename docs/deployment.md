@@ -42,15 +42,22 @@ Notas:
 
 ## Backend — Supabase
 
-- **Por ahora, un solo proyecto de Supabase** sirve como backend
-  compartido de desarrollo/staging: tanto `npm run dev` en local como los
-  preview deployments de Cloudflare Pages apuntan a el. Es la opcion mas
-  simple mientras el equipo es chico y no hay datos reales de clientes.
-- **Antes de operar con clientes/pagos reales**, crear un **segundo
-  proyecto de Supabase** dedicado a produccion, aplicarle las mismas
-  migraciones, y apuntar solo el entorno "Production" de Cloudflare Pages
-  ahi (Preview y desarrollo local siguen usando el proyecto de
-  desarrollo/staging).
+- **Dos proyectos de Supabase**: desarrollo/staging (`eazyblybekyygimqpjjw`,
+  lo usan `npm run dev` y los preview deployments de Cloudflare Pages) y
+  produccion (`nnabpthdclgggpxysyxs`, solo el entorno "Production" de
+  Cloudflare Pages). Cada migracion, plantilla de correo, SMTP, secret y
+  Edge Function se aplica en los dos por separado.
+- **Check "Supabase Preview" en GitHub**: falla en cada PR con "Remote
+  migration versions not found in local migrations directory". La
+  integracion de GitHub de Supabase compara el historial de migraciones
+  del proyecto (versiones con fecha, porque se aplicaron desde el
+  Dashboard/MCP) con los archivos del repo (`001_...`, `002_...`), que
+  nunca coinciden. No afecta a Cloudflare ni a la base de datos. Como no
+  se usan las ramas de preview de Supabase, lo simple es desconectarla:
+  Dashboard del proyecto conectado > Project Settings > Integrations >
+  GitHub > desconectar (o apagar "Supabase changes only"/branching).
+  Alinear el historial requeriria `supabase migration repair` en cada
+  proyecto; no vale la pena mientras no se usen preview branches.
 - Migraciones aplicadas via Supabase CLI (`supabase db push` o
   `supabase migration up`) o via el MCP de Supabase en un flujo asistido.
 - Edge Functions desplegadas con `supabase functions deploy <nombre>`.

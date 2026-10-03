@@ -1,6 +1,8 @@
 import { useEffect, useState, type KeyboardEvent, type ReactNode } from "react";
 import type { StudioClassWithInstructor } from "../types/StudioClass";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
+import { buttonClasses } from "@/components/ui/buttonStyles";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatTimeParts } from "@/utils/dateUtils";
 
@@ -250,7 +252,12 @@ function ClassRow({ cls, action }: { cls: ClassWithBookingState; action: ReactNo
           {getStatusLabel(cls.status)} · Cupo de {cls.maxCapacity}
         </p>
       </div>
-      <div className="col-start-2 flex flex-wrap items-center gap-2">{action}</div>
+      <div className="col-start-2 flex flex-wrap items-center gap-2">
+        {action}
+        <Link to={`/classes/${cls.id}`} className={buttonClasses("ghost", "sm")}>
+          Ver detalle
+        </Link>
+      </div>
     </article>
   );
 }
@@ -328,7 +335,12 @@ function FannedClassCard({
               <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${cls.status === "SCHEDULED" ? "bg-exito" : "bg-alerta"}`} />
               {getStatusLabel(cls.status)} · Cupo de {cls.maxCapacity}
             </p>
-            <div className="flex flex-wrap items-center gap-2">{action}</div>
+            <div className="flex flex-wrap items-center gap-2">
+              {action}
+              <Link to={`/classes/${cls.id}`} className={buttonClasses("ghost", "sm")}>
+              Ver detalle
+            </Link>
+            </div>
           </div>
         </div>
       </div>

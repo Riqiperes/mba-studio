@@ -118,6 +118,18 @@ el proceso no cambia por quien lo ejecuta.
 7. No declarar nada "listo" solo porque compila: si el cambio es
    verificable en la app (UI, flujo de usuario), probarlo corriendo la app,
    no solo con tipos/lint/build.
+8. Edge Functions (Deno): `npm run typecheck` no las revisa. Correr
+   `deno check --node-modules-dir=none supabase/functions/<funcion>/index.ts`
+   desde fuera del repo (o con esa bandera), porque el `node_modules` del
+   monorepo confunde a Deno. Asi se encontro que `stripe-webhook` leia
+   campos que ya no existen en la API de Stripe que usa el SDK fijado.
+9. Commitear solo los archivos tocados (`git add <rutas>`), nunca
+   `git commit -am`: ya se colo asi un cambio local de permisos en
+   `.claude/settings.json`.
+10. Al integrar la rama de otra persona: mergear `develop` en ella, revisar
+    numeracion de migraciones (dos ramas pueden usar el mismo numero), y
+    confirmar en Supabase (`list_migrations` o consultando las tablas) que
+    lo que el doc dice "aplicado" de verdad lo esta, en cada proyecto.
 
 ## Estado actual
 

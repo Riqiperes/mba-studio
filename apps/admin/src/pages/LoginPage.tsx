@@ -29,7 +29,7 @@ export function LoginPage() {
         <BrandLogo variant="vertical" alt="Merida Ballet Academy" className="h-28" />
         <div className="w-full rounded-card border border-borde bg-tarjeta p-6 text-center shadow-card sm:p-8">
           <p className="etiqueta">Panel administrativo</p>
-          <h1 className="mt-2 font-display text-titulo font-medium">MBA MID</h1>
+          <h1 className="mt-2 font-display text-titulo font-medium">MBA</h1>
           <p className="mt-1 mb-6 text-cuerpo text-texto-suave">Inicia sesión para continuar</p>
           <GoogleSignInButton />
         </div>

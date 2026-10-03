@@ -3,6 +3,7 @@ import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButton";
 import { EmailPasswordForm } from "@/features/auth/components/EmailPasswordForm";
+import { ForgotPasswordForm } from "@/features/auth/components/ForgotPasswordForm";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { ThemeToggleButton } from "@/components/ui/ThemeToggleButton";
 
@@ -10,13 +11,14 @@ export function LoginPage() {
   const { session, loading } = useAuth();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/profile";
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
 
   if (!loading && session) {
     return <Navigate to={redirectTo} replace />;
   }
 
   const isRegister = mode === "register";
+  const isForgot = mode === "forgot";
 
   return (
     <div id="login-page" className="relative isolate grid min-h-dvh bg-superficie lg:grid-cols-[1.1fr_1fr]">
@@ -48,30 +50,40 @@ export function LoginPage() {
 
           <div className="rounded-card border border-borde bg-tarjeta p-6 shadow-card sm:p-8">
             <div className="mb-6 space-y-1 text-center">
-              <h1 className="font-display text-titulo font-medium">MBA MID</h1>
+              <h1 className="font-display text-titulo font-medium">MBA</h1>
               <p className="text-cuerpo text-texto-suave">
-                {isRegister ? "Crea tu cuenta para continuar" : "Inicia sesión para continuar"}
+                {isForgot
+                  ? "Te mandamos un enlace para crear una contraseña nueva"
+                  : isRegister
+                    ? "Crea tu cuenta para continuar"
+                    : "Inicia sesión para continuar"}
               </p>
             </div>
 
-            <GoogleSignInButton redirectTo={redirectTo} />
+            {isForgot ? (
+              <ForgotPasswordForm />
+            ) : (
+              <>
+                <GoogleSignInButton redirectTo={redirectTo} />
 
-            <div className="my-5 flex items-center gap-3 text-pequeno text-texto-suave">
-              <div className="h-px flex-1 bg-borde" />o<div className="h-px flex-1 bg-borde" />
-            </div>
+                <div className="my-5 flex items-center gap-3 text-pequeno text-texto-suave">
+                  <div className="h-px flex-1 bg-borde" />o<div className="h-px flex-1 bg-borde" />
+                </div>
 
-            <EmailPasswordForm mode={mode} redirectTo={redirectTo} />
+                <EmailPasswordForm mode={mode} redirectTo={redirectTo} onForgotPassword={() => setMode("forgot")} />
+              </>
+            )}
           </div>
 
           <button
             id="auth-mode-toggle-link"
             type="button"
-            onClick={() => setMode(isRegister ? "login" : "register")}
+            onClick={() => setMode(mode === "login" ? "register" : "login")}
             className="mx-auto min-h-10 rounded-chip px-2 text-cuerpo text-texto-suave transition-colors duration-200 hover:text-texto"
           >
-            {isRegister ? "¿Ya tienes cuenta? " : "¿No tienes cuenta? "}
+            {isForgot ? "¿Ya la recordaste? " : isRegister ? "¿Ya tienes cuenta? " : "¿No tienes cuenta? "}
             <span className="font-medium text-acento underline decoration-acento/40 underline-offset-4">
-              {isRegister ? "Inicia sesión" : "Crea una"}
+              {isForgot || isRegister ? "Inicia sesión" : "Crea una"}
             </span>
           </button>
         </div>
