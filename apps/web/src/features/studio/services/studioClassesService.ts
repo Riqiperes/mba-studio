@@ -36,10 +36,13 @@ function toStudioClass(row: StudioClassRow): StudioClass {
   };
 }
 
-function nextDayIso(dateStr: string): string {
-  const date = new Date(`${dateStr}T00:00:00Z`);
-  date.setUTCDate(date.getUTCDate() + 1);
-  return date.toISOString().slice(0, 10);
+// Medianoche LOCAL de un dia YYYY-MM-DD como instante ISO. Un string de
+// solo fecha Postgres lo lee como medianoche UTC (6 pm del dia anterior en
+// Merida), y la semana traia clases de mas o de menos.
+function localDayStartIso(dateStr: string, addDays = 0): string {
+  const date = new Date(`${dateStr}T00:00:00`);
+  date.setDate(date.getDate() + addDays);
+  return date.toISOString();
 }
 
 export async function listUpcomingClasses(filters: ClassFilters = {}): Promise<StudioClassWithInstructor[]> {
@@ -52,8 +55,8 @@ export async function listUpcomingClasses(filters: ClassFilters = {}): Promise<S
 
   if (filters.instructorId) query = query.eq("instructor_id", filters.instructorId);
   if (filters.status) query = query.eq("status", filters.status);
-  if (filters.dateFrom) query = query.gte("starts_at", filters.dateFrom);
-  if (filters.dateTo) query = query.lt("starts_at", nextDayIso(filters.dateTo));
+  if (filters.dateFrom) query = query.gte("starts_at", localDayStartIso(filters.dateFrom));
+  if (filters.dateTo) query = query.lt("starts_at", localDayStartIso(filters.dateTo, 1));
 
   const { data, error } = await query;
 
@@ -74,4 +77,13 @@ export async function listInstructors(): Promise<{ id: string; fullName: string 
 
   if (error) throw error;
   return (data ?? []).map((row) => ({ id: row.id, fullName: row.full_name }));
+}
+/** Reservas CONFIRMED por clase (de todos los clientes), via RPC de la migracion 033. */
+export async function getClassBookingCounts(classIds: string[]): Promise<Map<string, number>> {
+  const counts = new Map<string, number>();
+  if (classIds.length === 0) return counts;
+  const { data, error } = await supabase.rpc("class_booking_counts", { class_ids: classIds });
+  if (error) throw error;
+  for (const row of data) counts.set(row.class_id, row.booked_count);
+  return counts;
 }

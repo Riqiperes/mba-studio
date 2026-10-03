@@ -14,9 +14,6 @@ export function formatTime(dateStr: string): string {
   });
 }
 
-export function formatDateKey(dateStr: string): string {
-  return new Date(dateStr).toISOString().slice(0, 10);
-}
 /** "7:00" y "a. m." por separado, para columnas de hora en tarjetas. */
 export function formatTimeParts(dateStr: string): { time: string; period: string } {
   const formatted = new Date(dateStr).toLocaleTimeString("es-MX", {
