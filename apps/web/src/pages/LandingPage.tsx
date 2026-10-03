@@ -49,7 +49,7 @@ export function LandingPage() {
     return <LoadingState id="landing-loading" />;
   }
 
-  const businessName = business?.name ?? "MBA MID";
+  const businessName = business?.name ?? "MBA";
   const whatsappUrl = business?.whatsappNumber ? formatWhatsAppLink(business.whatsappNumber) : "";
   const phoneUrl = business?.phone ? formatPhoneLink(business.phone) : "";
   const address = business?.address ?? null;

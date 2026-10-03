@@ -101,7 +101,7 @@ nuevos para no bloquear cuentas creadas antes.
 ### Correo de confirmacion con la marca
 
 El correo "Confirm signup" usa `supabase/templates/confirm-signup.html`
-(marca MBA MID, tablas y estilos en linea, sin SVG ni fuentes web porque
+(marca Merida Ballet Academy, tablas y estilos en linea, sin SVG ni fuentes web porque
 Gmail/Outlook no los muestran; saluda con `{{ .Data.full_name }}` si el
 registro lo trae). `supabase/config.toml` lo carga para la CLI local; en los
 proyectos hospedados (dev `eazyblybekyygimqpjjw` y prod
