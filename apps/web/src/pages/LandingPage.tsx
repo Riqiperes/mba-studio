@@ -23,6 +23,13 @@ function formatMapEmbedUrl(address: string): string {
   return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
 }
 
+// Respaldo mientras business.address este vacio (hoy en dev y prod): Plaza
+// Floresta, con el mapa exacto que dio el negocio desde Google Maps.
+const FALLBACK_ADDRESS =
+  "Plaza Floresta, Avenida Periférico Norte, Floresta km. 24, Residencial Floresta, 97306 Mérida, Yuc.";
+const FALLBACK_MAP_EMBED_URL =
+  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d553.6434561119122!2d-89.55663166346362!3d21.01449759975296!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8f5677ec20cc5d0d%3A0x83bf1bf93e0504e6!2sPLAZA%20FLORESTA!5e0!3m2!1ses!2smx!4v1791016336214!5m2!1ses!2smx";
+
 function formatDirectionsUrl(address: string): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
 }
@@ -52,8 +59,8 @@ export function LandingPage() {
   const businessName = business?.name ?? "MBA";
   const whatsappUrl = business?.whatsappNumber ? formatWhatsAppLink(business.whatsappNumber) : "";
   const phoneUrl = business?.phone ? formatPhoneLink(business.phone) : "";
-  const address = business?.address ?? null;
-  const hasContactInfo = Boolean(address || phoneUrl || whatsappUrl);
+  const address = business?.address || FALLBACK_ADDRESS;
+  const mapEmbedUrl = business?.address ? formatMapEmbedUrl(business.address) : FALLBACK_MAP_EMBED_URL;
 
   return (
     <div id="landing-page" className="entra mx-auto flex max-w-[980px] flex-col gap-10 px-4 pt-6 sm:gap-12 sm:px-8 sm:pt-8">
@@ -115,31 +122,21 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* 3. Donde estamos: mapa, direccion y contacto. Siempre visible; sin
-          datos del negocio muestra el lugar reservado del mapa como antes. */}
+      {/* 3. Donde estamos: mapa, direccion y contacto. */}
       <section
           id="landing-location-section"
           aria-labelledby="landing-location-title"
           className="grid overflow-hidden rounded-card border border-borde bg-tarjeta shadow-card sm:grid-cols-2"
         >
-          {address ? (
-            <iframe
-              id="landing-map"
-              title={`Mapa: ${address}`}
-              src={formatMapEmbedUrl(address)}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              className="h-56 w-full border-0 sm:h-full sm:min-h-72"
-            />
-          ) : (
-            <div
-              id="landing-map-placeholder"
-              className="flex h-48 flex-col items-center justify-center gap-2 bg-suave text-texto-suave sm:h-full sm:min-h-72"
-            >
-              <MapPin className="h-8 w-8 text-malva" strokeWidth={1.4} aria-hidden="true" />
-              <span className="text-pequeno">Mapa de Google</span>
-            </div>
-          )}
+          <iframe
+            id="landing-map"
+            title={`Mapa: ${address}`}
+            src={mapEmbedUrl}
+            loading="lazy"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+            className="h-56 w-full border-0 sm:h-full sm:min-h-72"
+          />
           <div className="flex flex-col gap-5 p-6 sm:p-8">
             <div className="space-y-2">
               <p className="etiqueta">Visítanos</p>
@@ -147,15 +144,10 @@ export function LandingPage() {
                 Dónde estamos
               </h2>
             </div>
-            {address && (
-              <address className="flex items-start gap-3 text-cuerpo-l not-italic text-texto">
-                <MapPin className="mt-1 h-5 w-5 shrink-0 text-acento" strokeWidth={1.6} aria-hidden="true" />
-                {address}
-              </address>
-            )}
-            {!hasContactInfo && (
-              <p className="text-cuerpo text-texto-suave">Aquí irán la dirección y los datos de contacto.</p>
-            )}
+            <address className="flex items-start gap-3 text-cuerpo-l not-italic text-texto">
+              <MapPin className="mt-1 h-5 w-5 shrink-0 text-acento" strokeWidth={1.6} aria-hidden="true" />
+              {address}
+            </address>
             <div className="mt-auto flex flex-wrap gap-3">
               {whatsappUrl && (
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={buttonClasses("primary", "md")}>
@@ -169,16 +161,14 @@ export function LandingPage() {
                   Llamar
                 </a>
               )}
-              {address && (
-                <a
-                  href={formatDirectionsUrl(address)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={buttonClasses("soft", "md")}
-                >
-                  Cómo llegar
-                </a>
-              )}
+              <a
+                href={formatDirectionsUrl(address)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={buttonClasses("soft", "md")}
+              >
+                Cómo llegar
+              </a>
             </div>
           </div>
         </section>
