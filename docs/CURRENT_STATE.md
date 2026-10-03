@@ -3,7 +3,18 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-10-03 (rama `feat/password-reset-web-fixes`):
+Ultima actualizacion: 2026-10-03 (release `release/password-reset-horarios-mapa` a `main`):
+- `main` recibe por cherry-pick todo lo de #27, #28 y #29 (recuperar
+  contrasena, arreglos de Horarios, nombre MBA, mapa de Plaza Floresta y
+  WhatsApp en el inicio, docs). Sigue sin Stripe: comparado con `develop`
+  solo faltan los archivos de Stripe (funciones, migraciones 031/032 y el
+  flujo de pago de Academia).
+- **Inicio (web)**: mapa y direccion de Plaza Floresta y boton de WhatsApp
+  (9991072423) como respaldo mientras `business.address` y
+  `business.whatsapp_number` esten vacios; sin boton "Llamar" (contacto
+  solo por mensajes).
+
+Actualizacion anterior: 2026-10-03 (rama `feat/password-reset-web-fixes`):
 - **Recuperar contrasena (web)**: "¿Olvidaste tu contraseña?" en el login y
   pagina `/reset-password`; plantilla `supabase/templates/reset-password.html`.
   Falta en Supabase (dev y prod): Redirect URL `/reset-password` y pegar la
@@ -11,8 +22,8 @@ Ultima actualizacion: 2026-10-03 (rama `feat/password-reset-web-fixes`):
 - **Horarios (web)**: semana y filtro de fechas en hora local (antes UTC:
   despues de las 6 pm la semana se corria y se perdian clases de la
   noche); cupo real de todos los clientes con la RPC publica de solo
-  lectura `class_booking_counts` (**migracion 033: aplicada en dev, falta en
-  prod**; sin ella la web sigue funcionando como antes); confirmacion al
+  lectura `class_booking_counts` (**migracion 033: aplicada en dev y prod**,
+  2026-10-03); confirmacion al
   cancelar con la regla de 8 horas; errores de reservar/cancelar visibles;
   enlaces "Ver mi horario" y "Ver detalle".
 - **Nombre**: "MBA MID" pasa a "MBA" / "Merida Ballet Academy" en la UI,
