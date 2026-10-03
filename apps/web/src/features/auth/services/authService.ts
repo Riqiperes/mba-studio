@@ -50,6 +50,20 @@ export async function signInWithEmail(
   if (error) throw error;
 }
 
+/** Manda el correo "Reset password"; el enlace regresa a /reset-password. */
+export async function requestPasswordReset(email: string): Promise<void> {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`,
+  });
+  if (error) throw error;
+}
+
+/** Cambia la contrasena del usuario con sesion (incluida la de recuperacion). */
+export async function updatePassword(password: string): Promise<void> {
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw error;
+}
+
 export async function getProfile(userId: string): Promise<Profile> {
   const { data, error } = await supabase
     .from("profiles")

@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "@/features/auth/hooks/AuthProvider";
 import { RequireAuth } from "@/routes/RequireAuth";
 import { LoginPage } from "@/pages/LoginPage";
+import { ResetPasswordPage } from "@/pages/ResetPasswordPage";
 import { MainLayout } from "@/layouts/MainLayout";
 import { LandingPage } from "@/pages/LandingPage";
 import { PackagesCatalogPage } from "@/features/packages/components/PackagesCatalog";
@@ -33,6 +34,7 @@ function App() {
           
           {/* Login page - no layout */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           
           {/* Private routes - WITH RequireAuth + MainLayout */}
           <Route
