@@ -12,14 +12,15 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
+    "lucide-react": "^1.48.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^6.28.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@mba-studio/shared": "*",
     "@eslint/js": "^9.15.0",
+    "@mba-studio/shared": "*",
     "@tailwindcss/vite": "^4.0.0",
     "@types/node": "^22.10.1",
     "@types/react": "^19.0.0",

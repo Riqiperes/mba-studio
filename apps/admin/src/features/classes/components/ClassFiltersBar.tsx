@@ -20,19 +20,24 @@ export function ClassFiltersBar({ instructors, filters, onChange }: Props) {
 
   return (
     <div id="class-filters-bar" className="mb-4 flex flex-wrap gap-2">
-      <select
-        id="class-filter-instructor"
-        value={filters.instructorId ?? ""}
-        onChange={(event) => updateInstructorFilter(event.target.value)}
-        className="rounded-md border border-gray-300 px-2 py-1 text-sm"
-      >
-        <option value="">Todos los instructores</option>
-        {instructors.map((instructor) => (
-          <option key={instructor.id} value={instructor.id}>
-            {instructor.fullName}
-          </option>
-        ))}
-      </select>
+      <div className="flex flex-col gap-1">
+        <label htmlFor="class-filter-instructor" className="etiqueta-campo">
+          Instructor
+        </label>
+        <select
+          id="class-filter-instructor"
+          value={filters.instructorId ?? ""}
+          onChange={(event) => updateInstructorFilter(event.target.value)}
+          className="campo campo-compacto sm:w-72"
+        >
+          <option value="">Todos los instructores</option>
+          {instructors.map((instructor) => (
+            <option key={instructor.id} value={instructor.id}>
+              {instructor.fullName}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }
