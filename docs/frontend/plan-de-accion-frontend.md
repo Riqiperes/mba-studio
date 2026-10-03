@@ -65,10 +65,10 @@ esta lista. Marcar cada punto al resolverlo y anotarlo en la bitacora.
 
 **4. Funcionamiento detectado sin cambiar (decidir si entra; no es diseno)** *(decide el equipo, ver punto 0)*
 
-- [ ] "Mis reservaciones" (`/my-bookings`) y el detalle de clase (`/classes/:id`) no tienen enlace visible en la web.
-- [ ] "Cancelar" una reserva desde Horarios no pide confirmacion (en Mi horario si).
-- [ ] `formatWeekStartKey` usa fecha UTC: despues de las 6 pm la semana "de hoy" puede correrse un dia.
-- [ ] El cupo del calendario de la web solo cuenta las reservas propias, no las de todos.
+- [x] "Ver mi horario" en Horarios y en el perfil; "Ver detalle" en cada clase (2026-10-03).
+- [x] Cancelar desde Horarios pide confirmacion, con la regla de 8 horas (2026-10-03; el texto de Mi horario prometia devolver el credito siempre y tambien se corrigio).
+- [x] Semana y filtro de fechas en hora local (2026-10-03).
+- [x] Cupo real con `class_booking_counts` (migracion 033, 2026-10-03).
 - [ ] Varios formularios de los modales del admin usan el placeholder como unica etiqueta del campo.
 
 **5. Opcionales** *(decide el equipo, ver punto 0)*
