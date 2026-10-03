@@ -91,12 +91,30 @@ confirmar, `profile` creado igual que con Google.
 
 Contrasena (2026-10-02): boton para mostrar/ocultar en login y registro, y
 en el registro una lista en vivo de requisitos (`PASSWORD_REQUIREMENTS` en
-`EmailPasswordForm.tsx`: 8+ caracteres, una letra, un numero), que es la
+`features/auth/utils/passwordRequirements.ts`: 8+ caracteres, una letra, un
+numero; el campo es `PasswordField.tsx`), que es la
 misma regla con la que valida `zod`. Eso solo es del lado del cliente: para
 que Supabase tambien la exija, en Dashboard > Authentication > Providers >
 Email poner "Minimum password length" = 8 y "Password requirements" =
 "Letters and digits" (en dev y prod). El login no exige los requisitos
 nuevos para no bloquear cuentas creadas antes.
+
+Recuperar contrasena (2026-10-03): "¿Olvidaste tu contraseña?" en el login
+(`ForgotPasswordForm.tsx`) llama `resetPasswordForEmail` con
+`redirectTo = <origen>/reset-password`. Siempre muestra el mismo mensaje,
+exista o no la cuenta (no revela que correos estan registrados). El enlace
+del correo abre una sesion de recuperacion y `/reset-password`
+(`pages/ResetPasswordPage.tsx`) guarda la contrasena nueva con
+`updateUser`, con los mismos requisitos del registro; sin sesion (enlace
+vencido o usado) ofrece volver al login. Requisitos en Supabase (dev y prod):
+
+1. Authentication > URL Configuration > Redirect URLs: agregar
+   `https://<dominio-web>/reset-password` (y
+   `http://localhost:5173/reset-password` para desarrollo). Si falta,
+   Supabase manda al usuario a la Site URL y no llega a la pagina.
+2. Templates > "Reset password": subject
+   `Crea una contraseña nueva · Merida Ballet Academy` y el HTML de
+   `supabase/templates/reset-password.html`.
 
 ### Correo de confirmacion con la marca
 
