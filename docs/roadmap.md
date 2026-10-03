@@ -76,6 +76,9 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
     `docs/white-label.md`).
 24. **Campos personalizados de cliente:** condiciones medicas (embarazo,
     hernia, etc.), edad, notas — visibles en admin y detalle de clase.
+    Hecho: condiciones medicas en el detalle del cliente y, desde
+    2026-10-02, en "Reservados" de cada clase y en "Mis clases" del
+    instructor (solo si el cliente tiene alguna).
 25. **Instructores como admin limitado:** rol `INSTRUCTOR_ADMIN` (no
     SUPER_ADMIN) — vista "Mis clases" con sus alumnos, filtro por
     instructor en admin. Cuenta recomendada pero no obligatoria.
@@ -94,7 +97,9 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
 - Ventana de confirmacion al liberarse un cupo en lista de espera (solo recordatorio manual).
 - Proveedor de WhatsApp definitivo (Meta / Twilio / UltraMsg) para
   produccion.
-- Proveedor de email definitivo.
+- Proveedor de email para notificaciones propias (recordatorios, avisos).
+  El correo de Supabase Auth ya sale por Resend (2026-10-03, ver
+  `docs/authentication.md`); usar el mismo proveedor es lo natural.
 
 Cuando se decidan, documentar el valor en `docs/business-rules.md` en el
 mismo cambio que se implemente.

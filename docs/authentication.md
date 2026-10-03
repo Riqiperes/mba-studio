@@ -112,12 +112,17 @@ proyectos hospedados (dev `eazyblybekyygimqpjjw` y prod
 3. Pegar el HTML completo del archivo en "Message body" y guardar.
 4. Probar registrando una cuenta con un alias `+` de Gmail.
 
-Para que el remitente tambien sea de la marca (hoy sale de
-`noreply@mail.app.supabase.io`, con limite de pocos correos por hora,
-pensado solo para pruebas): Dashboard > Authentication > Emails > SMTP
-Settings con un proveedor (ej. Resend o Brevo) y un dominio del negocio
-verificado (SPF/DKIM). Sender name: "Merida Ballet Academy". Es necesario
-antes de produccion por el limite de envio.
+SMTP propio (2026-10-03): Supabase solo deja editar plantillas con SMTP
+propio. Se configuro **Resend** con el dominio del negocio (registrado en
+GoDaddy, verificado en Resend con los registros DNS SPF/DKIM que da Resend:
+`resend._domainkey` y `send`; los MX existentes del dominio no se tocaron).
+En Dashboard > Authentication > Emails > SMTP Settings: host
+`smtp.resend.com`, puerto `465`, usuario `resend`, password = API key de
+Resend (con permiso "Sending access"; vive solo en Supabase y Resend, nunca
+en el repo), sender name "Merida Ballet Academy", sender email
+`no-reply@<dominio>`, intervalo minimo 60 s. Confirmar que este igual en dev
+y prod: cada proyecto tiene su propia configuracion. Si se pierde la API key
+se crea otra en Resend y se reemplaza en ambos proyectos.
 
 Login implementado en `apps/admin` (solo Google, sin email/password: es
 staff interno, no auto-registro publico). Mismo patron que `apps/web`
