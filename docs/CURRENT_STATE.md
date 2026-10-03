@@ -3,7 +3,23 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-10-02 (integracion de Stripe para Academia con el rediseno):
+Ultima actualizacion: 2026-10-02 (rama `feat/auth-ux-theme-medical-details`):
+- **Contrasena en `apps/web`**: boton mostrar/ocultar en login y registro;
+  en el registro, lista en vivo de requisitos (8+ caracteres, una letra, un
+  numero) que es la misma regla que valida `zod`. Falta exigirla tambien en
+  Supabase (Dashboard, ver `docs/authentication.md`).
+- **Tema claro/oscuro**: `ThemeToggleButton` en header y login de web y
+  admin; la eleccion se guarda en `localStorage` (`mba-theme`), sin eleccion
+  sigue al sistema. `BrandLogo` cambia de logo tambien con el tema forzado.
+- **Reservados de una clase (admin)**: el nombre del cliente lleva a
+  `/customers/:id` y, solo si tiene condiciones medicas registradas, se
+  muestran debajo del nombre. Tambien en "Mis clases" del instructor.
+- **Correo de confirmacion**: plantilla con la marca en
+  `supabase/templates/confirm-signup.html`; se pega a mano en el Dashboard
+  de cada proyecto, y conviene SMTP propio antes de produccion (pasos en
+  `docs/authentication.md`).
+
+Actualizacion anterior: 2026-10-02 (integracion de Stripe para Academia con el rediseno):
 - Rama `feat/academy-stripe-checkout-integration` = `feat/academy-registration-stripe-checkout`
   + `develop` (rediseno web/admin y "Nuevo cliente"). Conflictos resueltos en
   `AcademyGroupCard`, `EnrollAndPayModal` y `UserProfilePage`: diseno nuevo con el

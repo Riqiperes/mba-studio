@@ -5,3 +5,10 @@ project_id = "eazyblybekyygimqpjjw"
 # (STRIPE_WEBHOOK_SECRET) dentro de la funcion. Ver docs/payments.md.
 [functions.stripe-webhook]
 verify_jwt = false
+
+# Correo de confirmacion de registro con la marca (solo aplica al stack
+# local de la CLI; en los proyectos hospedados se pega el mismo HTML en
+# Dashboard > Authentication > Emails). Ver docs/authentication.md.
+[auth.email.template.confirmation]
+subject = "Confirma tu cuenta · Merida Ballet Academy"
+content_path = "./supabase/templates/confirm-signup.html"

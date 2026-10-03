@@ -7,6 +7,13 @@
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbfaf7" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#2b2320" />
     <meta name="color-scheme" content="light dark" />
+    <!-- Tema elegido con ThemeToggleButton (antes de pintar, sin parpadeo) -->
+    <script>
+      try {
+        var savedTheme = localStorage.getItem("mba-theme");
+        if (savedTheme === "light" || savedTheme === "dark") document.documentElement.dataset.theme = savedTheme;
+      } catch (error) {}
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

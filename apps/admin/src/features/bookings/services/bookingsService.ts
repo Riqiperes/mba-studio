@@ -45,13 +45,15 @@ function toWaitlistEntry(row: WaitlistRow): WaitlistEntry {
   };
 }
 
-type BookingWithCustomerRow = BookingRow & { profiles: { full_name: string | null } | null };
+type BookingWithCustomerRow = BookingRow & {
+  profiles: { full_name: string | null; medical_conditions: string | null } | null;
+};
 type WaitlistWithCustomerRow = WaitlistRow & { profiles: { full_name: string | null } | null };
 
 export async function listBookingsByClass(classId: string): Promise<BookingWithCustomer[]> {
   const { data, error } = await supabase
     .from("bookings")
-    .select(`${BOOKING_COLUMNS}, profiles(full_name)`)
+    .select(`${BOOKING_COLUMNS}, profiles(full_name, medical_conditions)`)
     .eq("class_id", classId)
     .eq("status", "CONFIRMED")
     .order("created_at", { ascending: true });
@@ -60,6 +62,7 @@ export async function listBookingsByClass(classId: string): Promise<BookingWithC
   return (data as BookingWithCustomerRow[]).map((row) => ({
     ...toBooking(row),
     customerName: row.profiles?.full_name ?? null,
+    customerMedicalConditions: row.profiles?.medical_conditions?.trim() || null,
   }));
 }
 

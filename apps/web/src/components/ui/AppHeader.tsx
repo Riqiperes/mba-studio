@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { ThemeToggleButton } from "@/components/ui/ThemeToggleButton";
 
 export function AppHeader() {
   const { session } = useAuth();
@@ -19,11 +20,14 @@ export function AppHeader() {
         >
           <BrandLogo variant="horizontal" alt="" className="h-9 sm:h-11" />
         </Link>
-        {!session && (
-          <Link id="header-sign-in-link" to="/login" className={buttonClasses("soft", "sm")}>
-            Iniciar sesión
-          </Link>
-        )}
+        <div className="flex items-center gap-2">
+          <ThemeToggleButton />
+          {!session && (
+            <Link id="header-sign-in-link" to="/login" className={buttonClasses("soft", "sm")}>
+              Iniciar sesión
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   );

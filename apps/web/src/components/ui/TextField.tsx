@@ -1,41 +1,56 @@
 import { useId } from "react";
-import type { InputHTMLAttributes, Ref } from "react";
+import type { InputHTMLAttributes, ReactNode, Ref } from "react";
 
 interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   hint?: string | undefined;
   error?: string | undefined;
   ref?: Ref<HTMLInputElement>;
+  /** Boton dentro del campo, a la derecha (ej. mostrar contrasena). */
+  trailing?: ReactNode;
 }
 
 /**
  * Campo de texto con etiqueta visible, ayuda opcional y error anunciado.
  * El placeholder nunca sustituye a la etiqueta.
  */
-export function TextField({ label, hint, error, id, className = "", ref, ...rest }: TextFieldProps) {
+export function TextField({
+  label,
+  hint,
+  error,
+  id,
+  className = "",
+  ref,
+  trailing,
+  "aria-describedby": extraDescribedBy,
+  ...rest
+}: TextFieldProps) {
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const hintId = hint ? `${inputId}-hint` : undefined;
   const errorId = error ? `${inputId}-error` : undefined;
-  const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
+  const describedBy = [hintId, errorId, extraDescribedBy].filter(Boolean).join(" ") || undefined;
 
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
       <label htmlFor={inputId} className="text-pequeno font-medium text-texto">
         {label}
       </label>
-      <input
-        ref={ref}
-        id={inputId}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={describedBy}
-        className={`min-h-12 w-full rounded-control border bg-tarjeta px-4 text-base text-texto transition-[border-color,box-shadow] duration-200 placeholder:text-texto-suave focus:outline-none focus-visible:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-suave disabled:text-texto-suave ${
-          error
-            ? "border-alerta focus:ring-alerta"
-            : "border-borde-control hover:border-texto-suave focus:border-acento focus:ring-acento"
-        }`}
-        {...rest}
-      />
+      <div className="relative">
+        <input
+          ref={ref}
+          id={inputId}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy}
+          className={`min-h-12 w-full ${trailing ? "pr-12" : ""} rounded-control border bg-tarjeta px-4 text-base text-texto transition-[border-color,box-shadow] duration-200 placeholder:text-texto-suave focus:outline-none focus-visible:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-suave disabled:text-texto-suave ${
+            error
+              ? "border-alerta focus:ring-alerta"
+              : "border-borde-control hover:border-texto-suave focus:border-acento focus:ring-acento"
+          }`}
+          {...rest}
+        />
+        {trailing && <div className="absolute inset-y-0 right-1 flex items-center">{trailing}</div>}
+      </div>
       {hint && !error && (
         <p id={hintId} className="text-pequeno text-texto-suave">
           {hint}

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { HeartPulse } from "lucide-react";
 import { BackButton } from "@/components/ui/BackButton";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { useClasses } from "@/features/classes/hooks/useClasses";
@@ -82,7 +83,17 @@ export function InstructorMyClassesPage() {
             <p className="mb-2 text-pequeno text-texto-suave">{formatDateTime(studioClass.startsAt)}</p>
             <ul className="text-sm text-texto">
               {(bookingsByClass[studioClass.id] ?? []).map((booking) => (
-                <li key={booking.id}>{booking.customerName ?? "-"}</li>
+                <li key={booking.id}>
+                  {booking.customerName ?? "-"}
+                  {booking.customerMedicalConditions && (
+                    <p className="mt-0.5 mb-1 flex items-start gap-1.5 text-pequeno text-alerta">
+                      <HeartPulse className="mt-px h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                      <span>
+                        <span className="font-medium">Condición médica:</span> {booking.customerMedicalConditions}
+                      </span>
+                    </p>
+                  )}
+                </li>
               ))}
               {(bookingsByClass[studioClass.id] ?? []).length === 0 && (
                 <li className="text-texto-suave">Sin reservados</li>

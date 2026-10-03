@@ -5,6 +5,7 @@ import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { SignOutButton } from "@/features/auth/components/SignOutButton";
 import { BrandLogo } from "@/components/ui/BrandLogo";
+import { ThemeToggleButton } from "@/components/ui/ThemeToggleButton";
 
 type NavItem = { to: string; label: string; Icon: LucideIcon; end?: boolean };
 
@@ -74,6 +75,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                 {profile.fullName}
               </span>
             )}
+            <ThemeToggleButton />
             <SignOutButton />
           </div>
         </div>

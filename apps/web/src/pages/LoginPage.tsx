@@ -4,6 +4,7 @@ import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButton";
 import { EmailPasswordForm } from "@/features/auth/components/EmailPasswordForm";
 import { BrandLogo } from "@/components/ui/BrandLogo";
+import { ThemeToggleButton } from "@/components/ui/ThemeToggleButton";
 
 export function LoginPage() {
   const { session, loading } = useAuth();
@@ -35,6 +36,10 @@ export function LoginPage() {
           aria-hidden="true"
           className="pointer-events-none absolute -right-24 -bottom-16 -z-10 w-[min(560px,110vw)] max-w-none opacity-35"
         />
+
+        <div className="absolute top-[max(1rem,env(safe-area-inset-top))] right-4">
+          <ThemeToggleButton />
+        </div>
 
         <div className="flex w-full max-w-sm flex-col gap-6">
           <Link to="/" aria-label="Merida Ballet Academy, ir al inicio" className="mx-auto rounded-chip">

@@ -116,6 +116,27 @@
   color: var(--texto);
 }
 
+/* Logo con version para tema oscuro (BrandLogo): <picture media> solo ve
+   el tema del sistema, no el forzado con data-theme, asi que se pintan las
+   dos imagenes y se oculta la que no toca. */
+.logo-solo-oscuro {
+  display: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .logo-solo-claro {
+    display: none;
+  }
+  :root:not([data-theme="light"]) .logo-solo-oscuro {
+    display: block;
+  }
+}
+:root[data-theme="dark"] .logo-solo-claro {
+  display: none;
+}
+:root[data-theme="dark"] .logo-solo-oscuro {
+  display: block;
+}
+
 @theme inline {
   /* Tipografia: Fraunces (titulos) + Jost (texto), cargadas en index.html */
   --font-sans: "Jost", "Gotham Pro", system-ui, sans-serif;
