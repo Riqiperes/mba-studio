@@ -7,7 +7,7 @@ proposito, no lo conviertas en un documento gigante.
 
 ## Que es esto
 
-Plataforma de membresias y reservaciones para MBA MID: un estudio de
+Plataforma de membresias y reservaciones para MBA (Merida Ballet Academy): un estudio de
 Pilates (paquetes, creditos, reservaciones, lista de espera) y una academia
 de ballet/danza (inscripciones, colegiaturas). MVP para un solo
 negocio, con la base de datos y la arquitectura preparadas para convertirse

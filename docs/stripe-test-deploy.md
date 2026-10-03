@@ -61,7 +61,7 @@ desplegar, confirmar en Dashboard -> Edge Functions que solo
    ```sql
    update public.business
    set academy_registration_fee_cents = 25000
-   where name = 'MBA MID';
+   where name = 'MBA';
    ```
 2. Colegiatura por grupo (90000 centavos = $900 MXN/mes). Un grupo sin
    fila activa cobra solo la cuota de inscripcion; con fila activa cobra
@@ -72,7 +72,7 @@ desplegar, confirmar en Dashboard -> Edge Functions que solo
    select b.id, g.id, 90000, true
    from public.business b
    join public.academy_groups g on g.business_id = b.id
-   where b.name = 'MBA MID' and g.name = 'Ballet Infantil A'
+   where b.name = 'MBA' and g.name = 'Ballet Infantil A'
    on conflict (group_id) do update set amount_cents = excluded.amount_cents, active = true;
    ```
 3. Secrets en Project Settings -> Edge Functions -> Secrets:
