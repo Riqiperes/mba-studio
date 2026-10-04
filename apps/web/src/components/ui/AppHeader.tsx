@@ -5,7 +5,10 @@ import { buttonClasses } from "@/components/ui/buttonStyles";
 import { ThemeToggleButton } from "@/components/ui/ThemeToggleButton";
 
 export function AppHeader() {
-  const { session } = useAuth();
+  const { session, profile } = useAuth();
+  // Solo atajo visual: el panel valida el rol real con RLS al entrar
+  const adminUrl = import.meta.env.VITE_ADMIN_URL;
+  const showAdminLink = Boolean(adminUrl) && profile !== null && profile.role !== "CUSTOMER";
 
   return (
     <header
@@ -22,6 +25,11 @@ export function AppHeader() {
         </Link>
         <div className="flex items-center gap-2">
           <ThemeToggleButton />
+          {showAdminLink && (
+            <a id="header-admin-panel-link" href={adminUrl} className={buttonClasses("outline", "sm")}>
+              Panel
+            </a>
+          )}
           {!session && (
             <Link id="header-sign-in-link" to="/login" className={buttonClasses("soft", "sm")}>
               Iniciar sesión

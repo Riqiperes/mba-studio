@@ -101,6 +101,12 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
   El correo de Supabase Auth ya sale por Resend (2026-10-03, ver
   `docs/authentication.md`); usar el mismo proveedor es lo natural.
 
+- Textos legales (terminos y condiciones, reglamento del estudio, aviso de
+  privacidad). El registro ya pide aceptarlos (checkbox en
+  `EmailPasswordForm.tsx`, `terms_accepted_at` en el metadata del usuario;
+  aviso bajo el boton de Google), pero todavia sin enlaces: cuando existan
+  los textos, crear sus paginas en `apps/web` y enlazarlas ahi.
+
 Cuando se decidan, documentar el valor en `docs/business-rules.md` en el
 mismo cambio que se implemente.
 

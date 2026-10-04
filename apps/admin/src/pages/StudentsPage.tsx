@@ -85,6 +85,66 @@ export function StudentsPage() {
     }
   }
 
+  // Inactivos aparte para no confundirlos con los activos. No se borran: sus
+  // inscripciones y pagos (academy_enrollments) siguen apuntando a ellos.
+  const activeDependents = dependents.filter((dependent) => dependent.active);
+  const inactiveDependents = dependents.filter((dependent) => !dependent.active);
+
+  function renderTable(id: string, list: Dependent[]) {
+    return (
+      <div className="entra tabla-contenedor">
+        <table id={id} className="tabla">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Tutor</th>
+              <th>Edad</th>
+            </tr>
+          </thead>
+          <tbody>
+            {list.map((dependent) => {
+              const paid = dependent.active ? paymentStatus.get(dependent.id) : undefined;
+              return (
+                <tr
+                  key={dependent.id}
+                  onClick={() => openRow(dependent)}
+                  className={`cursor-pointer ${
+                    paid === true ? "bg-exito/10" : paid === false ? "bg-alerta/10" : ""
+                  }`}
+                >
+                  <td>
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        openRow(dependent);
+                      }}
+                      className="text-start font-medium text-texto hover:text-acento"
+                    >
+                      {dependent.fullName}
+                    </button>
+                    {paid !== undefined && (
+                      <span
+                        className={`ms-2 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-tarjeta px-2 py-0.5 text-pequeno font-medium ${
+                          paid ? "text-exito" : "text-alerta"
+                        }`}
+                      >
+                        <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${paid ? "bg-exito" : "bg-alerta"}`} />
+                        {paid ? "Pagado este mes" : "Pendiente este mes"}
+                      </span>
+                    )}
+                  </td>
+                  <td>{dependent.guardianName ?? "-"}</td>
+                  <td>{calculateAge(dependent.birthDate) ?? "-"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
   return (
     <div id="students-page" className="mx-auto max-w-3xl p-4 sm:p-6">
       <BackButton />
@@ -105,57 +165,15 @@ export function StudentsPage() {
       {!loading && !error && dependents.length === 0 && (
         <p className="entra vacio">Todavía no hay alumnos.</p>
       )}
-      {!loading && !error && dependents.length > 0 && (
-        <div className="entra tabla-contenedor">
-        <table id="students-table" className="tabla">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Tutor</th>
-                <th>Edad</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dependents.map((dependent) => {
-                const paid = paymentStatus.get(dependent.id);
-                return (
-                  <tr
-                    key={dependent.id}
-                    onClick={() => openRow(dependent)}
-                    className={`cursor-pointer ${
-                      paid === true ? "bg-exito/10" : paid === false ? "bg-alerta/10" : ""
-                    }`}
-                  >
-                    <td>
-                      <button
-                        type="button"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          openRow(dependent);
-                        }}
-                        className="text-start font-medium text-texto hover:text-acento"
-                      >
-                        {dependent.fullName}
-                      </button>
-                      {paid !== undefined && (
-                        <span
-                          className={`ms-2 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-tarjeta px-2 py-0.5 text-pequeno font-medium ${
-                            paid ? "text-exito" : "text-alerta"
-                          }`}
-                        >
-                          <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${paid ? "bg-exito" : "bg-alerta"}`} />
-                          {paid ? "Pagado este mes" : "Pendiente este mes"}
-                        </span>
-                      )}
-                    </td>
-                    <td>{dependent.guardianName ?? "-"}</td>
-                    <td>{calculateAge(dependent.birthDate) ?? "-"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+      {!loading && !error && activeDependents.length > 0 && renderTable("students-table", activeDependents)}
+      {!loading && !error && inactiveDependents.length > 0 && (
+        <section id="inactive-students-section" className="mt-8">
+          <h2 className="mb-1 font-display text-subtitulo font-medium text-texto">
+            Inactivos ({inactiveDependents.length})
+          </h2>
+          <p className="mb-3 text-pequeno text-texto-suave">Toca uno para reactivarlo.</p>
+          <div className="opacity-70">{renderTable("inactive-students-table", inactiveDependents)}</div>
+        </section>
       )}
 
       <DependentFormModal

@@ -112,6 +112,8 @@ deploy a produccion:
      dashboard > Settings > API>`
    - `VITE_APP_ENV=production`
    - `VITE_STRIPE_PUBLIC_KEY=` (vacio, sin Stripe live todavia)
+   - `VITE_ADMIN_URL` (en web) y `VITE_WEB_URL` (en admin): URL de produccion
+     del otro proyecto, para los botones "Panel" / "Ver sitio". Vacio = sin boton.
 3. Variables de entorno **Preview** (proyecto `MBA-STUDIO` de siempre,
    igual que `.env` local).
 4. En Supabase Auth del proyecto `MBA-STUDIO-PROD`: habilitar el provider
