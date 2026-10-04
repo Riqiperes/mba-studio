@@ -50,6 +50,7 @@ export function EmailPasswordForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -66,11 +67,16 @@ export function EmailPasswordForm({
       mode === "register" ? { email, password, fullName } : { email, password },
     );
 
+    const errors: Record<string, string> = {};
     if (!result.success) {
-      const errors: Record<string, string> = {};
       for (const issue of result.error.issues) {
         errors[String(issue.path[0])] = issue.message;
       }
+    }
+    if (mode === "register" && !acceptedTerms) {
+      errors.terms = "Debes aceptar los términos y el aviso de privacidad";
+    }
+    if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
       return;
     }
@@ -78,7 +84,7 @@ export function EmailPasswordForm({
     setIsLoading(true);
     try {
       if (mode === "register") {
-        const { needsEmailConfirmation } = await signUpWithEmail(email, password, fullName, redirectTo);
+        const { needsEmailConfirmation } = await signUpWithEmail(email, password, fullName, new Date().toISOString(), redirectTo);
         if (needsEmailConfirmation) {
           setSuccessMessage(
             "Cuenta creada. Revisa tu correo para confirmarla antes de iniciar sesión.",
@@ -139,6 +145,32 @@ export function EmailPasswordForm({
         error={fieldErrors.password}
         showRequirements={mode === "register"}
       />
+
+      {mode === "register" && (
+        <div id="register-terms-acceptance" className="flex flex-col gap-1">
+          <label className="flex items-start gap-3 text-pequeno text-texto-suave">
+            <input
+              id="accept-terms-checkbox"
+              type="checkbox"
+              checked={acceptedTerms}
+              onChange={(event) => setAcceptedTerms(event.target.checked)}
+              aria-invalid={Boolean(fieldErrors.terms)}
+              aria-describedby={fieldErrors.terms ? "accept-terms-error" : undefined}
+              className="mt-0.5 h-5 w-5 shrink-0 accent-acento"
+            />
+            {/* Textos legales pendientes: ver docs/roadmap.md. Al existir, enlazar aqui. */}
+            <span>
+              Acepto los términos y condiciones, el reglamento del estudio y el aviso de privacidad de
+              Merida Ballet Academy.
+            </span>
+          </label>
+          {fieldErrors.terms && (
+            <p id="accept-terms-error" role="alert" className="text-pequeno text-alerta">
+              {fieldErrors.terms}
+            </p>
+          )}
+        </div>
+      )}
 
       {mode === "login" && onForgotPassword && (
         <button
