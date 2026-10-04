@@ -22,10 +22,12 @@ export async function signUpWithEmail(
   email: string,
   password: string,
   fullName: string,
+  termsAcceptedAt: string,
   redirectTo?: string,
 ): Promise<{ needsEmailConfirmation: boolean }> {
-  const options: { data: { full_name: string }; emailRedirectTo?: string } = {
-    data: { full_name: fullName },
+  // terms_accepted_at queda en auth.users.raw_user_meta_data como registro del consentimiento
+  const options: { data: { full_name: string; terms_accepted_at: string }; emailRedirectTo?: string } = {
+    data: { full_name: fullName, terms_accepted_at: termsAcceptedAt },
   };
   if (redirectTo) {
     options.emailRedirectTo = redirectTo;

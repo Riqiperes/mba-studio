@@ -6,6 +6,9 @@ import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { SignOutButton } from "@/features/auth/components/SignOutButton";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { ThemeToggleButton } from "@/components/ui/ThemeToggleButton";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+
+const WEB_URL = import.meta.env.VITE_WEB_URL;
 
 type NavItem = { to: string; label: string; Icon: LucideIcon; end?: boolean };
 
@@ -76,6 +79,11 @@ export function AdminLayout({ children }: { children: ReactNode }) {
               </span>
             )}
             <ThemeToggleButton />
+            {WEB_URL && (
+              <a id="admin-header-web-link" href={WEB_URL} className={buttonClasses("outline", "sm")}>
+                Ver sitio
+              </a>
+            )}
             <SignOutButton />
           </div>
         </div>

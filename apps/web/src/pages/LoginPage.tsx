@@ -65,6 +65,11 @@ export function LoginPage() {
             ) : (
               <>
                 <GoogleSignInButton redirectTo={redirectTo} />
+                {isRegister && (
+                  <p id="google-terms-notice" className="mt-2 text-center text-pequeno text-texto-suave">
+                    Al continuar con Google aceptas los términos y condiciones y el aviso de privacidad.
+                  </p>
+                )}
 
                 <div className="my-5 flex items-center gap-3 text-pequeno text-texto-suave">
                   <div className="h-px flex-1 bg-borde" />o<div className="h-px flex-1 bg-borde" />
