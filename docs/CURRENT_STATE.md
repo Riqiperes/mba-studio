@@ -17,6 +17,15 @@ Ultima actualizacion: 2026-10-04 (rama `feat/admin-mobile-ux`):
   `docs/security-plan.md` (fase 1 pendiente: MFA, leaked passwords, rate
   limits, backups).
 
+Actualizacion anterior: 2026-10-04 (rama `feat/cross-app-links-terms`):
+- **Enlaces entre apps**: boton "Panel" en el header de web (solo si el
+  perfil no es `CUSTOMER`; el panel valida el rol real al entrar) y "Ver
+  sitio" en el header de admin. URLs por `VITE_ADMIN_URL` / `VITE_WEB_URL`
+  (vacio = sin boton); **falta ponerlas en Cloudflare Pages**.
+- **Registro**: checkbox obligatorio de terminos, reglamento y aviso de
+  privacidad (guarda `terms_accepted_at` en el metadata del usuario) y aviso
+  bajo "Continuar con Google". Textos legales pendientes: `docs/roadmap.md`.
+
 Actualizacion anterior: 2026-10-03 (rama `feat/password-reset-web-fixes`):
 - **Recuperar contrasena (web)**: "¿Olvidaste tu contraseña?" en el login y
   pagina `/reset-password`; plantilla `supabase/templates/reset-password.html`.
