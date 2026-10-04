@@ -3,7 +3,21 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-10-04 (rama `feat/cross-app-links-terms`):
+Ultima actualizacion: 2026-10-04 (rama `feat/admin-mobile-ux`):
+- **Favicon**: `?v=2` en `index.html` de web y admin para que el navegador
+  deje de mostrar la "M" vieja en cache.
+- **Alumnos (admin)**: los inactivos salen en una seccion aparte
+  "Inactivos" y atenuados. No se pueden borrar: `academy_enrollments`
+  los referencia (historial de pagos).
+- **Clases (admin, movil)**: tocar la tarjeta abre `ClassActionsModal`
+  (ver reservaciones, editar, cancelar, eliminar) con botones grandes. El
+  detalle de la clase (`ClassBookingsPage`) tiene "Cancelar clase" y
+  "Eliminar clase".
+- **Seguridad**: headers en `apps/*/public/_headers` y plan en
+  `docs/security-plan.md` (fase 1 pendiente: MFA, leaked passwords, rate
+  limits, backups).
+
+Actualizacion anterior: 2026-10-04 (rama `feat/cross-app-links-terms`):
 - **Enlaces entre apps**: boton "Panel" en el header de web (solo si el
   perfil no es `CUSTOMER`; el panel valida el rol real al entrar) y "Ver
   sitio" en el header de admin. URLs por `VITE_ADMIN_URL` / `VITE_WEB_URL`
