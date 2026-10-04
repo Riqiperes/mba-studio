@@ -1,5 +1,8 @@
 # Seguridad
 
+Plan de accion (pendientes por fase, headers, cookies, respuesta a
+incidentes y caidas): `docs/security-plan.md`.
+
 ## Principios
 
 1. Nunca confiar en el frontend para decisiones de autorizacion o de pago.
