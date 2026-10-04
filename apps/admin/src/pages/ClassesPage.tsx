@@ -1,5 +1,6 @@
 import { useMemo, useState, type CSSProperties } from "react";
 import { ClassFiltersBar } from "@/features/classes/components/ClassFiltersBar";
+import { ClassActionsModal } from "@/features/classes/components/ClassActionsModal";
 import { ClassFormModal } from "@/features/classes/components/ClassFormModal";
 import { ClassesWeekGrid } from "@/features/classes/components/ClassesWeekGrid";
 import { WeekSelector } from "@/features/classes/components/WeekSelector";
@@ -41,6 +42,7 @@ export function ClassesPage() {
   const [editing, setEditing] = useState<StudioClass | null>(null);
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [selectedClass, setSelectedClass] = useState<StudioClass | null>(null);
 
   function openCreate() {
     setEditing(null);
@@ -110,9 +112,19 @@ export function ClassesPage() {
             onEdit={openEdit}
             onCancel={handleCancel}
             onDelete={handleDelete}
+            onOpen={setSelectedClass}
           />
         </div>
       )}
+
+      <ClassActionsModal
+        studioClass={selectedClass}
+        instructorName={instructors.find((i) => i.id === selectedClass?.instructorId)?.fullName ?? "—"}
+        onClose={() => setSelectedClass(null)}
+        onEdit={openEdit}
+        onCancel={handleCancel}
+        onDelete={handleDelete}
+      />
 
       <ClassFormModal
         open={modalOpen}

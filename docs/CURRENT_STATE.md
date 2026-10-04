@@ -3,7 +3,21 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-10-03 (rama `feat/password-reset-web-fixes`):
+Ultima actualizacion: 2026-10-04 (rama `feat/admin-mobile-ux`):
+- **Favicon**: `?v=2` en `index.html` de web y admin para que el navegador
+  deje de mostrar la "M" vieja en cache.
+- **Alumnos (admin)**: los inactivos salen en una seccion aparte
+  "Inactivos" y atenuados. No se pueden borrar: `academy_enrollments`
+  los referencia (historial de pagos).
+- **Clases (admin, movil)**: tocar la tarjeta abre `ClassActionsModal`
+  (ver reservaciones, editar, cancelar, eliminar) con botones grandes. El
+  detalle de la clase (`ClassBookingsPage`) tiene "Cancelar clase" y
+  "Eliminar clase".
+- **Seguridad**: headers en `apps/*/public/_headers` y plan en
+  `docs/security-plan.md` (fase 1 pendiente: MFA, leaked passwords, rate
+  limits, backups).
+
+Actualizacion anterior: 2026-10-03 (rama `feat/password-reset-web-fixes`):
 - **Recuperar contrasena (web)**: "¿Olvidaste tu contraseña?" en el login y
   pagina `/reset-password`; plantilla `supabase/templates/reset-password.html`.
   Falta en Supabase (dev y prod): Redirect URL `/reset-password` y pegar la

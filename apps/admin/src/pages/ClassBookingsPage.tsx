@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { HeartPulse } from "lucide-react";
 import { BookCustomerModal } from "@/features/bookings/components/BookCustomerModal";
 import { useClassBookings } from "@/features/bookings/hooks/useClassBookings";
@@ -14,7 +14,14 @@ import { ErrorState } from "@/components/ui/ErrorState";
 export function ClassBookingsPage() {
   const { id } = useParams<{ id: string }>();
   const classId = id ?? "";
-  const { classes, loading: classesLoading, error: classesError } = useClasses({});
+  const navigate = useNavigate();
+  const {
+    classes,
+    loading: classesLoading,
+    error: classesError,
+    cancel: cancelClass,
+    remove: removeClass,
+  } = useClasses({});
   const studioClass = classes.find((c) => c.id === classId);
   const { customers } = useCustomers();
   const { bookings, waitlist, loading, error, book, cancel, addWaiting, removeWaiting, promote } =
@@ -33,6 +40,29 @@ export function ClassBookingsPage() {
     } catch (err) {
       setActionError(getErrorMessage(err, "No se pudo cancelar."));
       console.error("[bookings] cancelar fallo", err);
+    }
+  }
+
+  async function handleCancelClass() {
+    if (!studioClass || !window.confirm(`Cancelar la clase "${studioClass.title}"?`)) return;
+    setActionError(null);
+    try {
+      await cancelClass(studioClass.id);
+    } catch (err) {
+      setActionError(getErrorMessage(err, "No se pudo cancelar la clase."));
+      console.error("[classes] cancelar fallo", err);
+    }
+  }
+
+  async function handleDeleteClass() {
+    if (!studioClass || !window.confirm(`Eliminar la clase "${studioClass.title}"? Esta accion no se puede deshacer.`)) return;
+    setActionError(null);
+    try {
+      await removeClass(studioClass.id);
+      navigate("/classes", { replace: true });
+    } catch (err) {
+      setActionError(getErrorMessage(err, "No se pudo eliminar la clase."));
+      console.error("[classes] eliminar fallo", err);
     }
   }
 
@@ -84,7 +114,19 @@ export function ClassBookingsPage() {
       <h1 className="mb-1 font-display text-titulo font-medium text-texto">{studioClass.title}</h1>
       <p className="mb-4 text-sm text-texto-suave">
         Cupo: {bookings.length}/{studioClass.maxCapacity}
+        {studioClass.status !== "SCHEDULED" && <span className="ms-2 font-medium text-alerta">Cancelada</span>}
       </p>
+
+      <div id="class-detail-actions" className="mb-6 flex flex-wrap gap-2">
+        {studioClass.status === "SCHEDULED" && (
+          <button type="button" onClick={handleCancelClass} className={buttonClasses("outline", "md")}>
+            Cancelar clase
+          </button>
+        )}
+        <button type="button" onClick={handleDeleteClass} className={buttonClasses("danger", "md")}>
+          Eliminar clase
+        </button>
+      </div>
 
       {error && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
       {actionError && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{actionError}</p>}

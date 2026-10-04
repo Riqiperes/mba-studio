@@ -20,6 +20,8 @@ type Props = {
   onEdit: (studioClass: StudioClass) => void;
   onCancel: (studioClass: StudioClass) => void;
   onDelete: (studioClass: StudioClass) => void;
+  /** Movil: tocar la tarjeta abre el modal de acciones (ClassActionsModal). */
+  onOpen: (studioClass: StudioClass) => void;
 };
 
 const actionClasses =
@@ -27,7 +29,7 @@ const actionClasses =
 
 type ActionHandlers = Pick<Props, "onEdit" | "onCancel" | "onDelete">;
 
-export function ClassesWeekGrid({ weekStart, classes, instructors, onEdit, onCancel, onDelete }: Props) {
+export function ClassesWeekGrid({ weekStart, classes, instructors, onEdit, onCancel, onDelete, onOpen }: Props) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [pinnedId, setPinnedId] = useState<string | null>(null);
   const activeId = pinnedId ?? hoveredId;
@@ -90,7 +92,7 @@ export function ClassesWeekGrid({ weekStart, classes, instructors, onEdit, onCan
                   key={studioClass.id}
                   studioClass={studioClass}
                   instructorName={instructorName(studioClass.instructorId)}
-                  {...actionHandlers}
+                  onOpen={onOpen}
                 />
               ))}
             </section>
@@ -152,47 +154,30 @@ function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
 }
 
-/** Carta de clase en movil/tablet: siempre completa, tarjeta clickeable a su detalle. */
+/** Carta de clase en movil/tablet: toda la tarjeta es un boton que abre el modal de acciones. */
 function MobileClassCard({
   studioClass,
   instructorName,
-  onEdit,
-  onCancel,
-  onDelete,
-}: { studioClass: StudioClass; instructorName: string } & ActionHandlers) {
+  onOpen,
+}: { studioClass: StudioClass; instructorName: string; onOpen: (studioClass: StudioClass) => void }) {
   const isCancelled = studioClass.status !== "SCHEDULED";
   return (
-    <article
-      className={`relative rounded-control border bg-tarjeta p-2.5 text-pequeno shadow-card transition-colors duration-200 hover:border-acento/40 ${
+    <button
+      type="button"
+      id={`class-card-mobile-${studioClass.id}`}
+      onClick={() => onOpen(studioClass)}
+      className={`w-full rounded-control border bg-tarjeta p-3 text-start text-pequeno shadow-card transition-colors duration-200 hover:border-acento/40 active:bg-suave ${
         isCancelled ? "border-dashed border-borde opacity-75" : "border-borde"
       }`}
     >
-      <Link
-        to={`/classes/${studioClass.id}`}
-        className="font-medium text-texto after:absolute after:inset-0 after:rounded-control after:content-['']"
-      >
-        {studioClass.title}
-      </Link>
-      <p className="tabular-nums text-texto-suave">
+      <span className="block font-medium text-texto">{studioClass.title}</span>
+      <span className="block tabular-nums text-texto-suave">
         {formatTime(studioClass.startsAt)}–{formatTime(studioClass.endsAt)}
-      </p>
-      <p className="text-texto-suave">{instructorName}</p>
-      <p className="text-texto-suave">Cupo {studioClass.maxCapacity}</p>
-      {isCancelled && <p className="mt-1 font-medium text-alerta">Cancelada</p>}
-      <div className="mt-1.5 -ms-1.5 flex flex-wrap gap-x-1">
-        <button type="button" onClick={() => onEdit(studioClass)} className={`${actionClasses} text-acento`}>
-          Editar
-        </button>
-        {studioClass.status === "SCHEDULED" && (
-          <button type="button" onClick={() => onCancel(studioClass)} className={`${actionClasses} text-alerta`}>
-            Cancelar
-          </button>
-        )}
-        <button type="button" onClick={() => onDelete(studioClass)} className={`${actionClasses} text-alerta`}>
-          Eliminar
-        </button>
-      </div>
-    </article>
+      </span>
+      <span className="block text-texto-suave">{instructorName}</span>
+      <span className="block text-texto-suave">Cupo {studioClass.maxCapacity}</span>
+      {isCancelled && <span className="mt-1 block font-medium text-alerta">Cancelada</span>}
+    </button>
   );
 }
 
