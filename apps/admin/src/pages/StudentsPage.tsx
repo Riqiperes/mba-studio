@@ -12,11 +12,11 @@ import {
 } from "@/features/dependents/services/dependentsService";
 import type { Dependent } from "@/features/dependents/types/Dependent";
 import { listCurrentMonthPaymentStatus } from "@/features/academy/services/academyTuitionService";
-import { getErrorMessage } from "@/utils/getErrorMessage";
 import { BackButton } from "@/components/ui/BackButton";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { Plus } from "lucide-react";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 
 function calculateAge(birthDate: string | null): number | null {
   if (!birthDate) return null;
@@ -34,7 +34,7 @@ export function StudentsPage() {
   const [paymentStatus, setPaymentStatus] = useState<Map<string, boolean>>(new Map());
   const [modalOpen, setModalOpen] = useState(false);
   const [editingDependent, setEditingDependent] = useState<Dependent | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
+  const { notify, confirm } = useAppFeedback();
 
   useEffect(() => {
     listCurrentMonthPaymentStatus()
@@ -69,17 +69,28 @@ export function StudentsPage() {
         guardianPhone: input.guardianPhone ?? null,
       });
     }
+    notify(editingDependent ? "Datos del alumno actualizados." : `Alumno "${input.fullName}" creado.`);
     await reload();
   }
 
-  async function handleToggleActive() {
-    if (!editingDependent) return;
-    setActionError(null);
+  async function handleToggleActive(): Promise<boolean> {
+    if (!editingDependent) return false;
+    if (editingDependent.active) {
+      const ok = await confirm({
+        title: `¿Desactivar a "${editingDependent.fullName}"?`,
+        description: "Pasará a la lista de alumnos inactivos. Su historial se conserva.",
+        confirmLabel: "Desactivar",
+        tone: "danger",
+      });
+      if (!ok) return false;
+    }
     try {
       await setDependentActive(editingDependent.id, !editingDependent.active);
+      notify(editingDependent.active ? "Alumno desactivado." : "Alumno reactivado.");
       await reload();
+      return true;
     } catch (err) {
-      setActionError(getErrorMessage(err, "No se pudo actualizar el alumno."));
+      // DependentFormModal muestra el error dentro del modal
       console.error("[students] setActive fallo", err);
       throw err;
     }
@@ -158,8 +169,6 @@ export function StudentsPage() {
           </button>
         }
       />
-
-      {actionError && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{actionError}</p>}
       {loading && <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>}
       {error && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
       {!loading && !error && dependents.length === 0 && (

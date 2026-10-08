@@ -8,6 +8,7 @@ import { ModalDialog } from "@/components/ui/ModalDialog";
 import { SelectField } from "@/components/ui/SelectField";
 import { TextField } from "@/components/ui/TextField";
 import { getErrorMessage } from "@/utils/getErrorMessage";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 
 function formatCents(cents: number | null): string {
   if (cents == null) return "monto por confirmar";
@@ -34,6 +35,7 @@ export function EnrollAndPayModal({
   const { profile } = useAuth();
   const { dependents, loading: dependentsLoading, create } = useMyDependents();
   const { submitting, enroll } = useEnrollDependent();
+  const { notify } = useAppFeedback();
 
   const [dependentId, setDependentId] = useState("");
   const [showNewStudentForm, setShowNewStudentForm] = useState(false);
@@ -72,6 +74,7 @@ export function EnrollAndPayModal({
       });
       setDependentId(created.id);
       setShowNewStudentForm(false);
+      notify(`Alumno "${created.fullName}" registrado.`);
     } catch (err) {
       setFormError(getErrorMessage(err, "No se pudo crear el alumno."));
       console.error("[academy] crear alumno fallo", err);

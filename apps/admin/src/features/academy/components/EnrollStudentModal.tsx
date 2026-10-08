@@ -6,6 +6,7 @@ import { createDependent } from "@/features/dependents/services/dependentsServic
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { ModalShell } from "@/components/ui/ModalShell";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 
 const newRegisteredStudentSchema = z.object({
   fullName: z.string().min(1, "El nombre es obligatorio"),
@@ -44,6 +45,7 @@ type Props = {
 
 export function EnrollStudentModal({ open, businessId, customers, onClose, onSubmit }: Props) {
   const [tab, setTab] = useState<"registered" | "unregistered">("registered");
+  const { notify } = useAppFeedback();
   const [customerId, setCustomerId] = useState("");
   const [dependentId, setDependentId] = useState("");
   const [enrollmentDate, setEnrollmentDate] = useState("");
@@ -128,6 +130,7 @@ export function EnrollStudentModal({ open, businessId, customers, onClose, onSub
         fullName: result.data.fullName,
         birthDate: result.data.birthDate ? result.data.birthDate : null,
       });
+      notify(`Alumno "${result.data.fullName}" creado.`);
       setShowNewStudentForm(false);
       setNewStudentName("");
       setNewStudentBirthDate("");

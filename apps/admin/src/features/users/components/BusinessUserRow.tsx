@@ -3,6 +3,7 @@ import type { UserRole } from "@mba-studio/shared";
 import type { Instructor } from "@/features/instructors/types/Instructor";
 import type { BusinessUser } from "../types/User";
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 
 const ROLE_LABELS: Record<UserRole, string> = {
   CUSTOMER: "Cliente",
@@ -25,6 +26,7 @@ export function BusinessUserRow({ user, instructors, actingRole, onSave }: Props
   const [role, setRole] = useState<UserRole>(user.role);
   const [instructorId, setInstructorId] = useState(user.instructorId ?? "");
   const [isSaving, setIsSaving] = useState(false);
+  const { notify } = useAppFeedback();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -42,6 +44,7 @@ export function BusinessUserRow({ user, instructors, actingRole, onSave }: Props
     setIsSaving(true);
     try {
       await onSave(role, role === "INSTRUCTOR_ADMIN" ? instructorId || null : null);
+      notify(`Rol de ${user.fullName ?? "usuario"} actualizado.`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo guardar.");
       console.error("[users] guardar rol fallo", err);

@@ -16,6 +16,7 @@ import { BackButton } from "@/components/ui/BackButton";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { Plus } from "lucide-react";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 
 export function AcademyGroupsPage() {
   const { groups, loading, error, create, update } = useAcademyGroups();
@@ -23,6 +24,7 @@ export function AcademyGroupsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<AcademyGroupWithDetails | null>(null);
   const [editingTuitionCents, setEditingTuitionCents] = useState<number | null>(null);
+  const { notify } = useAppFeedback();
 
   function openCreate() {
     setEditingGroup(null);
@@ -44,6 +46,7 @@ export function AcademyGroupsPage() {
       dayOfMonth: TUITION_DAY_OF_MONTH,
       amountCents: input.monthlyTuitionCents,
     });
+    notify(editingGroup ? "Grupo actualizado." : "Grupo creado.");
   }
 
   return (

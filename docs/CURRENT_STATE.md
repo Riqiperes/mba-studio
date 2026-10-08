@@ -3,7 +3,19 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-10-04 (rama `feat/admin-mobile-ux`):
+Ultima actualizacion: 2026-10-08 (rama `feat/alertas-toast-confirmacion`):
+- **Avisos (web y admin)**: `useAppFeedback()` (`components/ui/AppFeedbackProvider.tsx`
+  + `AppFeedbackContext.ts`, montado en `main.tsx`) da `notify` (toast) y
+  `confirm` (modal). Ya no queda ningun `window.confirm`. Toda accion que
+  escribe datos avisa si salio bien o mal.
+- **Cancelar con menos de 8 horas**: el modal avisa que el credito se
+  consume (web y "Reservados" en admin). La regla para el aviso esta en
+  `packages/shared/src/constants/bookingCancellationPolicy.ts`; quien decide
+  de verdad es `cancel_booking()` (migracion 029). Si cambia la ventana,
+  cambiar los dos.
+- **Reservar** (web) ahora pide confirmar ("Se usara 1 credito").
+
+Actualizacion anterior: 2026-10-04 (rama `feat/admin-mobile-ux`):
 - **Favicon**: `?v=2` en `index.html` de web y admin para que el navegador
   deje de mostrar la "M" vieja en cache.
 - **Alumnos (admin)**: los inactivos salen en una seccion aparte
