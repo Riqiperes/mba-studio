@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { ModalShell } from "@/components/ui/ModalShell";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 
 export type CustomerCreateInput = {
   fullName: string;
@@ -24,6 +25,7 @@ export function CustomerCreateModal({ open, onClose, onSubmit }: Props) {
   const [nameError, setNameError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const { notify } = useAppFeedback();
 
   useEffect(() => {
     if (!open) return;
@@ -64,6 +66,7 @@ export function CustomerCreateModal({ open, onClose, onSubmit }: Props) {
         medicalConditions: medicalConditions.trim() || null,
         notes: notes.trim() || null,
       });
+      notify(`Cliente "${fullName.trim()}" creado.`);
       onClose();
     } catch (err) {
       setFormError(getErrorMessage(err, "No se pudo crear el cliente."));

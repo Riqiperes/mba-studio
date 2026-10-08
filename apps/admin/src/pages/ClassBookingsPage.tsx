@@ -10,6 +10,8 @@ import { BackButton } from "@/components/ui/BackButton";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
+import { CANCELLATION_REFUND_WINDOW_HOURS, isLateCancellation } from "@mba-studio/shared";
 
 export function ClassBookingsPage() {
   const { id } = useParams<{ id: string }>();
@@ -28,60 +30,92 @@ export function ClassBookingsPage() {
     useClassBookings(classId, studioClass?.businessId ?? "");
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [actionError, setActionError] = useState<string | null>(null);
+  const { notify, confirm } = useAppFeedback();
 
   const isFull = studioClass ? bookings.length >= studioClass.maxCapacity : false;
 
   async function handleCancel(bookingId: string) {
-    if (!window.confirm("Cancelar esta reservacion?")) return;
-    setActionError(null);
+    const late = studioClass ? isLateCancellation(studioClass.startsAt) : false;
+    const ok = await confirm({
+      title: late ? "Se consumirá el crédito del cliente" : "¿Cancelar esta reservación?",
+      description: late
+        ? `Faltan menos de ${CANCELLATION_REFUND_WINDOW_HOURS} horas para la clase. Si cancelas ahora, el crédito no se devuelve al cliente.`
+        : "El crédito regresará al saldo del cliente.",
+      confirmLabel: "Sí, cancelar",
+      cancelLabel: "No, conservar",
+      tone: "danger",
+    });
+    if (!ok) return;
     try {
       await cancel(bookingId);
+      notify(late ? "Reservación cancelada sin devolver el crédito." : "Reservación cancelada. El crédito regresó al cliente.");
     } catch (err) {
-      setActionError(getErrorMessage(err, "No se pudo cancelar."));
+      notify(getErrorMessage(err, "No se pudo cancelar."), "error");
       console.error("[bookings] cancelar fallo", err);
     }
   }
 
   async function handleCancelClass() {
-    if (!studioClass || !window.confirm(`Cancelar la clase "${studioClass.title}"?`)) return;
-    setActionError(null);
+    if (!studioClass) return;
+    const ok = await confirm({
+      title: `¿Cancelar la clase "${studioClass.title}"?`,
+      description: "La clase quedará marcada como cancelada.",
+      confirmLabel: "Cancelar clase",
+      tone: "danger",
+    });
+    if (!ok) return;
     try {
       await cancelClass(studioClass.id);
+      notify("Clase cancelada.");
     } catch (err) {
-      setActionError(getErrorMessage(err, "No se pudo cancelar la clase."));
+      notify(getErrorMessage(err, "No se pudo cancelar la clase."), "error");
       console.error("[classes] cancelar fallo", err);
     }
   }
 
   async function handleDeleteClass() {
-    if (!studioClass || !window.confirm(`Eliminar la clase "${studioClass.title}"? Esta accion no se puede deshacer.`)) return;
-    setActionError(null);
+    if (!studioClass) return;
+    const ok = await confirm({
+      title: `¿Eliminar la clase "${studioClass.title}"?`,
+      description: "Esta acción no se puede deshacer.",
+      confirmLabel: "Eliminar clase",
+      tone: "danger",
+    });
+    if (!ok) return;
     try {
       await removeClass(studioClass.id);
+      notify("Clase eliminada.");
       navigate("/classes", { replace: true });
     } catch (err) {
-      setActionError(getErrorMessage(err, "No se pudo eliminar la clase."));
+      notify(getErrorMessage(err, "No se pudo eliminar la clase."), "error");
       console.error("[classes] eliminar fallo", err);
     }
   }
 
   async function handlePromote(waitlistId: string) {
-    setActionError(null);
+    const ok = await confirm({
+      title: "¿Pasar a reservación?",
+      description: "Se reservará el lugar y se descontará 1 crédito al cliente.",
+      confirmLabel: "Promover",
+    });
+    if (!ok) return;
     try {
       await promote(waitlistId);
+      notify("Cliente promovido de la lista de espera.");
     } catch (err) {
-      setActionError(getErrorMessage(err, "No se pudo promover."));
+      notify(getErrorMessage(err, "No se pudo promover."), "error");
       console.error("[waitlist] promover fallo", err);
     }
   }
 
   async function handleRemoveWaiting(id: string) {
-    setActionError(null);
+    const ok = await confirm({ title: "¿Quitar de la lista de espera?", confirmLabel: "Quitar", tone: "danger" });
+    if (!ok) return;
     try {
       await removeWaiting(id);
+      notify("Cliente quitado de la lista de espera.");
     } catch (err) {
-      setActionError(getErrorMessage(err, "No se pudo quitar de la lista."));
+      notify(getErrorMessage(err, "No se pudo quitar de la lista."), "error");
       console.error("[waitlist] quitar fallo", err);
     }
   }
@@ -89,8 +123,10 @@ export function ClassBookingsPage() {
   async function handleModalSubmit(customerId: string) {
     if (isFull) {
       await addWaiting(customerId);
+      notify("Cliente agregado a la lista de espera.");
     } else {
       await book(customerId);
+      notify("Clase reservada. Se descontó 1 crédito al cliente.");
     }
   }
 
@@ -129,7 +165,6 @@ export function ClassBookingsPage() {
       </div>
 
       {error && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
-      {actionError && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{actionError}</p>}
 
       <div className="mb-4 flex items-center justify-between">
         <h2 className="font-display text-subtitulo font-medium text-texto">Reservados</h2>

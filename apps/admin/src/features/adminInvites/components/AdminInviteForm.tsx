@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import type { AdminInviteRole } from "../types/AdminInvite";
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 
 const ROLE_LABELS: Record<AdminInviteRole, string> = {
   STAFF: "Staff",
@@ -17,6 +18,7 @@ export function AdminInviteForm({ onSubmit }: Props) {
   const [role, setRole] = useState<AdminInviteRole>("STAFF");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { notify } = useAppFeedback();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -24,6 +26,7 @@ export function AdminInviteForm({ onSubmit }: Props) {
     setIsSaving(true);
     try {
       await onSubmit(email.trim(), role);
+      notify(`Invitación agregada para ${email.trim()}.`);
       setEmail("");
       setRole("STAFF");
     } catch (err) {

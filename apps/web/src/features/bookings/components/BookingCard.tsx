@@ -10,11 +10,6 @@ type Props = {
 };
 
 export function BookingCard({ booking, onCancel, loading }: Props) {
-  const handleCancel = async () => {
-    if (!window.confirm("¿Cancelar esta reservación? Si faltan menos de 8 horas para la clase, el crédito no se devuelve.")) return;
-    await onCancel(booking.id);
-  };
-
   const { time, period } = formatTimeParts(booking.class.startsAt);
 
   return (
@@ -34,7 +29,7 @@ export function BookingCard({ booking, onCancel, loading }: Props) {
         {booking.class.instructorName && <p className="text-pequeno text-texto-suave">{booking.class.instructorName}</p>}
       </div>
       <div className="col-start-2 sm:col-start-3">
-        <Button variant="danger" size="sm" onClick={handleCancel} disabled={loading} loading={loading}>
+        <Button variant="danger" size="sm" onClick={() => onCancel(booking.id)} disabled={loading} loading={loading}>
           Cancelar
         </Button>
       </div>

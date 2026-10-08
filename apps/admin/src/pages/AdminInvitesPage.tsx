@@ -4,15 +4,27 @@ import { AdminInvitesTable } from "@/features/adminInvites/components/AdminInvit
 import { useAdminInvites } from "@/features/adminInvites/hooks/useAdminInvites";
 import type { AdminInvite } from "@/features/adminInvites/types/AdminInvite";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { getErrorMessage } from "@/utils/getErrorMessage";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 
 export function AdminInvitesPage() {
   const { invites, loading, error, add, remove } = useAdminInvites();
+  const { notify, confirm } = useAppFeedback();
 
   async function handleRemove(invite: AdminInvite) {
-    if (!window.confirm(`Quitar la invitacion de ${invite.email}?`)) {
-      return;
+    const ok = await confirm({
+      title: `¿Quitar la invitación de ${invite.email}?`,
+      confirmLabel: "Quitar",
+      tone: "danger",
+    });
+    if (!ok) return;
+    try {
+      await remove(invite.email);
+      notify("Invitación quitada.");
+    } catch (err) {
+      notify(getErrorMessage(err, "No se pudo quitar la invitación."), "error");
+      console.error("[adminInvites] remove fallo", err);
     }
-    await remove(invite.email);
   }
 
   return (

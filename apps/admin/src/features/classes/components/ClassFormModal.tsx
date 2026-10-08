@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { z } from "zod";
 import type { Instructor } from "@/features/instructors/types/Instructor";
 import { getErrorMessage } from "@/utils/getErrorMessage";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 import type {
   CreateClassesInput,
   CreateClassesResult,
@@ -88,6 +89,7 @@ export function ClassFormModal({
   const [maxCapacity, setMaxCapacity] = useState("10");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
+  const { notify } = useAppFeedback();
   const [skipped, setSkipped] = useState<{ startsAt: string; reason: string }[]>([]);
   const [createdCount, setCreatedCount] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
@@ -160,6 +162,7 @@ export function ClassFormModal({
           endsAt: new Date(result.data.endsAt).toISOString(),
           maxCapacity: result.data.maxCapacity,
         });
+        notify("Clase actualizada.");
         onClose();
       } catch (err) {
         setFormError(getErrorMessage(err, "No se pudo guardar. Intenta de nuevo."));
@@ -199,6 +202,9 @@ export function ClassFormModal({
         weekStart: formatDateKey(weekStart),
         weeksCount: result.data.weeksCount,
       });
+      if (created.created.length > 0) {
+        notify(created.created.length === 1 ? "Clase creada." : `${created.created.length} clases creadas.`);
+      }
       if (created.skipped.length > 0) {
         setCreatedCount(created.created.length);
         setSkipped(created.skipped);

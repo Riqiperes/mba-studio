@@ -10,11 +10,6 @@ type Props = {
 };
 
 export function WaitlistCard({ entry, onLeave, loading }: Props) {
-  const handleLeave = async () => {
-    if (!window.confirm("¿Salir de la lista de espera?")) return;
-    await onLeave(entry.id);
-  };
-
   const { time, period } = formatTimeParts(entry.class.startsAt);
 
   return (
@@ -38,7 +33,7 @@ export function WaitlistCard({ entry, onLeave, loading }: Props) {
         {entry.class.instructorName && <p className="text-pequeno text-texto-suave">{entry.class.instructorName}</p>}
       </div>
       <div className="col-start-2 sm:col-start-3">
-        <Button variant="outline" size="sm" onClick={handleLeave} disabled={loading} loading={loading}>
+        <Button variant="outline" size="sm" onClick={() => onLeave(entry.id)} disabled={loading} loading={loading}>
           Salir
         </Button>
       </div>

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { ModalShell } from "@/components/ui/ModalShell";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 
 interface Props {
   enrollmentId: string;
@@ -65,6 +66,7 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const { notify } = useAppFeedback();
 
   const discountedCents =
     basePriceCents != null
@@ -144,6 +146,7 @@ export function MarkPaymentModal({ enrollmentId, onClose, onSuccess, basePriceCe
         reference: formData.reference ?? null,
       });
 
+      notify(formData.status === 'PAGADO' ? 'Pago registrado.' : 'Colegiatura actualizada.');
       onSuccess();
       onClose();
     } catch (err) {
