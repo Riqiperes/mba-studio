@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { CircleCheck, Clock, MessageCircle } from "lucide-react";
 import { useAuth } from "@/features/auth/hooks/AuthProvider";
 import { Button } from "@/components/ui/Button";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 import { EnrollAndPayModal } from "./EnrollAndPayModal";
 import { TrialClassModal } from "./TrialClassModal";
 import type { AcademyGroupCatalogItem } from "../types/AcademyGroup";
@@ -45,6 +46,7 @@ export function AcademyGroupCard({
   registrationFeeCents: number | null;
 }) {
   const { session } = useAuth();
+  const { notify } = useAppFeedback();
   const navigate = useNavigate();
   const [enrollModalOpen, setEnrollModalOpen] = useState(false);
   const [trialModalOpen, setTrialModalOpen] = useState(false);
@@ -128,7 +130,10 @@ export function AcademyGroupCard({
           open={trialModalOpen}
           group={group}
           onClose={() => setTrialModalOpen(false)}
-          onSuccess={() => setRequestSent("trial")}
+          onSuccess={() => {
+            setRequestSent("trial");
+            notify("Clase de prueba solicitada. La academia te contactará para confirmar.");
+          }}
         />
       )}
     </article>

@@ -18,6 +18,9 @@ import { BackButton } from "@/components/ui/BackButton";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
+import { isLateCancellation } from "@mba-studio/shared";
+import { bookingCancellationConfirm, bookingCancelledMessage } from "@/features/bookings/utils/bookingCancellationPolicy";
 import { formatWeekStartKey, getWeekStart } from "@/features/studio/utils/weekUtils";
 
 function addDays(date: Date, days: number): Date {
@@ -48,7 +51,7 @@ export function ClassesCalendarPage() {
   const { balance, loading: creditsLoading, reload: reloadCredits } = useMyCredits();
   const classIds = useMemo(() => classes.map((cls) => cls.id), [classes]);
   const { counts: bookingsCountByClass, reload: reloadCounts } = useClassBookingCounts(classIds);
-  const [actionError, setActionError] = useState<string | null>(null);
+  const { notify, confirm } = useAppFeedback();
 
   // Build lookup maps
   const bookingsByClass = useMemo(() => {
@@ -87,52 +90,63 @@ export function ClassesCalendarPage() {
   const hasCredits = (balance ?? 0) > 0;
   const isLoading = loading || bookingsLoading || creditsLoading;
 
-  // Action handlers - use service functions directly
-  // Antes los errores solo iban a consola (ej. "clase llena"): ahora se muestran.
+  // Cada accion confirma lo que va a pasar con el credito y avisa el
+  // resultado con un toast (antes los errores solo iban a consola).
   const handleBook = useCallback(async (classId: string) => {
-    setActionError(null);
+    const cls = classes.find((item) => item.id === classId);
+    const ok = await confirm({
+      title: "¿Reservar esta clase?",
+      description: `Se usará 1 crédito para reservar "${cls?.title ?? "la clase"}".`,
+      confirmLabel: "Reservar",
+    });
+    if (!ok) return;
     try {
       await bookClass(classId);
+      notify("Clase reservada. Se descontó 1 crédito.");
     } catch (err) {
-      setActionError(getErrorMessage(err, "No se pudo reservar."));
+      notify(getErrorMessage(err, "No se pudo reservar."), "error");
       console.error("[classes] book fallo", err);
     }
     await Promise.all([reloadBookings(), reloadCredits(), reloadCounts()]);
-  }, [reloadBookings, reloadCredits, reloadCounts]);
+  }, [classes, confirm, notify, reloadBookings, reloadCredits, reloadCounts]);
 
   const handleCancel = useCallback(async (bookingId: string) => {
-    if (!window.confirm("¿Cancelar esta reservación? Si faltan menos de 8 horas para la clase, el crédito no se devuelve.")) return;
-    setActionError(null);
+    const booking = bookings.find((item) => item.id === bookingId);
+    const late = booking ? isLateCancellation(booking.class.startsAt) : false;
+    if (!(await confirm(bookingCancellationConfirm(booking?.class.title ?? "la clase", late)))) return;
     try {
       await cancelBooking(bookingId);
+      notify(bookingCancelledMessage(late), late ? "info" : "success");
       await Promise.all([reloadBookings(), reloadCredits(), reloadCounts()]);
     } catch (err) {
-      setActionError(getErrorMessage(err, "No se pudo cancelar."));
+      notify(getErrorMessage(err, "No se pudo cancelar."), "error");
       console.error("[classes] cancel fallo", err);
     }
-  }, [reloadBookings, reloadCredits, reloadCounts]);
+  }, [bookings, confirm, notify, reloadBookings, reloadCredits, reloadCounts]);
 
   const handleJoinWaitlist = useCallback(async (classId: string, businessId: string) => {
-    setActionError(null);
     try {
       await joinWaitlist(classId, businessId);
+      notify("Te uniste a la lista de espera. Te avisaremos si se libera un lugar.");
       await reloadBookings();
     } catch (err) {
-      setActionError(getErrorMessage(err, "No se pudo unir a la lista de espera."));
+      notify(getErrorMessage(err, "No se pudo unir a la lista de espera."), "error");
       console.error("[classes] join waitlist fallo", err);
     }
-  }, [reloadBookings]);
+  }, [notify, reloadBookings]);
 
   const handleLeaveWaitlist = useCallback(async (waitlistId: string) => {
-    setActionError(null);
+    const ok = await confirm({ title: "¿Salir de la lista de espera?", confirmLabel: "Salir", tone: "danger" });
+    if (!ok) return;
     try {
       await leaveWaitlist(waitlistId);
+      notify("Saliste de la lista de espera.");
       await reloadBookings();
     } catch (err) {
-      setActionError(getErrorMessage(err, "No se pudo salir de la lista de espera."));
+      notify(getErrorMessage(err, "No se pudo salir de la lista de espera."), "error");
       console.error("[classes] leave waitlist fallo", err);
     }
-  }, [reloadBookings]);
+  }, [confirm, notify, reloadBookings]);
 
   return (
     <div id="classes-calendar-page" className="mx-auto max-w-[980px] px-4 py-6 sm:px-8 sm:py-8">
@@ -154,11 +168,6 @@ export function ClassesCalendarPage() {
       {error && (
         <div className="mb-6">
           <ErrorState id="classes-error" message={error} />
-        </div>
-      )}
-      {actionError && (
-        <div className="mb-6">
-          <ErrorState id="classes-action-error" message={actionError} />
         </div>
       )}
 

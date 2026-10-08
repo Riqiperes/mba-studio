@@ -33,7 +33,7 @@ type Props = {
   onClose: () => void;
   onSubmit: (input: DependentFormInput) => Promise<void>;
   /** Solo se muestra al editar (`initialValue` presente). */
-  onToggleActive?: (() => Promise<void>) | undefined;
+  onToggleActive?: (() => Promise<boolean | void>) | undefined;
 };
 
 export function DependentFormModal({
@@ -117,7 +117,8 @@ export function DependentFormModal({
     if (!onToggleActive) return;
     setIsTogglingActive(true);
     try {
-      await onToggleActive();
+      // false = la persona no confirmo en el modal de confirmacion: se queda abierto
+      if ((await onToggleActive()) === false) return;
       onClose();
     } catch (err) {
       setFormError(getErrorMessage(err, "No se pudo actualizar el alumno."));

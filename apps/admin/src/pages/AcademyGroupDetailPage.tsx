@@ -17,6 +17,7 @@ import { BackButton } from '@/components/ui/BackButton';
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 
 const DAY_ABBREVIATIONS = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
 
@@ -46,8 +47,7 @@ export function AcademyGroupDetailPage() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEnrollmentId, setSelectedEnrollmentId] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [pendingActionError, setPendingActionError] = useState<string | null>(null);
+  const { notify, confirm } = useAppFeedback();
   const [paymentStatus, setPaymentStatus] = useState<Map<string, boolean>>(new Map());
 
   useEffect(() => {
@@ -57,48 +57,59 @@ export function AcademyGroupDetailPage() {
   }, [enrollments]);
 
   async function handleWithdraw(enrollmentId: string) {
-    if (!window.confirm('Dar de baja a este alumno del grupo?')) return;
-    setActionError(null);
+    const ok = await confirm({
+      title: '¿Dar de baja a este alumno del grupo?',
+      confirmLabel: 'Dar de baja',
+      tone: 'danger',
+    });
+    if (!ok) return;
     try {
       await withdraw(enrollmentId);
+      notify('Alumno dado de baja del grupo.');
     } catch (err) {
-      setActionError(getErrorMessage(err, 'No se pudo dar de baja.'));
+      notify(getErrorMessage(err, 'No se pudo dar de baja.'), "error");
       console.error('[academy] baja fallo', err);
     }
   }
 
   async function handleEnroll(dependentId: string, enrollmentDate: string) {
     await enroll(dependentId, enrollmentDate);
+    notify('Alumno inscrito en el grupo.');
   }
 
   async function handleApprove(id: string) {
-    setPendingActionError(null);
     try {
       await approve(id);
+      notify('Solicitud aprobada.');
       await reloadEnrollments();
     } catch (err) {
-      setPendingActionError(getErrorMessage(err, 'No se pudo aprobar la solicitud.'));
+      notify(getErrorMessage(err, 'No se pudo aprobar la solicitud.'), "error");
       console.error('[academy] aprobar solicitud fallo', err);
     }
   }
 
   async function handleReject(id: string) {
-    if (!window.confirm('Rechazar esta solicitud de inscripcion?')) return;
-    setPendingActionError(null);
+    const ok = await confirm({
+      title: '¿Rechazar esta solicitud de inscripción?',
+      confirmLabel: 'Rechazar',
+      tone: 'danger',
+    });
+    if (!ok) return;
     try {
       await reject(id);
+      notify('Solicitud rechazada.');
     } catch (err) {
-      setPendingActionError(getErrorMessage(err, 'No se pudo rechazar la solicitud.'));
+      notify(getErrorMessage(err, 'No se pudo rechazar la solicitud.'), "error");
       console.error('[academy] rechazar solicitud fallo', err);
     }
   }
 
   async function handleMarkTrialAttended(id: string) {
-    setPendingActionError(null);
     try {
       await markTrialAttended(id);
+      notify('Clase muestra marcada como tomada.');
     } catch (err) {
-      setPendingActionError(getErrorMessage(err, 'No se pudo marcar la clase muestra.'));
+      notify(getErrorMessage(err, 'No se pudo marcar la clase muestra.'), "error");
       console.error('[academy] marcar clase muestra fallo', err);
     }
   }
@@ -143,13 +154,11 @@ export function AcademyGroupDetailPage() {
       </p>
 
       {error && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
-      {actionError && <p role="alert" className="alerta-entra mb-4 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{actionError}</p>}
 
       {(pendingRequests.length > 0 || pendingLoading) && (
         <div className="mb-6">
           <h2 className="mb-2 text-lg font-semibold text-acento">Solicitudes pendientes</h2>
           {pendingError && <p role="alert" className="alerta-entra mb-2 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{pendingError}</p>}
-          {pendingActionError && <p role="alert" className="alerta-entra mb-2 flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{pendingActionError}</p>}
           {pendingLoading ? (
             <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>
           ) : (

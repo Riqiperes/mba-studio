@@ -11,12 +11,17 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
+import { getErrorMessage } from "@/utils/getErrorMessage";
+import { isLateCancellation } from "@mba-studio/shared";
+import { bookingCancellationConfirm, bookingCancelledMessage } from "@/features/bookings/utils/bookingCancellationPolicy";
 
 export function MyBookingsPage() {
   const { bookings, waitlist, loading, error, reload } = useMyBookings();
   const { balance, loading: creditsLoading, reload: reloadCredits } = useMyCredits();
 
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const { notify, confirm } = useAppFeedback();
 
   useEffect(() => {
     reload();
@@ -24,13 +29,18 @@ export function MyBookingsPage() {
   }, [reload, reloadCredits]);
 
   async function handleCancel(bookingId: string) {
+    const booking = bookings.find((item) => item.id === bookingId);
+    const late = booking ? isLateCancellation(booking.class.startsAt) : false;
+    if (!(await confirm(bookingCancellationConfirm(booking?.class.title ?? "la clase", late)))) return;
     setActionLoading(bookingId);
     try {
       const { cancelBooking } = await import("@/features/bookings/services/bookingsService");
       await cancelBooking(bookingId);
+      notify(bookingCancelledMessage(late), late ? "info" : "success");
       await reload();
       await reloadCredits();
     } catch (err) {
+      notify(getErrorMessage(err, "No se pudo cancelar la reservación."), "error");
       console.error("[my-bookings] cancel fallo", err);
     } finally {
       setActionLoading(null);
@@ -38,12 +48,15 @@ export function MyBookingsPage() {
   }
 
   async function handleLeaveWaitlist(waitlistId: string) {
+    if (!(await confirm({ title: "¿Salir de la lista de espera?", confirmLabel: "Salir", tone: "danger" }))) return;
     setActionLoading(waitlistId);
     try {
       const { leaveWaitlist } = await import("@/features/bookings/services/bookingsService");
       await leaveWaitlist(waitlistId);
+      notify("Saliste de la lista de espera.");
       await reload();
     } catch (err) {
+      notify(getErrorMessage(err, "No se pudo salir de la lista de espera."), "error");
       console.error("[my-bookings] leave waitlist fallo", err);
     } finally {
       setActionLoading(null);
