@@ -15,6 +15,7 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { FormMessages } from "@/components/ui/FormMessages";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 
 export function ClassesPage() {
   const [instructorFilter, setInstructorFilter] = useState<ClassFilters>({});
@@ -40,8 +41,7 @@ export function ClassesPage() {
   const { instructors, error: instructorsError } = useInstructors();
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<StudioClass | null>(null);
-  const [cancelError, setCancelError] = useState<string | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const { notify, confirm } = useAppFeedback();
   const [selectedClass, setSelectedClass] = useState<StudioClass | null>(null);
 
   function openCreate() {
@@ -55,27 +55,35 @@ export function ClassesPage() {
   }
 
   async function handleCancel(studioClass: StudioClass) {
-    if (!window.confirm(`Cancelar la clase "${studioClass.title}"?`)) {
-      return;
-    }
-    setCancelError(null);
+    const ok = await confirm({
+      title: `¿Cancelar la clase "${studioClass.title}"?`,
+      description: "La clase quedará marcada como cancelada.",
+      confirmLabel: "Cancelar clase",
+      tone: "danger",
+    });
+    if (!ok) return;
     try {
       await cancel(studioClass.id);
+      notify("Clase cancelada.");
     } catch (err) {
-      setCancelError("No se pudo cancelar la clase. Intenta de nuevo.");
+      notify(getErrorMessage(err, "No se pudo cancelar la clase. Intenta de nuevo."), "error");
       console.error("[classes] cancelar fallo", err);
     }
   }
 
   async function handleDelete(studioClass: StudioClass) {
-    if (!window.confirm(`Eliminar la clase "${studioClass.title}"? Esta accion no se puede deshacer.`)) {
-      return;
-    }
-    setDeleteError(null);
+    const ok = await confirm({
+      title: `¿Eliminar la clase "${studioClass.title}"?`,
+      description: "Esta acción no se puede deshacer.",
+      confirmLabel: "Eliminar clase",
+      tone: "danger",
+    });
+    if (!ok) return;
     try {
       await remove(studioClass.id);
+      notify("Clase eliminada.");
     } catch (err) {
-      setDeleteError(getErrorMessage(err, "No se pudo eliminar la clase. Intenta de nuevo."));
+      notify(getErrorMessage(err, "No se pudo eliminar la clase. Intenta de nuevo."), "error");
       console.error("[classes] eliminar fallo", err);
     }
   }
@@ -98,7 +106,7 @@ export function ClassesPage() {
       <ClassFiltersBar instructors={instructors} filters={instructorFilter} onChange={setInstructorFilter} />
 
       {loading && <LoadingState message="Cargando..." />}
-      <FormMessages messages={[error, instructorsError, cancelError, deleteError]} />
+      <FormMessages messages={[error, instructorsError]} />
       {!loading && !error && (
         <div
           key={formatDateKey(weekStart)}

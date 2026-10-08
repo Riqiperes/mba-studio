@@ -11,6 +11,7 @@ import { BackButton } from "@/components/ui/BackButton";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 
 export function CustomerDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,7 +30,7 @@ export function CustomerDetailPage() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingDependent, setEditingDependent] = useState<Dependent | null>(null);
-  const [dependentActionError, setDependentActionError] = useState<string | null>(null);
+  const { notify, confirm } = useAppFeedback();
 
   const { balance, loading: creditsLoading, error: creditsError, grant } = useCustomerCredits(customerId);
   const [creditsModalOpen, setCreditsModalOpen] = useState(false);
@@ -39,6 +40,7 @@ export function CustomerDetailPage() {
 
   async function handleGrantCredits(amount: number, notes?: string | null) {
     await grant(amount, notes);
+    notify(amount === 1 ? "Se otorgó 1 crédito." : `Se otorgaron ${amount} créditos.`);
   }
 
   // Destaca el saldo solo cuando cambia por una accion (otorgar creditos),
@@ -94,6 +96,7 @@ export function CustomerDetailPage() {
         medicalConditions: medicalConditions.trim() || null,
         notes: notes.trim() || null,
       });
+      notify("Datos del cliente actualizados.");
     } catch (err) {
       setEditError("No se pudo actualizar el cliente. Intenta de nuevo.");
       console.error("[customers] update fallo", err);
@@ -124,19 +127,27 @@ export function CustomerDetailPage() {
         birthDate: input.birthDate ?? null,
       });
     }
+    notify(editingDependent ? "Datos del alumno actualizados." : `Alumno "${input.fullName}" creado.`);
   }
 
-  async function handleToggleDependentActive(dependent: Dependent) {
-    if (dependent.active && !window.confirm(`Desactivar al alumno "${dependent.fullName}"?`)) {
-      return;
+  async function handleToggleDependentActive(dependent: Dependent): Promise<boolean> {
+    if (dependent.active) {
+      const ok = await confirm({
+        title: `¿Desactivar a "${dependent.fullName}"?`,
+        description: "Pasará a la lista de alumnos inactivos. Su historial se conserva.",
+        confirmLabel: "Desactivar",
+        tone: "danger",
+      });
+      if (!ok) return false;
     }
-    setDependentActionError(null);
     try {
       await setActive(dependent.id, !dependent.active);
+      notify(dependent.active ? "Alumno desactivado." : "Alumno reactivado.");
     } catch (err) {
-      setDependentActionError("No se pudo actualizar el alumno. Intenta de nuevo.");
+      notify("No se pudo actualizar el alumno. Intenta de nuevo.", "error");
       console.error("[dependents] setActive fallo", err);
     }
+    return true;
   }
 
   if (loading) return <LoadingState message="Cargando…" />;
@@ -270,7 +281,6 @@ export function CustomerDetailPage() {
 
       {dependentsLoading && <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>}
       {dependentsError && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{dependentsError}</p>}
-      {dependentActionError && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{dependentActionError}</p>}
       {!dependentsLoading && !dependentsError && (
         <DependentsTable
           dependents={dependents}

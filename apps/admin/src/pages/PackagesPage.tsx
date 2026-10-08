@@ -7,12 +7,13 @@ import { BackButton } from "@/components/ui/BackButton";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { Plus } from "lucide-react";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 
 export function PackagesPage() {
   const { packages, loading, error, create, update, setActive, remove } = usePackages();
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Package | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
+  const { notify, confirm } = useAppFeedback();
 
   function openCreate() {
     setEditing(null);
@@ -33,38 +34,48 @@ export function PackagesPage() {
   }) {
     if (editing) {
       await update(editing.id, input);
+      notify("Paquete actualizado.");
     } else {
       await create(input);
+      notify("Paquete creado.");
     }
   }
 
   async function handleToggleActive(pkg: Package) {
-    if (pkg.active && !window.confirm(`Desactivar el paquete "${pkg.name}"?`)) {
+    if (
+      pkg.active &&
+      !(await confirm({ title: `¿Desactivar el paquete "${pkg.name}"?`, description: "Dejará de mostrarse a los clientes.", confirmLabel: "Desactivar", tone: "danger" }))
+    ) {
       return;
     }
-    setActionError(null);
     try {
       await setActive(pkg.id, !pkg.active);
+      notify(pkg.active ? "Paquete desactivado." : "Paquete activado.");
     } catch (err) {
-      setActionError("No se pudo actualizar el paquete. Intenta de nuevo.");
+      notify("No se pudo actualizar el paquete. Intenta de nuevo.", "error");
       console.error("[packages] setActive fallo", err);
     }
   }
 
   async function handleDelete(pkg: Package) {
-    if (!window.confirm(`Eliminar el paquete "${pkg.name}"? Esta accion no se puede deshacer.`)) {
-      return;
-    }
-    setActionError(null);
+    const ok = await confirm({
+      title: `¿Eliminar el paquete "${pkg.name}"?`,
+      description: "Esta acción no se puede deshacer.",
+      confirmLabel: "Eliminar",
+      tone: "danger",
+    });
+    if (!ok) return;
     try {
       await remove(pkg.id);
+      notify("Paquete eliminado.");
     } catch (err) {
       if (err && typeof err === "object" && "code" in err && err.code === "23503") {
-        setActionError(
+        notify(
           `No se puede eliminar "${pkg.name}": tiene compras asociadas. Usa Desactivar en su lugar.`,
+          "error",
         );
       } else {
-        setActionError("No se pudo eliminar el paquete. Intenta de nuevo.");
+        notify("No se pudo eliminar el paquete. Intenta de nuevo.", "error");
       }
       console.error("[packages] delete fallo", err);
     }
@@ -86,7 +97,6 @@ export function PackagesPage() {
 
       {loading && <p role="status" className="text-pequeno text-texto-suave">Cargando…</p>}
       {error && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{error}</p>}
-      {actionError && <p role="alert" className="alerta-entra flex items-start gap-2 rounded-control bg-suave px-3 py-2 text-pequeno text-alerta">{actionError}</p>}
       {!loading && !error && (
         <div className="entra">
           <PackagesGrid

@@ -11,6 +11,7 @@ import { BackButton } from "@/components/ui/BackButton";
 import { TextField } from "@/components/ui/TextField";
 import { TextAreaField } from "@/components/ui/TextAreaField";
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 
 const STATUS_LABELS: Record<string, string> = {
   PENDIENTE: "Pendiente de aprobación",
@@ -35,6 +36,7 @@ export function UserProfilePage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const { enrollments, loading: enrollmentsLoading } = useMyAcademyEnrollments();
+  const { notify } = useAppFeedback();
 
   useEffect(() => {
     if (profile) {
@@ -58,8 +60,10 @@ export function UserProfilePage() {
         medicalConditions: medicalConditions.trim() || null,
       });
       setMessage({ type: "success", text: "Perfil actualizado correctamente" });
+      notify("Datos actualizados.");
     } catch (err) {
       setMessage({ type: "error", text: "No se pudo actualizar el perfil" });
+      notify("No se pudo actualizar el perfil.", "error");
       console.error("[profile] update fallo", err);
     } finally {
       setSaving(false);
