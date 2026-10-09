@@ -38,6 +38,12 @@ reservar.
 - Cancelacion dentro de las 8 horas previas a la clase, o no-show:
   **se cobra el credito** (no se devuelve).
 - La cancelacion la puede hacer el cliente (web) o el staff (admin).
+- **Si la academia cancela la clase** (`studio_classes.status` pasa a
+  `CANCELLED`), el trigger de la migracion 034 cancela todas sus
+  reservaciones con `cancelled_by_business = true`, devuelve 1 credito a
+  cada cliente sin importar la ventana de 8 horas, vacia la lista de espera
+  y deja un aviso `CLASS_CANCELLED` en `notification_outbox`. El cliente lo
+  ve en "Mi horario" (web) mientras la clase no haya pasado.
 
 ## Lista de espera (Studio)
 
