@@ -79,7 +79,9 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
     manual cuando hay cupo), **sin cola de prioridad** — solo recordatorio.
 21. Notifications — generacion de eventos de notificacion (email primero).
 22. WhatsApp — proveedor real (Meta/Twilio/UltraMsg) detras de la
-    abstraccion ya preparada.
+    abstraccion ya preparada. Incluye el job que vacia
+    `notification_outbox` (avisos `PENDING` de clase cancelada desde la
+    migracion 034, ver `docs/notifications.md`).
 23. White-label configuration — tabla `business` consumida por la UI (ver
     `docs/white-label.md`).
 24. **Campos personalizados de cliente:** condiciones medicas (embarazo,

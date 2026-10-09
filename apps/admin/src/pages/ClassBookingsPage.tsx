@@ -26,7 +26,7 @@ export function ClassBookingsPage() {
   } = useClasses({});
   const studioClass = classes.find((c) => c.id === classId);
   const { customers } = useCustomers();
-  const { bookings, waitlist, loading, error, book, cancel, addWaiting, removeWaiting, promote } =
+  const { bookings, waitlist, loading, error, reload, book, cancel, addWaiting, removeWaiting, promote } =
     useClassBookings(classId, studioClass?.businessId ?? "");
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -59,14 +59,18 @@ export function ClassBookingsPage() {
     if (!studioClass) return;
     const ok = await confirm({
       title: `¿Cancelar la clase "${studioClass.title}"?`,
-      description: "La clase quedará marcada como cancelada.",
+      description:
+        bookings.length > 0
+          ? `Se cancelarán ${bookings.length === 1 ? "1 reservación" : `${bookings.length} reservaciones`}, se devolverá el crédito a cada cliente y se vaciará la lista de espera.`
+          : "No tiene reservaciones. Se vaciará la lista de espera.",
       confirmLabel: "Cancelar clase",
       tone: "danger",
     });
     if (!ok) return;
     try {
       await cancelClass(studioClass.id);
-      notify("Clase cancelada.");
+      notify("Clase cancelada. Se devolvieron los créditos de las reservaciones.");
+      await reload();
     } catch (err) {
       notify(getErrorMessage(err, "No se pudo cancelar la clase."), "error");
       console.error("[classes] cancelar fallo", err);
