@@ -2,6 +2,7 @@
 import { supabase } from "@/lib/supabaseClient";
 import type { Booking, BookingWithClass } from "../types/Booking";
 import type { WaitlistEntry, WaitlistEntryWithClass } from "../types/WaitlistEntry";
+import type { ClassCancellationNotice } from "../types/ClassCancellationNotice";
 
 const BOOKING_COLUMNS = "id, business_id, class_id, customer_id, status, created_at, updated_at";
 const WAITLIST_COLUMNS = "id, business_id, class_id, customer_id, created_at";
@@ -173,6 +174,30 @@ export async function bookClass(classId: string): Promise<Booking> {
 export async function cancelBooking(bookingId: string): Promise<void> {
   const { error } = await supabase.rpc("cancel_booking", { p_booking_id: bookingId });
   if (error) throw error;
+}
+
+/**
+ * Clases canceladas por la academia en las que el cliente estaba en lista de
+ * espera (el trigger de la migracion 035 deja el aviso en notification_outbox
+ * y borra la lista). RLS: cada cliente solo lee sus propios avisos.
+ */
+export async function listMyWaitlistCancellationNotices(): Promise<ClassCancellationNotice[]> {
+  const { data, error } = await supabase
+    .from("notification_outbox")
+    .select("id, payload")
+    .eq("type", "CLASS_CANCELLED")
+    .eq("payload->>waitlist", "true")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  // La fecha va dentro del jsonb: se filtra aqui (comparar texto en SQL depende del formato).
+  const now = Date.now();
+  return data.flatMap((row) => {
+    const payload = row.payload as { class_title?: unknown; starts_at?: unknown } | null;
+    if (typeof payload?.class_title !== "string" || typeof payload.starts_at !== "string") return [];
+    if (new Date(payload.starts_at).getTime() < now) return [];
+    return [{ id: row.id, classTitle: payload.class_title, startsAt: payload.starts_at }];
+  });
 }
 
 export async function joinWaitlist(classId: string, businessId?: string): Promise<WaitlistEntry> {

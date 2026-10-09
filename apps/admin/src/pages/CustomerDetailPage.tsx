@@ -5,7 +5,7 @@ import { DependentsTable } from "@/features/dependents/components/DependentsTabl
 import { useDependentsByGuardian } from "@/features/dependents/hooks/useDependents";
 import { useCustomer } from "@/features/customers/hooks/useCustomers";
 import type { Dependent } from "@/features/dependents/types/Dependent";
-import { GrantCreditsModal } from "@/features/credits/components/GrantCreditsModal";
+import { CustomerCreditsModal } from "@/features/credits/components/CustomerCreditsModal";
 import { useCustomerCredits } from "@/features/credits/hooks/useCustomerCredits";
 import { BackButton } from "@/components/ui/BackButton";
 import { buttonClasses } from "@/components/ui/buttonStyles";
@@ -32,8 +32,8 @@ export function CustomerDetailPage() {
   const [editingDependent, setEditingDependent] = useState<Dependent | null>(null);
   const { notify, confirm } = useAppFeedback();
 
-  const { balance, loading: creditsLoading, error: creditsError, grant } = useCustomerCredits(customerId);
-  const [creditsModalOpen, setCreditsModalOpen] = useState(false);
+  const { balance, loading: creditsLoading, error: creditsError, grant, revoke } = useCustomerCredits(customerId);
+  const [creditsModalMode, setCreditsModalMode] = useState<"grant" | "revoke" | null>(null);
   const [balanceChanged, setBalanceChanged] = useState(false);
   const previousBalance = useRef<number | null>(null);
   const hasBalanceBaseline = useRef(false);
@@ -41,6 +41,19 @@ export function CustomerDetailPage() {
   async function handleGrantCredits(amount: number, notes?: string | null) {
     await grant(amount, notes);
     notify(amount === 1 ? "Se otorgó 1 crédito." : `Se otorgaron ${amount} créditos.`);
+  }
+
+  async function handleRevokeCredits(amount: number, notes?: string | null): Promise<boolean> {
+    const ok = await confirm({
+      title: amount === 1 ? "¿Quitar 1 crédito?" : `¿Quitar ${amount} créditos?`,
+      description: `Se descontarán del saldo de ${customer?.fullName ?? "este cliente"}.`,
+      confirmLabel: "Quitar",
+      tone: "danger",
+    });
+    if (!ok) return false;
+    await revoke(amount, notes);
+    notify(amount === 1 ? "Se quitó 1 crédito." : `Se quitaron ${amount} créditos.`);
+    return true;
   }
 
   // Destaca el saldo solo cuando cambia por una accion (otorgar creditos),
@@ -244,13 +257,23 @@ export function CustomerDetailPage() {
 
       <div className="mb-4 flex items-center justify-between">
         <h2 className="font-display text-subtitulo font-medium text-texto">Creditos</h2>
-        <button
-          type="button"
-          onClick={() => setCreditsModalOpen(true)}
-          className={buttonClasses("primary", "md")}
-        >
-          Otorgar creditos
-        </button>
+        <div className="flex flex-wrap justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => setCreditsModalMode("revoke")}
+            disabled={!balance}
+            className={buttonClasses("outline", "md")}
+          >
+            Quitar créditos
+          </button>
+          <button
+            type="button"
+            onClick={() => setCreditsModalMode("grant")}
+            className={buttonClasses("primary", "md")}
+          >
+            Otorgar creditos
+          </button>
+        </div>
       </div>
       {creditsLoading && <p className="mb-6 text-sm text-texto-suave">Cargando...</p>}
       {creditsError && <p className="mb-6 text-sm text-alerta">{creditsError}</p>}
@@ -262,10 +285,12 @@ export function CustomerDetailPage() {
         </p>
       )}
 
-      <GrantCreditsModal
-        open={creditsModalOpen}
-        onClose={() => setCreditsModalOpen(false)}
-        onSubmit={handleGrantCredits}
+      <CustomerCreditsModal
+        open={creditsModalMode !== null}
+        mode={creditsModalMode ?? "grant"}
+        maxAmount={balance ?? undefined}
+        onClose={() => setCreditsModalMode(null)}
+        onSubmit={creditsModalMode === "revoke" ? handleRevokeCredits : handleGrantCredits}
       />
 
       <div className="mb-4 flex items-center justify-between">
