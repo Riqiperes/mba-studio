@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabaseClient";
-import type { Booking, BookingWithCustomer } from "../types/Booking";
+import type { Booking, BookingWithCustomer, CustomerBooking } from "../types/Booking";
 import type { WaitlistEntry, WaitlistEntryWithCustomer } from "../types/WaitlistEntry";
 
 const BOOKING_COLUMNS = "id, business_id, class_id, customer_id, guest_name, status, created_at, updated_at";
@@ -68,6 +68,44 @@ export async function listBookingsByClass(classId: string): Promise<BookingWithC
     customerName: row.profiles?.full_name ?? row.guest_name,
     customerMedicalConditions: row.profiles?.medical_conditions?.trim() || null,
   }));
+}
+
+type CustomerBookingRow = {
+  id: string;
+  class_id: string;
+  status: Booking["status"];
+  refunded: boolean;
+  cancelled_by_business: boolean;
+  studio_classes: { title: string; starts_at: string } | null;
+};
+
+/**
+ * Reservaciones de un cliente para su ficha en admin: primero las proximas
+ * confirmadas (la mas cercana arriba), despues el resto de mas reciente a
+ * mas vieja. Staff las lee por RLS (bookings_select_staff).
+ */
+export async function listBookingsByCustomer(customerId: string): Promise<CustomerBooking[]> {
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("id, class_id, status, refunded, cancelled_by_business, studio_classes(title, starts_at)")
+    .eq("customer_id", customerId);
+
+  if (error) throw error;
+  const now = Date.now();
+  const rows = (data as CustomerBookingRow[]).map((row) => ({
+    id: row.id,
+    classId: row.class_id,
+    classTitle: row.studio_classes?.title ?? "Clase eliminada",
+    classStartsAt: row.studio_classes?.starts_at ?? "",
+    status: row.status,
+    refunded: row.refunded,
+    cancelledByBusiness: row.cancelled_by_business,
+  }));
+  const isUpcoming = (booking: CustomerBooking) =>
+    booking.status === "CONFIRMED" && new Date(booking.classStartsAt).getTime() >= now;
+  const upcoming = rows.filter(isUpcoming).sort((a, b) => a.classStartsAt.localeCompare(b.classStartsAt));
+  const rest = rows.filter((booking) => !isUpcoming(booking)).sort((a, b) => b.classStartsAt.localeCompare(a.classStartsAt));
+  return [...upcoming, ...rest];
 }
 
 export async function listWaitlistByClass(classId: string): Promise<WaitlistEntryWithCustomer[]> {

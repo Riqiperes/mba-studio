@@ -24,3 +24,14 @@ export type BookingWithCustomer = Booking & {
   customerName: string | null;
   customerMedicalConditions: string | null;
 };
+
+/** Reservacion vista desde la ficha de un cliente (con los datos de su clase). */
+export type CustomerBooking = {
+  id: string;
+  classId: string;
+  classTitle: string;
+  classStartsAt: string;
+  status: Booking["status"];
+  refunded: boolean;
+  cancelledByBusiness: boolean;
+};
