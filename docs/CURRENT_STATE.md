@@ -3,7 +3,26 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-10-08 (rama `feat/aviso-lista-espera-quitar-creditos`):
+Ultima actualizacion: 2026-10-08 (rama `feat/cancelacion-4h-cupo-no-registrados`):
+- **Cancelacion: 4 horas** (antes 8). `cancel_booking()` en migracion 036 y
+  `CANCELLATION_REFUND_WINDOW_HOURS = 4` en `packages/shared` (los textos de
+  web y admin salen de ahi).
+- **Cupo en admin**: tarjetas del calendario y modal de acciones muestran
+  "Cupo 3/10 · 2 en espera" (`useClassOccupancy` + `classOccupancyLabel`);
+  el detalle de la clase suma la lista de espera al cupo.
+- **"No registrado"**: en Reservados, "Reservar cliente" tiene la opcion
+  "No registrado" (solo nombre). `bookings`/`waitlist` ganan `guest_name` y
+  `customer_id` pasa a opcional (check: exactamente uno). RPC `book_guest`;
+  `promote_from_waitlist`, `cancel_booking` y el trigger de clase cancelada
+  no tocan creditos ni avisos para ellos. Migracion 036 aplicada en
+  produccion (probada antes en transaccion revertida: cupo, lista de espera,
+  promover, ventana de 4 h, cancelar clase).
+- **Ramas**: borradas las ya mergeadas (local y remoto) mas
+  `feat/admin-create-customer` y `fix/whatsapp-contact-number` (superadas).
+  Se conserva `origin/feat/politicas-privacidad` (borrador de docs sin
+  mergear).
+
+Actualizacion anterior: 2026-10-08 (rama `feat/aviso-lista-espera-quitar-creditos`):
 - **Clase cancelada, lista de espera**: migracion 035 (aplicada en
   produccion, probada antes en transaccion revertida). El trigger tambien
   deja aviso `CLASS_CANCELLED` (`payload.waitlist = true`) a quien estaba en

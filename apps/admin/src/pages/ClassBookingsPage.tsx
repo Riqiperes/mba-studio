@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { HeartPulse } from "lucide-react";
-import { BookCustomerModal } from "@/features/bookings/components/BookCustomerModal";
+import { BookCustomerModal, type BookingTarget } from "@/features/bookings/components/BookCustomerModal";
 import { useClassBookings } from "@/features/bookings/hooks/useClassBookings";
 import { useClasses } from "@/features/classes/hooks/useClasses";
 import { useCustomers } from "@/features/customers/hooks/useCustomers";
@@ -26,7 +26,7 @@ export function ClassBookingsPage() {
   } = useClasses({});
   const studioClass = classes.find((c) => c.id === classId);
   const { customers } = useCustomers();
-  const { bookings, waitlist, loading, error, reload, book, cancel, addWaiting, removeWaiting, promote } =
+  const { bookings, waitlist, loading, error, reload, book, bookGuestByName, cancel, addWaiting, addWaitingGuest, removeWaiting, promote } =
     useClassBookings(classId, studioClass?.businessId ?? "");
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -35,6 +35,25 @@ export function ClassBookingsPage() {
   const isFull = studioClass ? bookings.length >= studioClass.maxCapacity : false;
 
   async function handleCancel(bookingId: string) {
+    const booking = bookings.find((item) => item.id === bookingId);
+    if (booking && booking.customerId === null) {
+      const ok = await confirm({
+        title: `¿Cancelar la reservación de ${booking.customerName ?? "esta persona"}?`,
+        description: "Es un cliente no registrado: se libera el lugar y no hay créditos que devolver.",
+        confirmLabel: "Sí, cancelar",
+        cancelLabel: "No, conservar",
+        tone: "danger",
+      });
+      if (!ok) return;
+      try {
+        await cancel(bookingId);
+        notify("Reservación cancelada.");
+      } catch (err) {
+        notify(getErrorMessage(err, "No se pudo cancelar."), "error");
+        console.error("[bookings] cancelar fallo", err);
+      }
+      return;
+    }
     const late = studioClass ? isLateCancellation(studioClass.startsAt) : false;
     const ok = await confirm({
       title: late ? "Se consumirá el crédito del cliente" : "¿Cancelar esta reservación?",
@@ -61,7 +80,7 @@ export function ClassBookingsPage() {
       title: `¿Cancelar la clase "${studioClass.title}"?`,
       description:
         bookings.length > 0
-          ? `Se cancelarán ${bookings.length === 1 ? "1 reservación" : `${bookings.length} reservaciones`}, se devolverá el crédito a cada cliente y se vaciará la lista de espera.`
+          ? `Se cancelarán ${bookings.length === 1 ? "1 reservación" : `${bookings.length} reservaciones`}, se devolverá el crédito a cada cliente registrado y se vaciará la lista de espera.`
           : "No tiene reservaciones. Se vaciará la lista de espera.",
       confirmLabel: "Cancelar clase",
       tone: "danger",
@@ -97,9 +116,12 @@ export function ClassBookingsPage() {
   }
 
   async function handlePromote(waitlistId: string) {
+    const isGuest = waitlist.find((entry) => entry.id === waitlistId)?.customerId === null;
     const ok = await confirm({
       title: "¿Pasar a reservación?",
-      description: "Se reservará el lugar y se descontará 1 crédito al cliente.",
+      description: isGuest
+        ? "Se reservará el lugar. Es un cliente no registrado: no usa créditos."
+        : "Se reservará el lugar y se descontará 1 crédito al cliente.",
       confirmLabel: "Promover",
     });
     if (!ok) return;
@@ -124,12 +146,22 @@ export function ClassBookingsPage() {
     }
   }
 
-  async function handleModalSubmit(customerId: string) {
+  async function handleModalSubmit(target: BookingTarget) {
+    if (target.kind === "guest") {
+      if (isFull) {
+        await addWaitingGuest(target.guestName);
+        notify(`${target.guestName} agregado a la lista de espera.`);
+      } else {
+        await bookGuestByName(target.guestName);
+        notify(`${target.guestName} reservado (no registrado, sin créditos).`);
+      }
+      return;
+    }
     if (isFull) {
-      await addWaiting(customerId);
+      await addWaiting(target.customerId);
       notify("Cliente agregado a la lista de espera.");
     } else {
-      await book(customerId);
+      await book(target.customerId);
       notify("Clase reservada. Se descontó 1 crédito al cliente.");
     }
   }
@@ -154,6 +186,7 @@ export function ClassBookingsPage() {
       <h1 className="mb-1 font-display text-titulo font-medium text-texto">{studioClass.title}</h1>
       <p className="mb-4 text-sm text-texto-suave">
         Cupo: {bookings.length}/{studioClass.maxCapacity}
+        {waitlist.length > 0 && ` · ${waitlist.length} en lista de espera`}
         {studioClass.status !== "SCHEDULED" && <span className="ms-2 font-medium text-alerta">Cancelada</span>}
       </p>
 
@@ -199,12 +232,19 @@ export function ClassBookingsPage() {
               {bookings.map((booking) => (
                 <tr key={booking.id}>
                   <td>
-                    <Link
-                      to={`/customers/${booking.customerId}`}
-                      className="font-medium text-texto underline-offset-4 hover:text-acento hover:underline"
-                    >
-                      {booking.customerName ?? "-"}
-                    </Link>
+                    {booking.customerId ? (
+                      <Link
+                        to={`/customers/${booking.customerId}`}
+                        className="font-medium text-texto underline-offset-4 hover:text-acento hover:underline"
+                      >
+                        {booking.customerName ?? "-"}
+                      </Link>
+                    ) : (
+                      <span className="font-medium text-texto">
+                        {booking.customerName ?? "-"}
+                        <GuestBadge />
+                      </span>
+                    )}
                     {booking.customerMedicalConditions && (
                       <p className="mt-1 flex items-start gap-1.5 text-pequeno text-alerta">
                         <HeartPulse className="mt-px h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
@@ -256,7 +296,10 @@ export function ClassBookingsPage() {
             <tbody>
               {waitlist.map((entry) => (
                 <tr key={entry.id}>
-                  <td>{entry.customerName ?? "-"}</td>
+                  <td>
+                    {entry.customerName ?? "-"}
+                    {entry.customerId === null && <GuestBadge />}
+                  </td>
                   <td>
                     <button
                       type="button"
@@ -290,5 +333,14 @@ export function ClassBookingsPage() {
         onSubmit={handleModalSubmit}
       />
     </div>
+  );
+}
+
+/** Etiqueta para reservas/lista de espera de un cliente "No registrado". */
+function GuestBadge() {
+  return (
+    <span className="ms-2 inline-flex rounded-full bg-suave px-2 py-0.5 text-pequeno font-medium text-texto-suave">
+      No registrado
+    </span>
   );
 }
