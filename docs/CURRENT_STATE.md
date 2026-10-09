@@ -12,8 +12,10 @@ Ultima actualizacion: 2026-10-08 (rama `feat/cancelar-clase-reembolso`):
   vacia la lista de espera y deja el aviso en `notification_outbox`
   (`PENDING`, nadie lo envia hasta que haya WhatsApp real). Web: aviso en
   "Mi horario" ("La academia cancelo ... Tu credito ya regreso").
-  **La migracion 034 debe aplicarse en produccion antes de publicar este
-  front** (el texto de admin promete el reembolso).
+  Migracion 034 aplicada en produccion el 2026-10-08 (probada antes con
+  una clase de prueba dentro de una transaccion revertida; las 6
+  reservaciones existentes no cambiaron y no habia clases canceladas con
+  reservaciones atoradas).
 
 Actualizacion anterior: 2026-10-08 (rama `feat/alertas-toast-confirmacion`):
 - **Avisos (web y admin)**: `useAppFeedback()` (`components/ui/AppFeedbackProvider.tsx`
