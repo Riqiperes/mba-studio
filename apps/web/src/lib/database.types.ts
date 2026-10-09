@@ -572,6 +572,60 @@ export type Database = {
           },
         ]
       }
+      notification_outbox: {
+        Row: {
+          business_id: string
+          created_at: string
+          customer_id: string
+          error_message: string | null
+          id: string
+          payload: Json
+          sent_at: string | null
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          customer_id: string
+          error_message?: string | null
+          id?: string
+          payload?: Json
+          sent_at?: string | null
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          customer_id?: string
+          error_message?: string | null
+          id?: string
+          payload?: Json
+          sent_at?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_outbox_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_outbox_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       packages: {
         Row: {
           active: boolean
@@ -878,6 +932,7 @@ export type Database = {
         Returns: {
           business_id: string
           cancelled_at: string | null
+          cancelled_by_business: boolean
           class_id: string
           created_at: string
           customer_id: string
@@ -939,6 +994,7 @@ export type Database = {
         Returns: {
           business_id: string
           cancelled_at: string | null
+          cancelled_by_business: boolean
           class_id: string
           created_at: string
           customer_id: string
@@ -956,6 +1012,10 @@ export type Database = {
       }
       remove_admin_invite: { Args: { p_email: string }; Returns: undefined }
       reset_monthly_credits: { Args: never; Returns: undefined }
+      revoke_credits: {
+        Args: { p_amount: number; p_customer_id: string; p_notes?: string }
+        Returns: undefined
+      }
     }
     Enums: {
       studio_class_status: "SCHEDULED" | "CANCELLED" | "COMPLETED"

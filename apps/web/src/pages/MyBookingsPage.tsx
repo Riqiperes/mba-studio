@@ -19,7 +19,7 @@ import { isLateCancellation } from "@mba-studio/shared";
 import { bookingCancellationConfirm, bookingCancelledMessage } from "@/features/bookings/utils/bookingCancellationPolicy";
 
 export function MyBookingsPage() {
-  const { bookings, waitlist, cancelledByBusiness, loading, error, reload } = useMyBookings();
+  const { bookings, waitlist, cancelledByBusiness, waitlistCancellations, loading, error, reload } = useMyBookings();
   const { balance, loading: creditsLoading, reload: reloadCredits } = useMyCredits();
 
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -80,7 +80,7 @@ export function MyBookingsPage() {
 
       {error && <ErrorState message={error} />}
 
-      {cancelledByBusiness.length > 0 && (
+      {(cancelledByBusiness.length > 0 || waitlistCancellations.length > 0) && (
         <section id="my-bookings-cancelled-by-business" aria-label="Clases canceladas por la academia" className="space-y-2">
           {cancelledByBusiness.map((booking) => (
             <p
@@ -93,6 +93,19 @@ export function MyBookingsPage() {
                 La academia canceló <strong className="font-medium">{booking.class.title}</strong> del{" "}
                 {formatDate(booking.class.startsAt)} a las{" "}
                 {formatTime(booking.class.startsAt)}. Tu crédito ya regresó a tu saldo.
+              </span>
+            </p>
+          ))}
+          {waitlistCancellations.map((notice) => (
+            <p
+              key={notice.id}
+              role="status"
+              className="alerta-entra flex items-start gap-3 rounded-card bg-suave px-4 py-3 text-cuerpo text-texto"
+            >
+              <CalendarX className="mt-0.5 h-5 w-5 shrink-0 text-alerta" strokeWidth={1.8} aria-hidden="true" />
+              <span className="text-pretty">
+                La academia canceló <strong className="font-medium">{notice.classTitle}</strong> del{" "}
+                {formatDate(notice.startsAt)} a las {formatTime(notice.startsAt)}. Ya no estás en su lista de espera.
               </span>
             </p>
           ))}

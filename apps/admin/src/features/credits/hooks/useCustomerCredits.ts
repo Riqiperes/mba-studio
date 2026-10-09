@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getCreditBalance, grantCredits } from "../services/creditsService";
+import { getCreditBalance, grantCredits, revokeCredits } from "../services/creditsService";
 
 export function useCustomerCredits(customerId: string) {
   const [balance, setBalance] = useState<number | null>(null);
@@ -28,5 +28,10 @@ export function useCustomerCredits(customerId: string) {
     await reload();
   }
 
-  return { balance, loading, error, reload, grant };
+  async function revoke(amount: number, notes?: string | null) {
+    await revokeCredits(customerId, amount, notes);
+    await reload();
+  }
+
+  return { balance, loading, error, reload, grant, revoke };
 }

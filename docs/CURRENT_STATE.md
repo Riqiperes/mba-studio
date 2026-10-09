@@ -3,7 +3,19 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-10-08 (rama `feat/cancelar-clase-reembolso`):
+Ultima actualizacion: 2026-10-08 (rama `feat/aviso-lista-espera-quitar-creditos`):
+- **Clase cancelada, lista de espera**: migracion 035 (aplicada en
+  produccion, probada antes en transaccion revertida). El trigger tambien
+  deja aviso `CLASS_CANCELLED` (`payload.waitlist = true`) a quien estaba en
+  la lista de espera antes de vaciarla. Cada cliente puede leer sus propios
+  avisos de `notification_outbox` (policy `notification_outbox_select_own`);
+  "Mi horario" los muestra mientras la clase no haya pasado.
+- **Quitar creditos (admin)**: boton "Quitar creditos" en el detalle del
+  cliente (`CustomerCreditsModal.tsx`, antes `GrantCreditsModal.tsx`, ahora
+  con modo otorgar/quitar) + confirmacion. RPC `revoke_credits` (staff del
+  mismo negocio, razon `MANUAL_REVOKE`, nunca deja el saldo en negativo).
+
+Actualizacion anterior: 2026-10-08 (rama `feat/cancelar-clase-reembolso`):
 - **Cancelar clase devuelve creditos**: antes solo cambiaba
   `studio_classes.status` (reservaciones seguian `CONFIRMED`, credito
   perdido, cliente sin aviso). Migracion

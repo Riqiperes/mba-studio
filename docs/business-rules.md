@@ -43,7 +43,14 @@ reservar.
   reservaciones con `cancelled_by_business = true`, devuelve 1 credito a
   cada cliente sin importar la ventana de 8 horas, vacia la lista de espera
   y deja un aviso `CLASS_CANCELLED` en `notification_outbox`. El cliente lo
-  ve en "Mi horario" (web) mientras la clase no haya pasado.
+  ve en "Mi horario" (web) mientras la clase no haya pasado. Quien estaba
+  en la lista de espera tambien recibe el aviso (migracion 035).
+
+## Creditos manuales (admin)
+
+- Staff puede **otorgar** (`grant_credits`) o **quitar** (`revoke_credits`)
+  creditos desde el detalle del cliente. Quitar nunca deja el saldo en
+  negativo y queda en el historial como `MANUAL_REVOKE` con la nota.
 
 ## Lista de espera (Studio)
 
