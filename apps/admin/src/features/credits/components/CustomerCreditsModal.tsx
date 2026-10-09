@@ -14,11 +14,16 @@ const schema = z.object({
 
 type Props = {
   open: boolean;
+  /** grant = otorgar, revoke = quitar (hasta `maxAmount`, el saldo actual). */
+  mode: "grant" | "revoke";
+  maxAmount?: number | undefined;
   onClose: () => void;
-  onSubmit: (amount: number, notes?: string | null) => Promise<void>;
+  /** false = la persona no confirmo: el modal se queda abierto sin error. */
+  onSubmit: (amount: number, notes?: string | null) => Promise<boolean | void>;
 };
 
-export function GrantCreditsModal({ open, onClose, onSubmit }: Props) {
+export function CustomerCreditsModal({ open, mode, maxAmount, onClose, onSubmit }: Props) {
+  const isRevoke = mode === "revoke";
   const [amount, setAmount] = useState("1");
   const [notes, setNotes] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -57,15 +62,19 @@ export function GrantCreditsModal({ open, onClose, onSubmit }: Props) {
       setFieldErrors(errors);
       return;
     }
+    if (isRevoke && maxAmount !== undefined && result.data.amount > maxAmount) {
+      setFieldErrors({ amount: `El cliente solo tiene ${maxAmount} créditos` });
+      return;
+    }
     setFieldErrors({});
 
     setIsSaving(true);
     try {
-      await onSubmit(result.data.amount, result.data.notes || null);
+      if ((await onSubmit(result.data.amount, result.data.notes || null)) === false) return;
       onClose();
     } catch (err) {
-      setFormError(getErrorMessage(err, "No se pudo otorgar creditos."));
-      console.error("[credits] grant fallo", err);
+      setFormError(getErrorMessage(err, isRevoke ? "No se pudieron quitar los créditos." : "No se pudo otorgar creditos."));
+      console.error(`[credits] ${mode} fallo`, err);
     } finally {
       setIsSaving(false);
     }
@@ -74,12 +83,12 @@ export function GrantCreditsModal({ open, onClose, onSubmit }: Props) {
   return (
     <ModalShell onClose={onClose} size="sm" bodyClassName="">
       <form
-        id="grant-credits-modal"
+        id={isRevoke ? "revoke-credits-modal" : "grant-credits-modal"}
         onSubmit={handleSubmit}
         noValidate
         className="flex flex-col gap-3"
       >
-        <h2 className="font-display text-subtitulo font-medium text-texto">Otorgar creditos</h2>
+        <h2 className="font-display text-subtitulo font-medium text-texto">{isRevoke ? "Quitar créditos" : "Otorgar creditos"}</h2>
 
         <div className="flex flex-col gap-1">
           <label htmlFor="grant-credits-amount-input" className="etiqueta-campo">
@@ -89,6 +98,7 @@ export function GrantCreditsModal({ open, onClose, onSubmit }: Props) {
             id="grant-credits-amount-input"
             type="number"
             min={1}
+            max={isRevoke ? maxAmount : undefined}
             value={amount}
             onChange={(event) => setAmount(event.target.value)}
             className="campo"
@@ -117,7 +127,7 @@ export function GrantCreditsModal({ open, onClose, onSubmit }: Props) {
             disabled={isSaving}
             className={buttonClasses("primary", "md")}
           >
-            {isSaving ? "Guardando..." : "Otorgar"}
+            {isSaving ? "Guardando..." : isRevoke ? "Quitar" : "Otorgar"}
           </button>
         </div>
 

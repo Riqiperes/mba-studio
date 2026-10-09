@@ -24,3 +24,17 @@ export async function grantCredits(
   });
   if (error) throw error;
 }
+
+// Quita creditos (no deja el saldo en negativo: lo valida revoke_credits, migracion 035).
+export async function revokeCredits(
+  customerId: string,
+  amount: number,
+  notes?: string | null,
+): Promise<void> {
+  const { error } = await supabase.rpc("revoke_credits", {
+    p_customer_id: customerId,
+    p_amount: amount,
+    ...(notes != null ? { p_notes: notes } : {}),
+  });
+  if (error) throw error;
+}
