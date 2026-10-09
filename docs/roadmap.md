@@ -64,7 +64,7 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
          `docs/superpowers/specs/2026-09-09-academy-self-enrollment-and-admin-visibility-design.md`.
 
 19. **Politicas de cancelacion y creditos (Studio):**
-    - Ventana de 8 horas antes de la clase para cancelar y recuperar credito.
+    - Ventana de 4 horas antes de la clase para cancelar y recuperar credito (antes 8).
     - Cancelacion despues de la ventana o no-show: se cobra el credito.
     - Creditos expiran mensualmente (reset el dia 1 de cada mes).
 20. **Lista de espera (Studio):** boton "Enviar notificacion" (recordatorio

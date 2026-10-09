@@ -2,7 +2,8 @@
 import { useEffect, useState, type KeyboardEvent } from "react";
 import { Link } from "react-router-dom";
 import type { Instructor } from "@/features/instructors/types/Instructor";
-import type { StudioClass } from "../types/StudioClass";
+import type { ClassOccupancy, StudioClass } from "../types/StudioClass";
+import { classOccupancyLabel } from "../utils/classOccupancyLabel";
 import { formatDateKey, getWeekDays } from "../utils/weekUtils";
 
 const DAY_LABELS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -17,6 +18,8 @@ type Props = {
   weekStart: Date;
   classes: StudioClass[];
   instructors: Instructor[];
+  /** Reservados y lista de espera por clase (useClassOccupancy). */
+  occupancy: Map<string, ClassOccupancy>;
   onEdit: (studioClass: StudioClass) => void;
   onCancel: (studioClass: StudioClass) => void;
   onDelete: (studioClass: StudioClass) => void;
@@ -29,7 +32,7 @@ const actionClasses =
 
 type ActionHandlers = Pick<Props, "onEdit" | "onCancel" | "onDelete">;
 
-export function ClassesWeekGrid({ weekStart, classes, instructors, onEdit, onCancel, onDelete, onOpen }: Props) {
+export function ClassesWeekGrid({ weekStart, classes, instructors, occupancy, onEdit, onCancel, onDelete, onOpen }: Props) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [pinnedId, setPinnedId] = useState<string | null>(null);
   const activeId = pinnedId ?? hoveredId;
@@ -92,6 +95,7 @@ export function ClassesWeekGrid({ weekStart, classes, instructors, onEdit, onCan
                   key={studioClass.id}
                   studioClass={studioClass}
                   instructorName={instructorName(studioClass.instructorId)}
+                  capacityLabel={classOccupancyLabel(studioClass.maxCapacity, occupancy.get(studioClass.id))}
                   onOpen={onOpen}
                 />
               ))}
@@ -122,7 +126,13 @@ export function ClassesWeekGrid({ weekStart, classes, instructors, onEdit, onCan
                   Sin clases
                 </p>
               ) : dayClasses.length === 1 ? (
-                <FannedClassCard studioClass={dayClasses[0]!} instructorName={instructorName(dayClasses[0]!.instructorId)} isOpen {...actionHandlers} />
+                <FannedClassCard
+                  studioClass={dayClasses[0]!}
+                  instructorName={instructorName(dayClasses[0]!.instructorId)}
+                  capacityLabel={classOccupancyLabel(dayClasses[0]!.maxCapacity, occupancy.get(dayClasses[0]!.id))}
+                  isOpen
+                  {...actionHandlers}
+                />
               ) : (
                 <div className="relative" style={{ height: CARD_PEEK_OFFSET * (dayClasses.length - 1) + COLLAPSED_CARD_HEIGHT }}>
                   {dayClasses.map((studioClass, cardIndex) => (
@@ -130,6 +140,7 @@ export function ClassesWeekGrid({ weekStart, classes, instructors, onEdit, onCan
                       key={studioClass.id}
                       studioClass={studioClass}
                       instructorName={instructorName(studioClass.instructorId)}
+                      capacityLabel={classOccupancyLabel(studioClass.maxCapacity, occupancy.get(studioClass.id))}
                       isOpen={activeId === studioClass.id}
                       stacked={{
                         index: cardIndex,
@@ -158,8 +169,14 @@ function formatTime(iso: string): string {
 function MobileClassCard({
   studioClass,
   instructorName,
+  capacityLabel,
   onOpen,
-}: { studioClass: StudioClass; instructorName: string; onOpen: (studioClass: StudioClass) => void }) {
+}: {
+  studioClass: StudioClass;
+  instructorName: string;
+  capacityLabel: string;
+  onOpen: (studioClass: StudioClass) => void;
+}) {
   const isCancelled = studioClass.status !== "SCHEDULED";
   return (
     <button
@@ -175,7 +192,7 @@ function MobileClassCard({
         {formatTime(studioClass.startsAt)}–{formatTime(studioClass.endsAt)}
       </span>
       <span className="block text-texto-suave">{instructorName}</span>
-      <span className="block text-texto-suave">Cupo {studioClass.maxCapacity}</span>
+      <span className="block text-texto-suave">{capacityLabel}</span>
       {isCancelled && <span className="mt-1 block font-medium text-alerta">Cancelada</span>}
     </button>
   );
@@ -197,6 +214,7 @@ type StackedCardProps = {
 function FannedClassCard({
   studioClass,
   instructorName,
+  capacityLabel,
   isOpen,
   stacked,
   onEdit,
@@ -205,6 +223,7 @@ function FannedClassCard({
 }: {
   studioClass: StudioClass;
   instructorName: string;
+  capacityLabel: string;
   isOpen: boolean;
   stacked?: StackedCardProps | undefined;
 } & ActionHandlers) {
@@ -253,7 +272,7 @@ function FannedClassCard({
               Ver detalle
             </Link>
             <p className="text-texto-suave">{instructorName}</p>
-            <p className="text-texto-suave">Cupo {studioClass.maxCapacity}</p>
+            <p className="text-texto-suave">{capacityLabel}</p>
             {isCancelled && <p className="font-medium text-alerta">Cancelada</p>}
             <div className="-ms-1.5 flex flex-wrap gap-x-1">
               <button type="button" onClick={() => onEdit(studioClass)} className={`${actionClasses} text-acento`}>

@@ -320,7 +320,8 @@ export type Database = {
           cancelled_by_business: boolean
           class_id: string
           created_at: string
-          customer_id: string
+          guest_name: string | null
+          customer_id: string | null
           id: string
           refunded: boolean
           status: string
@@ -332,7 +333,8 @@ export type Database = {
           cancelled_by_business?: boolean
           class_id: string
           created_at?: string
-          customer_id: string
+          guest_name?: string | null
+          customer_id?: string | null
           id?: string
           refunded?: boolean
           status?: string
@@ -344,7 +346,8 @@ export type Database = {
           cancelled_by_business?: boolean
           class_id?: string
           created_at?: string
-          customer_id?: string
+          guest_name?: string | null
+          customer_id?: string | null
           id?: string
           refunded?: boolean
           status?: string
@@ -792,21 +795,24 @@ export type Database = {
           business_id: string
           class_id: string
           created_at: string
-          customer_id: string
+          guest_name: string | null
+          customer_id: string | null
           id: string
         }
         Insert: {
           business_id: string
           class_id: string
           created_at?: string
-          customer_id: string
+          guest_name?: string | null
+          customer_id?: string | null
           id?: string
         }
         Update: {
           business_id?: string
           class_id?: string
           created_at?: string
-          customer_id?: string
+          guest_name?: string | null
+          customer_id?: string | null
           id?: string
         }
         Relationships: [
@@ -927,6 +933,28 @@ export type Database = {
         }
         Returns: undefined
       }
+      book_guest: {
+        Args: { p_class_id: string; p_guest_name: string }
+        Returns: {
+          business_id: string
+          cancelled_at: string | null
+          cancelled_by_business: boolean
+          class_id: string
+          created_at: string
+          customer_id: string | null
+          guest_name: string | null
+          id: string
+          refunded: boolean
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "bookings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       book_class: {
         Args: { p_class_id: string; p_customer_id: string }
         Returns: {
@@ -935,7 +963,8 @@ export type Database = {
           cancelled_by_business: boolean
           class_id: string
           created_at: string
-          customer_id: string
+          customer_id: string | null
+          guest_name: string | null
           id: string
           refunded: boolean
           status: string
@@ -997,7 +1026,8 @@ export type Database = {
           cancelled_by_business: boolean
           class_id: string
           created_at: string
-          customer_id: string
+          customer_id: string | null
+          guest_name: string | null
           id: string
           refunded: boolean
           status: string

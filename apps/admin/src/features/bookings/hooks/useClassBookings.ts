@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import {
+  addGuestToWaitlist,
   addToWaitlist,
   bookClass,
+  bookGuest,
   cancelBooking,
   listBookingsByClass,
   listWaitlistByClass,
@@ -44,6 +46,17 @@ export function useClassBookings(classId: string, businessId: string) {
     await reload();
   }
 
+  async function bookGuestByName(guestName: string) {
+    await bookGuest(classId, guestName);
+    await reload();
+  }
+
+  async function addWaitingGuest(guestName: string) {
+    if (!businessId) throw new Error("Falta el business_id de la clase.");
+    await addGuestToWaitlist(businessId, classId, guestName);
+    await reload();
+  }
+
   async function cancel(bookingId: string) {
     await cancelBooking(bookingId);
     await reload();
@@ -65,5 +78,18 @@ export function useClassBookings(classId: string, businessId: string) {
     await reload();
   }
 
-  return { bookings, waitlist, loading, error, reload, book, cancel, addWaiting, removeWaiting, promote };
+  return {
+    bookings,
+    waitlist,
+    loading,
+    error,
+    reload,
+    book,
+    bookGuestByName,
+    cancel,
+    addWaiting,
+    addWaitingGuest,
+    removeWaiting,
+    promote,
+  };
 }
