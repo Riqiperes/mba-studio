@@ -1,6 +1,7 @@
 // apps/web/src/pages/MyBookingsPage.tsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { CalendarX } from "lucide-react";
 import { useMyBookings } from "@/features/bookings/hooks/useMyBookings";
 import { useMyCredits } from "@/features/credits/hooks/useMyCredits";
 import { BookingCard } from "@/features/bookings/components/BookingCard";
@@ -11,13 +12,14 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { formatDate, formatTime } from "@/utils/dateUtils";
 import { useAppFeedback } from "@/components/ui/AppFeedbackContext";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import { isLateCancellation } from "@mba-studio/shared";
 import { bookingCancellationConfirm, bookingCancelledMessage } from "@/features/bookings/utils/bookingCancellationPolicy";
 
 export function MyBookingsPage() {
-  const { bookings, waitlist, loading, error, reload } = useMyBookings();
+  const { bookings, waitlist, cancelledByBusiness, loading, error, reload } = useMyBookings();
   const { balance, loading: creditsLoading, reload: reloadCredits } = useMyCredits();
 
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -77,6 +79,25 @@ export function MyBookingsPage() {
       </div>
 
       {error && <ErrorState message={error} />}
+
+      {cancelledByBusiness.length > 0 && (
+        <section id="my-bookings-cancelled-by-business" aria-label="Clases canceladas por la academia" className="space-y-2">
+          {cancelledByBusiness.map((booking) => (
+            <p
+              key={booking.id}
+              role="status"
+              className="alerta-entra flex items-start gap-3 rounded-card bg-suave px-4 py-3 text-cuerpo text-texto"
+            >
+              <CalendarX className="mt-0.5 h-5 w-5 shrink-0 text-alerta" strokeWidth={1.8} aria-hidden="true" />
+              <span className="text-pretty">
+                La academia canceló <strong className="font-medium">{booking.class.title}</strong> del{" "}
+                {formatDate(booking.class.startsAt)} a las{" "}
+                {formatTime(booking.class.startsAt)}. Tu crédito ya regresó a tu saldo.
+              </span>
+            </p>
+          ))}
+        </section>
+      )}
 
       <section aria-labelledby="my-bookings-title" className="space-y-4">
         <div className="flex items-center justify-between gap-3">

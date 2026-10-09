@@ -57,14 +57,14 @@ export function ClassesPage() {
   async function handleCancel(studioClass: StudioClass) {
     const ok = await confirm({
       title: `¿Cancelar la clase "${studioClass.title}"?`,
-      description: "La clase quedará marcada como cancelada.",
+      description: "Se cancelarán sus reservaciones, se devolverá el crédito a cada cliente y se vaciará la lista de espera.",
       confirmLabel: "Cancelar clase",
       tone: "danger",
     });
     if (!ok) return;
     try {
       await cancel(studioClass.id);
-      notify("Clase cancelada.");
+      notify("Clase cancelada. Se devolvieron los créditos de las reservaciones.");
     } catch (err) {
       notify(getErrorMessage(err, "No se pudo cancelar la clase. Intenta de nuevo."), "error");
       console.error("[classes] cancelar fallo", err);
