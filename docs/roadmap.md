@@ -62,7 +62,7 @@ proyecto funcionando (build verde) antes de pasar a la siguiente.
          pago dummy. Ampliado (2026-09-28, migración
          `031_academy_tuition_stripe_auto_activation.sql`): colegiatura
          mensual recurrente via Stripe Subscriptions para grupos con
-         `academy_tuition_periods` configurado (cobro automático el día 1
+         `academy_tuition_periods` configurado (cobro automático el día 10
          de cada mes), y activación automática de la solicitud sin esperar
          al staff cuando hay cupo (reembolso automático si ya no lo hay,
          estado nuevo `RECHAZADA`). El cobro manual (efectivo/transferencia)

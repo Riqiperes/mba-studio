@@ -161,7 +161,7 @@ Deno.serve(async (req) => {
     sessionParams.mode = "subscription";
     sessionParams.subscription_data = {
       metadata: { enrollment_id: enrollment.id },
-      billing_cycle_anchor_config: { day_of_month: 1 },
+      billing_cycle_anchor_config: { day_of_month: 10 },
     };
   } else {
     // Sin colegiatura: cobro unico de la cuota de inscripcion, como antes.
@@ -262,14 +262,16 @@ async function handleCheckoutSessionCompleted(stripe, supabase, session) {
 
   if (subscriptionId && !paymentIntentId) {
     const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
-      expand: ["latest_invoice.payment_intent"],
+      expand: ["latest_invoice.payments"],
     });
     const latestInvoice = subscription.latest_invoice;
-    if (latestInvoice && typeof latestInvoice !== "string" && latestInvoice.payment_intent) {
+    const invoicePaymentIntent =
+      latestInvoice && typeof latestInvoice !== "string"
+        ? latestInvoice.payments?.data[0]?.payment.payment_intent
+        : undefined;
+    if (invoicePaymentIntent) {
       paymentIntentId =
-        typeof latestInvoice.payment_intent === "string"
-          ? latestInvoice.payment_intent
-          : latestInvoice.payment_intent.id;
+        typeof invoicePaymentIntent === "string" ? invoicePaymentIntent : invoicePaymentIntent.id;
     }
   }
 
@@ -313,7 +315,9 @@ async function handleCheckoutSessionCompleted(stripe, supabase, session) {
 }
 
 async function handleInvoiceEvent(supabase, invoice, status) {
-  const subscriptionId = typeof invoice.subscription === "string" ? invoice.subscription : null;
+  const invoiceSubscription = invoice.parent?.subscription_details?.subscription;
+  const subscriptionId =
+    typeof invoiceSubscription === "string" ? invoiceSubscription : invoiceSubscription?.id ?? null;
   if (!subscriptionId) return;
 
   const { data: enrollment, error: lookupError } = await supabase
@@ -412,6 +416,7 @@ Deno.serve(async (req) => {
     return new Response("ok", { status: 200 });
   } catch (error) {
     logError("stripe-webhook.procesamiento_fallo", error, { eventId: event.id, type: event.type });
+    await supabase.from("stripe_events").delete().eq("id", event.id);
     return new Response("Error interno", { status: 500 });
   }
 });
@@ -550,3 +555,35 @@ Ver la seccion "Probar el pago" de `docs/stripe-test-deploy.md` (tarjeta
 `4242 4242 4242 4242`, como forzar el caso sin cupo, como adelantar el
 reloj de una suscripcion en Stripe test mode para simular el cobro del
 mes siguiente).
+
+## Produccion (live mode) -- proyecto `MBA-STUDIO-PROD` (`nnabpthdclgggpxysyxs`)
+
+Las funciones son **las mismas 3 de arriba, sin cambios**: no hay codigo
+"de produccion" aparte, todo lo que cambia entre test y live son los
+secrets. Pasos, en orden, todos en el proyecto de PRODUCCION (no en
+`MBA-STUDIO`):
+
+- [ ] Migraciones `030_academy_registration_stripe.sql` y
+      `031_academy_tuition_stripe_auto_activation.sql` aplicadas (SQL
+      Editor). Produccion solo tenia hasta la 029.
+- [x] Secret `STRIPE_SECRET_KEY` = key **live** (la `rk_live_` pegada en un
+      chat el 2026-10-09 debe estar revocada; usar la nueva).
+- [ ] Si es restricted key (`rk_live_`): permisos Write en Checkout
+      Sessions, Subscriptions, Refunds y Customers; Read en Invoices y
+      Payment Intents.
+- [ ] Crear las 3 Edge Functions (2.1, 2.2, 2.3 de arriba).
+      `stripe-webhook` con "Enforce JWT Verification" **desactivado**; las
+      otras dos con JWT **activado**.
+- [ ] Stripe en **live mode** -> Developers -> Webhooks -> nuevo endpoint
+      `https://nnabpthdclgggpxysyxs.supabase.co/functions/v1/stripe-webhook`
+      con eventos `checkout.session.completed`, `invoice.paid`,
+      `invoice.payment_failed`. Su signing secret (`whsec_...`, distinto
+      al de test) va en el secret `STRIPE_WEBHOOK_SECRET` de produccion.
+- [ ] `business.academy_registration_fee_cents` y
+      `academy_tuition_periods` configurados en la base de produccion
+      (mismo SQL del Paso 3, con los grupos reales).
+- [ ] Nombre publico de la cuenta de Stripe = nombre real del negocio.
+- [ ] Frontend publicado en Cloudflare Pages apuntando a produccion (el
+      `success_url`/`cancel_url` se arma con el `origin` del navegador).
+- [ ] Prueba con tarjeta real: pago chico -> inscripcion `ACTIVA` ->
+      `academy_payments` con la fila del mes -> reembolsar desde Stripe.

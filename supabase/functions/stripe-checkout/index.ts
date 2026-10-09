@@ -3,7 +3,7 @@
 // (academy_tuition_periods), se cobra SOLO la mensualidad recurrente (sin
 // la cuota de inscripcion por separado -- decision de negocio). Si no
 // tiene colegiatura, se cobra la cuota de inscripcion unica de siempre.
-// Todos los alumnos con colegiatura se facturan el dia 1 de cada mes (ver
+// Todos los alumnos con colegiatura se facturan el dia 10 de cada mes (ver
 // docs/payments.md). La llama apps/web (usuario autenticado). No otorga
 // nada ni marca ningun pago: eso lo hace unicamente stripe-webhook cuando
 // Stripe confirma el pago.
@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
   if (tuitionCents && tuitionCents > 0) {
     // Grupo con colegiatura mensual: se cobra SOLO la mensualidad, sin la
     // cuota de inscripcion por separado (decision de negocio). Todos los
-    // alumnos con colegiatura se facturan el dia 1 de cada mes
+    // alumnos con colegiatura se facturan el dia 10 de cada mes
     // (billing_cycle_anchor_config), sin importar el dia en que se
     // inscribieron.
     lineItems.push({
@@ -119,7 +119,7 @@ Deno.serve(async (req) => {
     sessionParams.mode = "subscription";
     sessionParams.subscription_data = {
       metadata: { enrollment_id: enrollment.id },
-      billing_cycle_anchor_config: { day_of_month: 1 },
+      billing_cycle_anchor_config: { day_of_month: 10 },
     };
   } else {
     // Sin colegiatura configurada: cobro unico de la cuota de inscripcion,

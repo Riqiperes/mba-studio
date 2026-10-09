@@ -189,7 +189,7 @@ Deno.serve(async (req) => {
     sessionParams.mode = "subscription";
     sessionParams.subscription_data = {
       metadata: { enrollment_id: enrollment.id },
-      billing_cycle_anchor_config: { day_of_month: 1 },
+      billing_cycle_anchor_config: { day_of_month: 10 },
     };
   } else {
     // Sin colegiatura: cobro unico de la cuota de inscripcion, como antes.
@@ -288,14 +288,16 @@ async function handleCheckoutSessionCompleted(stripe, supabase, session) {
 
   if (subscriptionId && !paymentIntentId) {
     const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
-      expand: ["latest_invoice.payment_intent"],
+      expand: ["latest_invoice.payments"],
     });
     const latestInvoice = subscription.latest_invoice;
-    if (latestInvoice && typeof latestInvoice !== "string" && latestInvoice.payment_intent) {
+    const invoicePaymentIntent =
+      latestInvoice && typeof latestInvoice !== "string"
+        ? latestInvoice.payments?.data[0]?.payment.payment_intent
+        : undefined;
+    if (invoicePaymentIntent) {
       paymentIntentId =
-        typeof latestInvoice.payment_intent === "string"
-          ? latestInvoice.payment_intent
-          : latestInvoice.payment_intent.id;
+        typeof invoicePaymentIntent === "string" ? invoicePaymentIntent : invoicePaymentIntent.id;
     }
   }
 
@@ -339,7 +341,9 @@ async function handleCheckoutSessionCompleted(stripe, supabase, session) {
 }
 
 async function handleInvoiceEvent(supabase, invoice, status) {
-  const subscriptionId = typeof invoice.subscription === "string" ? invoice.subscription : null;
+  const invoiceSubscription = invoice.parent?.subscription_details?.subscription;
+  const subscriptionId =
+    typeof invoiceSubscription === "string" ? invoiceSubscription : invoiceSubscription?.id ?? null;
   if (!subscriptionId) return;
 
   const { data: enrollment, error: lookupError } = await supabase
@@ -438,6 +442,7 @@ Deno.serve(async (req) => {
     return new Response("ok", { status: 200 });
   } catch (error) {
     logError("stripe-webhook.procesamiento_fallo", error, { eventId: event.id, type: event.type });
+    await supabase.from("stripe_events").delete().eq("id", event.id);
     return new Response("Error interno", { status: 500 });
   }
 });
@@ -541,7 +546,7 @@ Deno.serve(async (req) => {
    configurada) -> **"Pagar inscripción e inscribir"** -> completar el
    modal (alumno + fecha de nacimiento si es nuevo).
 3. Redirige a Stripe Checkout hosted, mostrando **dos conceptos**: la
-   cuota de inscripción y la colegiatura (prorateada hasta el día 1). Usar
+   cuota de inscripción y la colegiatura (prorateada hasta el día 10). Usar
    la **tarjeta de prueba**:
    - Numero: `4242 4242 4242 4242`
    - Fecha de expiracion: cualquier fecha futura (ej. `12/34`)

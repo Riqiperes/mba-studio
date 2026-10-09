@@ -89,12 +89,12 @@ cobra por separado en ese caso (decision de negocio). Si el grupo no tiene
 colegiatura configurada, se cobra la cuota de inscripcion unica de
 siempre (modo `payment`), sin cambios.
 
-Todos los alumnos con colegiatura por Stripe se facturan el **dia 1 de
-cada mes** (`billing_cycle_anchor_config.day_of_month = 1`), sin importar
+Todos los alumnos con colegiatura por Stripe se facturan el **dia 10 de
+cada mes** (`billing_cycle_anchor_config.day_of_month = 10`), sin importar
 el dia en que se inscribieron -- decision de negocio, ver
 `docs/business-rules.md`. Sin `proration_behavior` explicito, Stripe usa
 el default (`create_prorations`): el primer cobro es **prorateado** por
-los dias restantes hasta el dia 1 (puede ser casi el monto completo si
+los dias restantes hasta el dia 10 (puede ser casi el monto completo si
 falta poco para esa fecha); los cobros siguientes son el monto completo.
 
 `stripe-webhook` escucha ademas:

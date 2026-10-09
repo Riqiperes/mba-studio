@@ -97,16 +97,20 @@ async function handleCheckoutSessionCompleted(
 
   if (subscriptionId && !paymentIntentId) {
     // Modo subscription: el pago inicial vive en la primera factura de la
-    // suscripcion, no en session.payment_intent.
+    // suscripcion, no en session.payment_intent. Desde la API 2025-03-31
+    // (basil) la factura ya no tiene `payment_intent`: el PaymentIntent
+    // esta dentro de `invoice.payments`.
     const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
-      expand: ["latest_invoice.payment_intent"],
+      expand: ["latest_invoice.payments"],
     });
     const latestInvoice = subscription.latest_invoice;
-    if (latestInvoice && typeof latestInvoice !== "string" && latestInvoice.payment_intent) {
+    const invoicePaymentIntent =
+      latestInvoice && typeof latestInvoice !== "string"
+        ? latestInvoice.payments?.data[0]?.payment.payment_intent
+        : undefined;
+    if (invoicePaymentIntent) {
       paymentIntentId =
-        typeof latestInvoice.payment_intent === "string"
-          ? latestInvoice.payment_intent
-          : latestInvoice.payment_intent.id;
+        typeof invoicePaymentIntent === "string" ? invoicePaymentIntent : invoicePaymentIntent.id;
     }
   }
 
@@ -159,7 +163,11 @@ async function handleInvoiceEvent(
   invoice: Stripe.Invoice,
   status: "PAGADO" | "NO_PAGADO",
 ): Promise<void> {
-  const subscriptionId = typeof invoice.subscription === "string" ? invoice.subscription : null;
+  // Desde la API 2025-03-31 (basil) la factura ya no tiene `subscription`
+  // directo: vive en `parent.subscription_details.subscription`.
+  const invoiceSubscription = invoice.parent?.subscription_details?.subscription;
+  const subscriptionId =
+    typeof invoiceSubscription === "string" ? invoiceSubscription : invoiceSubscription?.id ?? null;
   if (!subscriptionId) {
     // Factura sin suscripcion (no deberia pasar para colegiatura, pero no
     // hay nada que hacer aqui si ocurre).
@@ -266,6 +274,10 @@ Deno.serve(async (req) => {
     return new Response("ok", { status: 200 });
   } catch (error) {
     logError("stripe-webhook.procesamiento_fallo", error, { eventId: event.id, type: event.type });
+    // Se libera el event.id para que el reintento automatico de Stripe
+    // vuelva a procesarlo; si no, quedaria marcado como "ya procesado"
+    // sin haber hecho nada (ej. cobro hecho pero inscripcion sin marcar).
+    await supabase.from("stripe_events").delete().eq("id", event.id);
     return new Response("Error interno", { status: 500 });
   }
 });

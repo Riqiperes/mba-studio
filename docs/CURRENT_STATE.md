@@ -755,7 +755,7 @@ otro negocio (Studio packages, bookings, Academia) implementado todavia.
   Ampliado el 2026-09-28 (migración
   `031_academy_tuition_stripe_auto_activation.sql`) con: colegiatura
   mensual recurrente via Stripe Subscriptions (grupos con
-  `academy_tuition_periods` activo, cobro el día 1 de cada mes),
+  `academy_tuition_periods` activo, cobro el día 10 de cada mes),
   activación automática de la inscripción sin esperar al staff cuando hay
   cupo (reembolso automático + estado `RECHAZADA` si ya no hay lugar), y
   una tercera función `stripe-cancel-subscription` (cancela la suscripción
@@ -774,10 +774,15 @@ otro negocio (Studio packages, bookings, Academia) implementado todavia.
   de nuevo con tarjeta de test, confirmando activación instantánea con
   cupo disponible. Claves de test ya cargadas (`sk_test_...` como secret
   de Supabase, `pk_test_...` en `apps/web/.env`, sin uso en código —
-  checkout es hosted). Se obtuvo también una clave `sk_live_...` de
-  producción — **guardada aparte, sin usar**, hasta que el sitio esté
-  publicado en Cloudflare Pages y listo para cobros reales (ver bloqueador
-  de Cloudflare Pages arriba). El `supabase` CLI de esta máquina sigue
+  checkout es hosted). Key live de Stripe cargada como secret
+  `STRIPE_SECRET_KEY` en `MBA-STUDIO-PROD` (2026-10-09); faltan los demás
+  pasos de la sección "Produccion" de `docs/stripe-rollout-checklist.md`.
+  Corregido el 2026-10-09 en `stripe-webhook`: con la API `dahlia` las
+  facturas ya no traen `subscription`/`payment_intent` directo (ahora
+  `parent.subscription_details` / `payments`), lo que hacía que los cobros
+  mensuales no se registraran y que el checkout de colegiatura fallara;
+  además un evento que falla al procesarse ya no queda marcado como
+  procesado, para que el reintento de Stripe funcione. El `supabase` CLI de esta máquina sigue
   logueado a otra cuenta, por eso el despliegue es manual vía Dashboard.
   Google OAuth: documentado en `docs/` pero sin credenciales reales
   todavia.
