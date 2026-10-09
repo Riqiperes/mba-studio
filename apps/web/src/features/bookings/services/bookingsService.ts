@@ -66,16 +66,8 @@ type WaitlistWithClassRow = WaitlistRow & {
   } | null;
 };
 
-export async function listMyBookings(): Promise<BookingWithClass[]> {
-  const { data, error } = await supabase
-    .from("bookings")
-    .select(`${BOOKING_COLUMNS}, studio_classes(id, title, starts_at, ends_at, instructors(full_name))`)
-    .eq("status", "CONFIRMED")
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-
-  return (data as BookingWithClassRow[]).map((row) => ({
+function toBookingWithClass(row: BookingWithClassRow): BookingWithClass {
+  return {
     ...toBooking(row),
     class: row.studio_classes
       ? {
@@ -92,7 +84,36 @@ export async function listMyBookings(): Promise<BookingWithClass[]> {
           endsAt: "",
           instructorName: null,
         },
-  }));
+  };
+}
+
+export async function listMyBookings(): Promise<BookingWithClass[]> {
+  const { data, error } = await supabase
+    .from("bookings")
+    .select(`${BOOKING_COLUMNS}, studio_classes(id, title, starts_at, ends_at, instructors(full_name))`)
+    .eq("status", "CONFIRMED")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return (data as BookingWithClassRow[]).map(toBookingWithClass);
+}
+
+/**
+ * Reservaciones que la academia cancelo al cancelar la clase (trigger de la
+ * migracion 034, que ya devolvio el credito). Solo clases que aun no pasan:
+ * es el aviso de "Mi horario".
+ */
+export async function listMyBookingsCancelledByBusiness(): Promise<BookingWithClass[]> {
+  const { data, error } = await supabase
+    .from("bookings")
+    .select(`${BOOKING_COLUMNS}, studio_classes!inner(id, title, starts_at, ends_at, instructors(full_name))`)
+    .eq("status", "CANCELLED")
+    .eq("cancelled_by_business", true)
+    .gte("studio_classes.starts_at", new Date().toISOString())
+    .order("cancelled_at", { ascending: false });
+
+  if (error) throw error;
+  return (data as BookingWithClassRow[]).map(toBookingWithClass);
 }
 
 export async function listMyWaitlist(): Promise<WaitlistEntryWithClass[]> {

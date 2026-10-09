@@ -38,6 +38,14 @@ que desacopla el proveedor concreto de WhatsApp.
 
 ## Estado actual
 
+**Cola `notification_outbox` (migracion 034):** los eventos que deben
+avisarse se guardan ahi con `status = 'PENDING'`. Hoy solo la llena el
+trigger de clase cancelada (`CLASS_CANCELLED`, payload con `class_id`,
+`class_title`, `starts_at`, `booking_id`). **Nadie la consume todavia:**
+cuando exista el proveedor real de WhatsApp, un job (Edge Function con
+service role, por cron) lee las `PENDING`, llama a `notifications/` y marca
+`SENT`/`FAILED`. Ver `docs/roadmap.md` etapa 22.
+
 Edge Function `notifications/` implementada: recibe `{ type, to, variables
 }`, valida el tipo contra `NOTIFICATION_TEMPLATES`
 (`supabase/functions/notifications/templates.ts`, un tipo por cada evento

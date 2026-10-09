@@ -317,6 +317,7 @@ export type Database = {
         Row: {
           business_id: string
           cancelled_at: string | null
+          cancelled_by_business: boolean
           class_id: string
           created_at: string
           customer_id: string
@@ -328,6 +329,7 @@ export type Database = {
         Insert: {
           business_id: string
           cancelled_at?: string | null
+          cancelled_by_business?: boolean
           class_id: string
           created_at?: string
           customer_id: string
@@ -339,6 +341,7 @@ export type Database = {
         Update: {
           business_id?: string
           cancelled_at?: string | null
+          cancelled_by_business?: boolean
           class_id?: string
           created_at?: string
           customer_id?: string

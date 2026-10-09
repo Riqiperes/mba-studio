@@ -3,7 +3,19 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-10-08 (rama `feat/alertas-toast-confirmacion`):
+Ultima actualizacion: 2026-10-08 (rama `feat/cancelar-clase-reembolso`):
+- **Cancelar clase devuelve creditos**: antes solo cambiaba
+  `studio_classes.status` (reservaciones seguian `CONFIRMED`, credito
+  perdido, cliente sin aviso). Migracion
+  `034_cancel_class_refund_bookings.sql`: trigger que cancela las
+  reservaciones (`bookings.cancelled_by_business`), devuelve el credito,
+  vacia la lista de espera y deja el aviso en `notification_outbox`
+  (`PENDING`, nadie lo envia hasta que haya WhatsApp real). Web: aviso en
+  "Mi horario" ("La academia cancelo ... Tu credito ya regreso").
+  **La migracion 034 debe aplicarse en produccion antes de publicar este
+  front** (el texto de admin promete el reembolso).
+
+Actualizacion anterior: 2026-10-08 (rama `feat/alertas-toast-confirmacion`):
 - **Avisos (web y admin)**: `useAppFeedback()` (`components/ui/AppFeedbackProvider.tsx`
   + `AppFeedbackContext.ts`, montado en `main.tsx`) da `notify` (toast) y
   `confirm` (modal). Ya no queda ningun `window.confirm`. Toda accion que
