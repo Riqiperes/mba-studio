@@ -7,6 +7,7 @@ import { useCustomer } from "@/features/customers/hooks/useCustomers";
 import type { Dependent } from "@/features/dependents/types/Dependent";
 import { CustomerCreditsModal } from "@/features/credits/components/CustomerCreditsModal";
 import { useCustomerCredits } from "@/features/credits/hooks/useCustomerCredits";
+import { CustomerBookingsSection } from "@/features/bookings/components/CustomerBookingsSection";
 import { BackButton } from "@/components/ui/BackButton";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { LoadingState } from "@/components/ui/LoadingState";
@@ -292,6 +293,8 @@ export function CustomerDetailPage() {
         onClose={() => setCreditsModalMode(null)}
         onSubmit={creditsModalMode === "revoke" ? handleRevokeCredits : handleGrantCredits}
       />
+
+      <CustomerBookingsSection customerId={customerId} />
 
       <div className="mb-4 flex items-center justify-between">
         <h2 className="font-display text-subtitulo font-medium text-texto">Alumnos</h2>
