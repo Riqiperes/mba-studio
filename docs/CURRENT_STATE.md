@@ -3,7 +3,17 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-10-08 (rama `feat/cancelacion-4h-cupo-no-registrados`):
+Ultima actualizacion: 2026-10-08 (rama `feat/admin-reservas-cliente`):
+- **Reservaciones en la ficha del cliente (admin)**: seccion "Reservaciones"
+  en el detalle del cliente (`CustomerBookingsSection.tsx`): proximas
+  primero y luego el historial, con estado (proxima, pasada, cancelada con o
+  sin credito, cancelada por la academia) y enlace a la clase.
+- **Migraciones en dev**: 029, 034, 035 y 036 solo estaban en produccion
+  (`nnabpthdclgggpxysyxs`); localhost usa dev (`eazyblybekyygimqpjjw`) y
+  fallaba con "Could not find the function public.book_guest". Aplicadas
+  en dev el 2026-10-08. **Toda migracion nueva va a los dos proyectos.**
+
+Actualizacion anterior: 2026-10-08 (rama `feat/cancelacion-4h-cupo-no-registrados`):
 - **Cancelacion: 4 horas** (antes 8). `cancel_booking()` en migracion 036 y
   `CANCELLATION_REFUND_WINDOW_HOURS = 4` en `packages/shared` (los textos de
   web y admin salen de ahi).
