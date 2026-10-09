@@ -8,7 +8,7 @@ implemente.
 
 ## Decisiones ya tomadas (implementadas)
 
-1. **Ventana de cancelación de reservación (Studio):** **8 horas antes** de la clase para recuperar credito. Despues de esa ventana o no-show: se cobra el credito. Creditos expiran mensualmente (reset dia 1).
+1. **Ventana de cancelación de reservación (Studio):** **4 horas antes** de la clase para recuperar credito (antes 8; cambiado el 2026-10-08). Despues de esa ventana o no-show: se cobra el credito. Creditos expiran mensualmente (reset dia 1).
 
 2. **Lista de espera (Studio):** **Solo recordatorio manual**. Boton "Enviar notificacion" en admin cuando hay cupo. Sin cola FIFO automatizada, sin prioridad. El cliente reserva manualmente si hay cupo.
 

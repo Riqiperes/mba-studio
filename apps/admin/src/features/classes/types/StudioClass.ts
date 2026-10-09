@@ -48,3 +48,9 @@ export type UpdateClassInput = {
   endsAt?: string;
   maxCapacity?: number;
 };
+
+/** Ocupacion de una clase: reservaciones confirmadas y gente en lista de espera. */
+export type ClassOccupancy = {
+  booked: number;
+  waiting: number;
+};

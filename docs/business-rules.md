@@ -33,15 +33,28 @@ reservar.
 
 ## Cancelacion de reservaciones (Studio)
 
-- **Ventana de 8 horas antes del inicio de la clase** para cancelar y
+- **Ventana de 4 horas antes del inicio de la clase** para cancelar y
   recuperar el credito.
-- Cancelacion dentro de las 8 horas previas a la clase, o no-show:
+- Cancelacion dentro de las 4 horas previas a la clase, o no-show:
   **se cobra el credito** (no se devuelve).
 - La cancelacion la puede hacer el cliente (web) o el staff (admin).
+- Ventana cambiada de 8 a 4 horas el 2026-10-08 (decision de la duena,
+  migracion 036; antes 029 con 8 horas).
+
+## Clientes "No registrado" (Studio, solo admin)
+
+- El staff puede reservar a una persona escribiendo solo su nombre, sin
+  que tenga cuenta (`book_guest`, migracion 036). Tambien puede ponerla en
+  lista de espera y promoverla.
+- Ocupa un lugar del cupo como cualquier reservacion.
+- **Nunca usa creditos**: no cobra al reservar ni al promover, no
+  reembolsa al cancelar y no recibe avisos (no hay a quien avisar).
+- En las tablas de admin aparece con la etiqueta "No registrado" y sin
+  enlace a ficha de cliente.
 - **Si la academia cancela la clase** (`studio_classes.status` pasa a
   `CANCELLED`), el trigger de la migracion 034 cancela todas sus
   reservaciones con `cancelled_by_business = true`, devuelve 1 credito a
-  cada cliente sin importar la ventana de 8 horas, vacia la lista de espera
+  cada cliente sin importar la ventana de 4 horas, vacia la lista de espera
   y deja un aviso `CLASS_CANCELLED` en `notification_outbox`. El cliente lo
   ve en "Mi horario" (web) mientras la clase no haya pasado. Quien estaba
   en la lista de espera tambien recibe el aviso (migracion 035).
@@ -135,7 +148,7 @@ Falta de pago sostenida / solicitud del alumno -> Baja
 
 ## Notas
 
-Los valores numericos exactos (ventana de cancelacion 8h, reset mensual
+Los valores numericos exactos (ventana de cancelacion 4h, reset mensual
 dia 1, pago colegiatura dia 10, recargo por pago tardio 10%, capacidad max
 15) estan definidos aqui y deben implementarse en el mismo cambio que se
 agreguen.

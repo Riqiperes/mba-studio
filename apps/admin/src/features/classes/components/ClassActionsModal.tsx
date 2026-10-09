@@ -7,6 +7,8 @@ import type { StudioClass } from "../types/StudioClass";
 type Props = {
   studioClass: StudioClass | null;
   instructorName: string;
+  /** "Cupo 3/10 · 2 en espera" (classOccupancyLabel). */
+  capacityLabel: string;
   onClose: () => void;
   onEdit: (studioClass: StudioClass) => void;
   onCancel: (studioClass: StudioClass) => void;
@@ -21,7 +23,7 @@ function formatTime(iso: string): string {
  * Acciones de una clase al tocar su tarjeta (pensado para telefono: botones
  * grandes en vez de enlaces de texto chicos dentro de la tarjeta).
  */
-export function ClassActionsModal({ studioClass, instructorName, onClose, onEdit, onCancel, onDelete }: Props) {
+export function ClassActionsModal({ studioClass, instructorName, capacityLabel, onClose, onEdit, onCancel, onDelete }: Props) {
   // Cierra primero para que el confirm/modal siguiente no quede debajo de este dialog
   function run(action: (studioClass: StudioClass) => void) {
     if (!studioClass) return;
@@ -44,7 +46,7 @@ export function ClassActionsModal({ studioClass, instructorName, onClose, onEdit
       {studioClass && (
         <div className="flex flex-col gap-3">
           <p className="text-pequeno text-texto-suave">
-            {instructorName} · Cupo {studioClass.maxCapacity}
+            {instructorName} · {capacityLabel}
             {studioClass.status !== "SCHEDULED" && <span className="ms-2 font-medium text-alerta">Cancelada</span>}
           </p>
           <Link to={`/classes/${studioClass.id}`} className={`${buttonClasses("primary", "lg")} w-full`}>
