@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabaseClient";
 import type {
   ClassFilters,
+  ClassOccupancy,
   CreateClassesInput,
   CreateClassesResult,
   StudioClass,
@@ -174,4 +175,26 @@ export async function deleteClass(id: string): Promise<void> {
   const { error } = await supabase.from("studio_classes").delete().eq("id", id);
 
   if (error) throw error;
+}
+
+// Reservados (rpc class_booking_counts, 033: incluye "No registrados") y
+// lista de espera (staff la lee directo por RLS) de varias clases a la vez.
+export async function listClassOccupancy(classIds: string[]): Promise<Map<string, ClassOccupancy>> {
+  const [counts, waitlist] = await Promise.all([
+    supabase.rpc("class_booking_counts", { class_ids: classIds }),
+    supabase.from("waitlist").select("class_id").in("class_id", classIds),
+  ]);
+  if (counts.error) throw counts.error;
+  if (waitlist.error) throw waitlist.error;
+
+  const result = new Map<string, ClassOccupancy>(classIds.map((id) => [id, { booked: 0, waiting: 0 }]));
+  for (const row of counts.data) {
+    const entry = result.get(row.class_id);
+    if (entry) entry.booked = row.booked_count;
+  }
+  for (const row of waitlist.data) {
+    const entry = result.get(row.class_id);
+    if (entry) entry.waiting += 1;
+  }
+  return result;
 }

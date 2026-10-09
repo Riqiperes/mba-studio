@@ -7,7 +7,9 @@ export type Booking = {
   id: string;
   businessId: string;
   classId: string;
-  customerId: string;
+  /** null en reservas "No registrado" (solo nombre, ver guestName). */
+  customerId: string | null;
+  guestName: string | null;
   status: "CONFIRMED" | "CANCELLED";
   createdAt: string;
   updatedAt: string;
@@ -15,7 +17,8 @@ export type Booking = {
 
 /**
  * Usado en la tabla de reservados de una clase, con el nombre del cliente
- * y sus condiciones medicas (null si no tiene ninguna registrada).
+ * (o el guestName de un "No registrado") y sus condiciones medicas (null si
+ * no tiene ninguna registrada).
  */
 export type BookingWithCustomer = Booking & {
   customerName: string | null;

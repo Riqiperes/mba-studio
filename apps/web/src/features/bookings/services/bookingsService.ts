@@ -230,7 +230,9 @@ export async function joinWaitlist(classId: string, businessId?: string): Promis
     .single();
 
   if (error) throw error;
-  return toWaitlistEntry(data);
+  // customer_id es opcional en la tabla ("No registrado", migracion 036), pero
+  // esta fila la acaba de insertar este cliente con su propio id.
+  return toWaitlistEntry({ ...data, customer_id: data.customer_id ?? userId });
 }
 
 export async function leaveWaitlist(waitlistId: string): Promise<void> {

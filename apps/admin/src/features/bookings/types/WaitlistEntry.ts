@@ -6,7 +6,9 @@ export type WaitlistEntry = {
   id: string;
   businessId: string;
   classId: string;
-  customerId: string;
+  /** null en "No registrado" (solo nombre, ver guestName). */
+  customerId: string | null;
+  guestName: string | null;
   createdAt: string;
 };
 
