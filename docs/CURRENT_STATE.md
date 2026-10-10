@@ -111,8 +111,8 @@ Actualizacion anterior: 2026-10-03 (rama `feat/password-reset-web-fixes`):
 - **Horarios (web)**: semana y filtro de fechas en hora local (antes UTC:
   despues de las 6 pm la semana se corria y se perdian clases de la
   noche); cupo real de todos los clientes con la RPC publica de solo
-  lectura `class_booking_counts` (**migracion 033: aplicada en dev, falta en
-  prod**; sin ella la web sigue funcionando como antes); confirmacion al
+  lectura `class_booking_counts` (migracion 033: aplicada en dev y en prod,
+  verificado en prod el 2026-10-10); confirmacion al
   cancelar con la regla de 8 horas; errores de reservar/cancelar visibles;
   enlaces "Ver mi horario" y "Ver detalle".
 - **Nombre**: "MBA MID" pasa a "MBA" / "Merida Ballet Academy" en la UI,
