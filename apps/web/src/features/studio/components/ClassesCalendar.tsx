@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ClassCapacityBar } from "@/components/ui/ClassCapacityBar";
 import { formatTimeParts } from "@/utils/dateUtils";
 
 export interface ClassBookingState {
@@ -12,6 +13,8 @@ export interface ClassBookingState {
   waitlistId: string | null;
   waitlistPosition: number | null;
   hasCapacity: boolean;
+  /** Reservas CONFIRMED de todos los clientes (solo el numero, RPC class_booking_counts). */
+  bookedCount: number;
   bookingId: string | null;
 }
 
@@ -249,8 +252,9 @@ function ClassRow({ cls, action }: { cls: ClassWithBookingState; action: ReactNo
         <p className="text-pequeno text-texto-suave">{meta}</p>
         <p className="flex items-center gap-1.5 text-pequeno text-texto-suave">
           <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${cls.status === "SCHEDULED" ? "bg-exito" : "bg-alerta"}`} />
-          {getStatusLabel(cls.status)} · Cupo de {cls.maxCapacity}
+          {getStatusLabel(cls.status)}
         </p>
+        <ClassCapacityBar booked={cls.bookingState.bookedCount} capacity={cls.maxCapacity} />
       </div>
       <div className="col-start-2 flex flex-wrap items-center gap-2">
         {action}
@@ -333,8 +337,9 @@ function FannedClassCard({
             <p className="text-pequeno text-texto-suave">{meta}</p>
             <p className="flex items-center gap-1.5 text-pequeno text-texto-suave">
               <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${cls.status === "SCHEDULED" ? "bg-exito" : "bg-alerta"}`} />
-              {getStatusLabel(cls.status)} · Cupo de {cls.maxCapacity}
+              {getStatusLabel(cls.status)}
             </p>
+            <ClassCapacityBar booked={cls.bookingState.bookedCount} capacity={cls.maxCapacity} />
             <div className="flex flex-wrap items-center gap-2">
               {action}
               <Link to={`/classes/${cls.id}`} className={buttonClasses("ghost", "sm")}>

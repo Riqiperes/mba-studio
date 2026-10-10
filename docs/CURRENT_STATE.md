@@ -3,7 +3,17 @@
 > Actualizar este archivo despues de cada cambio importante. Es la memoria
 > del proyecto entre sesiones de trabajo (humanas o de IA).
 
-Ultima actualizacion: 2026-10-08 (rama `feat/admin-reservas-cliente`):
+Ultima actualizacion: 2026-10-10 (rama `fix/cupo-clases`):
+- **Barra de cupo** (`ClassCapacityBar.tsx`, una copia en cada app): "6/10
+  inscritos" con barra; en rojo y "Llena" al llegar al cupo. Web: tarjetas
+  del horario y detalle de la clase, solo el numero (RPC
+  `class_booking_counts`, nunca nombres). Admin: tarjetas del calendario,
+  modal de acciones y pagina de reservados.
+- **Inscritos en el modal de la clase (admin)**: lista desplegable
+  (`ClassEnrolledCustomersList.tsx`) debajo de los detalles, con enlace a la
+  ficha de cada cliente y "(no registrado)" para invitados.
+
+Actualizacion anterior: 2026-10-08 (rama `feat/admin-reservas-cliente`):
 - **Reservaciones en la ficha del cliente (admin)**: seccion "Reservaciones"
   en el detalle del cliente (`CustomerBookingsSection.tsx`): proximas
   primero y luego el historial, con estado (proxima, pasada, cancelada con o

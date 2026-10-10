@@ -10,5 +10,12 @@
     "ponytail@ponytail": true,
     "caveman@caveman": true,
     "skill-creator@claude-plugins-official": true
+  },
+  
+  "permissions": {
+    "allow": [
+      "Bash(npx supabase@2.120.0 db query --linked --project-ref nnabpthdclgggpxysyxs:*)"
+    ]
   }
+  
 }

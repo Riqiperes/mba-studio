@@ -2,13 +2,16 @@ import { Link } from "react-router-dom";
 import { ModalDialog } from "@/components/ui/ModalDialog";
 import { Button } from "@/components/ui/Button";
 import { buttonClasses } from "@/components/ui/buttonStyles";
-import type { StudioClass } from "../types/StudioClass";
+import { ClassCapacityBar } from "@/components/ui/ClassCapacityBar";
+import { ClassEnrolledCustomersList } from "@/features/bookings/components/ClassEnrolledCustomersList";
+import type { ClassOccupancy, StudioClass } from "../types/StudioClass";
+import { classOccupancyLabel } from "../utils/classOccupancyLabel";
 
 type Props = {
   studioClass: StudioClass | null;
   instructorName: string;
-  /** "Cupo 3/10 · 2 en espera" (classOccupancyLabel). */
-  capacityLabel: string;
+  /** Reservados y lista de espera (useClassOccupancy). */
+  occupancy: ClassOccupancy | undefined;
   onClose: () => void;
   onEdit: (studioClass: StudioClass) => void;
   onCancel: (studioClass: StudioClass) => void;
@@ -23,7 +26,7 @@ function formatTime(iso: string): string {
  * Acciones de una clase al tocar su tarjeta (pensado para telefono: botones
  * grandes en vez de enlaces de texto chicos dentro de la tarjeta).
  */
-export function ClassActionsModal({ studioClass, instructorName, capacityLabel, onClose, onEdit, onCancel, onDelete }: Props) {
+export function ClassActionsModal({ studioClass, instructorName, occupancy, onClose, onEdit, onCancel, onDelete }: Props) {
   // Cierra primero para que el confirm/modal siguiente no quede debajo de este dialog
   function run(action: (studioClass: StudioClass) => void) {
     if (!studioClass) return;
@@ -46,9 +49,15 @@ export function ClassActionsModal({ studioClass, instructorName, capacityLabel, 
       {studioClass && (
         <div className="flex flex-col gap-3">
           <p className="text-pequeno text-texto-suave">
-            {instructorName} · {capacityLabel}
+            {instructorName}
             {studioClass.status !== "SCHEDULED" && <span className="ms-2 font-medium text-alerta">Cancelada</span>}
           </p>
+          <ClassCapacityBar
+            booked={occupancy?.booked ?? 0}
+            capacity={studioClass.maxCapacity}
+            label={classOccupancyLabel(studioClass.maxCapacity, occupancy)}
+          />
+          <ClassEnrolledCustomersList classId={studioClass.id} businessId={studioClass.businessId} />
           <Link to={`/classes/${studioClass.id}`} className={`${buttonClasses("primary", "lg")} w-full`}>
             Ver reservaciones
           </Link>
