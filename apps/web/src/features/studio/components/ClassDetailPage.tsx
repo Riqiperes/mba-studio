@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { CalendarDays, Clock, MessageCircle, Smartphone, User, Users } from "lucide-react";
 import { listUpcomingClasses } from "@/features/studio/services/studioClassesService";
@@ -8,6 +8,8 @@ import { BackButton } from "@/components/ui/BackButton";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { ClassCapacityBar } from "@/components/ui/ClassCapacityBar";
+import { useClassBookingCounts } from "@/features/studio/hooks/useClassBookingCounts";
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("es-MX", {
@@ -38,6 +40,8 @@ export function ClassDetailPage() {
   const [cls, setCls] = useState<StudioClassWithInstructor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const classIds = useMemo(() => (classId ? [classId] : []), [classId]);
+  const { counts } = useClassBookingCounts(classIds);
 
   useEffect(() => {
     async function loadClass() {
@@ -124,6 +128,10 @@ export function ClassDetailPage() {
               </div>
             ))}
           </dl>
+
+          <div id="class-detail-capacity" className="rounded-card border border-borde bg-tarjeta p-4 shadow-card">
+            <ClassCapacityBar booked={counts.get(cls.id) ?? 0} capacity={cls.maxCapacity} />
+          </div>
         </section>
 
         <aside

@@ -6,7 +6,6 @@ import { ClassesWeekGrid } from "@/features/classes/components/ClassesWeekGrid";
 import { WeekSelector } from "@/features/classes/components/WeekSelector";
 import { useClasses } from "@/features/classes/hooks/useClasses";
 import { useClassOccupancy } from "@/features/classes/hooks/useClassOccupancy";
-import { classOccupancyLabel } from "@/features/classes/utils/classOccupancyLabel";
 import type { ClassFilters, StudioClass } from "@/features/classes/types/StudioClass";
 import { formatDateKey, getWeekDays, getWeekStart } from "@/features/classes/utils/weekUtils";
 import { useInstructors } from "@/features/instructors/hooks/useInstructors";
@@ -133,7 +132,7 @@ export function ClassesPage() {
       <ClassActionsModal
         studioClass={selectedClass}
         instructorName={instructors.find((i) => i.id === selectedClass?.instructorId)?.fullName ?? "—"}
-        capacityLabel={selectedClass ? classOccupancyLabel(selectedClass.maxCapacity, occupancy.get(selectedClass.id)) : ""}
+        occupancy={selectedClass ? occupancy.get(selectedClass.id) : undefined}
         onClose={() => setSelectedClass(null)}
         onEdit={openEdit}
         onCancel={handleCancel}
