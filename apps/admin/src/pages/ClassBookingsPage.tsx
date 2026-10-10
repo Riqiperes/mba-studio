@@ -7,6 +7,8 @@ import { useClasses } from "@/features/classes/hooks/useClasses";
 import { useCustomers } from "@/features/customers/hooks/useCustomers";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import { BackButton } from "@/components/ui/BackButton";
+import { ClassCapacityBar } from "@/components/ui/ClassCapacityBar";
+import { classOccupancyLabel } from "@/features/classes/utils/classOccupancyLabel";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -184,11 +186,14 @@ export function ClassBookingsPage() {
       <BackButton />
       <p className="etiqueta mb-2">Estudio · Clase</p>
       <h1 className="mb-1 font-display text-titulo font-medium text-texto">{studioClass.title}</h1>
-      <p className="mb-4 text-sm text-texto-suave">
-        Cupo: {bookings.length}/{studioClass.maxCapacity}
-        {waitlist.length > 0 && ` · ${waitlist.length} en lista de espera`}
-        {studioClass.status !== "SCHEDULED" && <span className="ms-2 font-medium text-alerta">Cancelada</span>}
-      </p>
+      {studioClass.status !== "SCHEDULED" && <p className="mb-2 text-sm font-medium text-alerta">Cancelada</p>}
+      <div id="class-bookings-capacity" className="mb-4 max-w-sm">
+        <ClassCapacityBar
+          booked={bookings.length}
+          capacity={studioClass.maxCapacity}
+          label={classOccupancyLabel(studioClass.maxCapacity, { booked: bookings.length, waiting: waitlist.length })}
+        />
+      </div>
 
       <div id="class-detail-actions" className="mb-6 flex flex-wrap gap-2">
         {studioClass.status === "SCHEDULED" && (

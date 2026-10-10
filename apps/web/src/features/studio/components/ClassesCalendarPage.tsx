@@ -80,6 +80,7 @@ export function ClassesCalendarPage() {
         waitlistId: myWaitlist?.id ?? null,
         waitlistPosition: myWaitlist?.position ?? null,
         hasCapacity,
+        bookedCount: currentCount,
         bookingId: myBooking?.id ?? null,
       };
 
