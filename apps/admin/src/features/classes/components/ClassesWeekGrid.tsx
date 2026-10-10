@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import type { Instructor } from "@/features/instructors/types/Instructor";
 import type { ClassOccupancy, StudioClass } from "../types/StudioClass";
 import { classOccupancyLabel } from "../utils/classOccupancyLabel";
+import { ClassCapacityBar } from "@/components/ui/ClassCapacityBar";
 import { formatDateKey, getWeekDays } from "../utils/weekUtils";
 
 const DAY_LABELS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -95,7 +96,7 @@ export function ClassesWeekGrid({ weekStart, classes, instructors, occupancy, on
                   key={studioClass.id}
                   studioClass={studioClass}
                   instructorName={instructorName(studioClass.instructorId)}
-                  capacityLabel={classOccupancyLabel(studioClass.maxCapacity, occupancy.get(studioClass.id))}
+                  occupancy={occupancy.get(studioClass.id)}
                   onOpen={onOpen}
                 />
               ))}
@@ -129,7 +130,7 @@ export function ClassesWeekGrid({ weekStart, classes, instructors, occupancy, on
                 <FannedClassCard
                   studioClass={dayClasses[0]!}
                   instructorName={instructorName(dayClasses[0]!.instructorId)}
-                  capacityLabel={classOccupancyLabel(dayClasses[0]!.maxCapacity, occupancy.get(dayClasses[0]!.id))}
+                  occupancy={occupancy.get(dayClasses[0]!.id)}
                   isOpen
                   {...actionHandlers}
                 />
@@ -140,7 +141,7 @@ export function ClassesWeekGrid({ weekStart, classes, instructors, occupancy, on
                       key={studioClass.id}
                       studioClass={studioClass}
                       instructorName={instructorName(studioClass.instructorId)}
-                      capacityLabel={classOccupancyLabel(studioClass.maxCapacity, occupancy.get(studioClass.id))}
+                      occupancy={occupancy.get(studioClass.id)}
                       isOpen={activeId === studioClass.id}
                       stacked={{
                         index: cardIndex,
@@ -169,12 +170,12 @@ function formatTime(iso: string): string {
 function MobileClassCard({
   studioClass,
   instructorName,
-  capacityLabel,
+  occupancy,
   onOpen,
 }: {
   studioClass: StudioClass;
   instructorName: string;
-  capacityLabel: string;
+  occupancy: ClassOccupancy | undefined;
   onOpen: (studioClass: StudioClass) => void;
 }) {
   const isCancelled = studioClass.status !== "SCHEDULED";
@@ -192,7 +193,9 @@ function MobileClassCard({
         {formatTime(studioClass.startsAt)}–{formatTime(studioClass.endsAt)}
       </span>
       <span className="block text-texto-suave">{instructorName}</span>
-      <span className="block text-texto-suave">{capacityLabel}</span>
+      <span className="mt-1.5 block">
+        <ClassCapacityBar booked={occupancy?.booked ?? 0} capacity={studioClass.maxCapacity} label={classOccupancyLabel(studioClass.maxCapacity, occupancy)} />
+      </span>
       {isCancelled && <span className="mt-1 block font-medium text-alerta">Cancelada</span>}
     </button>
   );
@@ -214,7 +217,7 @@ type StackedCardProps = {
 function FannedClassCard({
   studioClass,
   instructorName,
-  capacityLabel,
+  occupancy,
   isOpen,
   stacked,
   onEdit,
@@ -223,7 +226,7 @@ function FannedClassCard({
 }: {
   studioClass: StudioClass;
   instructorName: string;
-  capacityLabel: string;
+  occupancy: ClassOccupancy | undefined;
   isOpen: boolean;
   stacked?: StackedCardProps | undefined;
 } & ActionHandlers) {
@@ -272,7 +275,7 @@ function FannedClassCard({
               Ver detalle
             </Link>
             <p className="text-texto-suave">{instructorName}</p>
-            <p className="text-texto-suave">{capacityLabel}</p>
+            <ClassCapacityBar booked={occupancy?.booked ?? 0} capacity={studioClass.maxCapacity} label={classOccupancyLabel(studioClass.maxCapacity, occupancy)} />
             {isCancelled && <p className="font-medium text-alerta">Cancelada</p>}
             <div className="-ms-1.5 flex flex-wrap gap-x-1">
               <button type="button" onClick={() => onEdit(studioClass)} className={`${actionClasses} text-acento`}>
